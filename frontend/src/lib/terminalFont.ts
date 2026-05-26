@@ -23,17 +23,8 @@ export function parseStoredFontFamily(stored?: string | null): string {
 
 /** Builds the CSS font-family value used by xterm. */
 export function formatFontFamilyForTerminal(stored?: string | null): string {
-    const trimmed = stored?.trim();
-    if (!trimmed) {
-        return `"${DEFAULT_TERMINAL_FONT_NAME}", monospace`;
-    }
-    if (trimmed.includes(",")) {
-        return trimmed;
-    }
-    if (/\s/.test(trimmed)) {
-        return `"${trimmed}", monospace`;
-    }
-    return `${trimmed}, monospace`;
+    const name = parseStoredFontFamily(stored);
+    return `"${name}", monospace`;
 }
 
 export function fontFamilyPreviewCss(family: string): string {

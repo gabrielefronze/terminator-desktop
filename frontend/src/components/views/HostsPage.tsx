@@ -19,7 +19,9 @@ import {
 } from "@/components/views/HostGroupSection";
 import { DraggableHostCard } from "@/components/views/DraggableHostCard";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
-import { useHosts, useSaveHost, useDeleteHost } from "@/hooks/useHosts";
+import { useSaveHost, useDeleteHost } from "@/hooks/useHosts";
+import { useHostsWithoutBuiltin } from "@/hooks/useResolvedLocalhostHost";
+import { buildSessionFromHost } from "@/lib/connectHost";
 import {
     useHostGroups,
     useSaveHostGroup,
@@ -27,14 +29,13 @@ import {
 } from "@/hooks/useHostGroups";
 import { useKeys } from "@/hooks/useKeys";
 import { useIdentities } from "@/hooks/useIdentities";
-import { resolveHostCredentials } from "@/lib/resolveHostCredentials";
 import { useSessionStore } from "@/store/sessionStore";
 import { Host, HostGroup } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import { buildHostTree, filterHostTree } from "@/lib/hostTree";
 
 export function HostsPage() {
     const { t } = useTranslation(["hosts", "common"]);
-    const { data: hosts, isLoading } = useHosts();
+    const { data: hosts, isLoading } = useHostsWithoutBuiltin();
     const { data: groups } = useHostGroups();
     const { data: keys } = useKeys();
     const { data: identities } = useIdentities();
@@ -163,18 +164,7 @@ export function HostsPage() {
     };
 
     const handleConnect = (host: Host) => {
-        const creds = resolveHostCredentials(host, keys, identities);
-
-        addSession({
-            host: host.host,
-            port: host.port,
-            username: creds.username,
-            password: creds.password,
-            privateKey: creds.privateKey,
-            title: host.name || host.host,
-            icon: host.icon,
-            color: host.color,
-        });
+        addSession(buildSessionFromHost(host, keys, identities));
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -221,7 +211,7 @@ export function HostsPage() {
 
     const showEmptyState =
         !isLoading &&
-        hosts?.length === 0 &&
+        (hosts?.length ?? 0) === 0 &&
         (groups?.length ?? 0) === 0;
 
     return (

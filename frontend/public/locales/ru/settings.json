@@ -25,6 +25,8 @@
   "terminal_font_no_results": "Шрифты не найдены",
   "terminal_font_size_label": "Размер шрифта терминала",
   "terminal_reset_font_btn": "Сбросить по умолчанию",
+  "show_localhost_host_label": "Показывать Localhost",
+  "show_localhost_host_desc": "Показывать в боковой панели значок локальной оболочки на этом компьютере.",
   "switch_server_title": "Сменить сервер",
   "connect_cloud_title": "Подключиться к облаку",
   "switch_warning": "В данный момент вы подключены к {{url}}. Смена сервера приведет к загрузке ваших локальных зашифрованных данных на новый сервер.",

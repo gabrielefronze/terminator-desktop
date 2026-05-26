@@ -11,6 +11,7 @@ export interface TerminalSession {
 }
 
 export interface CreateSessionParams {
+    local?: boolean;
     host: string;
     port: number;
     username: string;
@@ -39,6 +40,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
         const fullConfig = new SSHConnectionConfig({
             id: newId,
+            local: params.local ?? false,
             host: params.host,
             port: params.port,
             username: params.username,

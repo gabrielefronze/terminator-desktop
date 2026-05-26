@@ -8,6 +8,7 @@ import {
     Globe,
     AlertTriangle,
     Type,
+    Monitor,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SwitchServerModal } from "@/components/views/SwitchServerModal";
@@ -36,6 +37,8 @@ import {
     parseStoredFontFamily,
 } from "@/lib/terminalFont";
 import { TerminalFontSelect } from "@/components/views/TerminalFontSelect";
+import { Switch } from "@/components/ui/switch";
+import { useLocalhostHostSetting } from "@/hooks/useLocalhostHostSetting";
 
 export function SettingsPage() {
     const {t, i18n} = useTranslation(["settings", "common", "errors"]);
@@ -49,6 +52,11 @@ export function SettingsPage() {
     const { data: settings } = useSettings();
     const { data: systemFonts, isLoading: isFontsLoading } = useSystemFonts();
     const saveSettingsMutation = useSaveSettings();
+    const {
+        enabled: localhostHostEnabled,
+        setEnabled: setLocalhostHostEnabled,
+        isPending: isLocalhostHostPending,
+    } = useLocalhostHostSetting();
     const [terminalFontFamily, setTerminalFontFamily] = useState(
         DEFAULT_TERMINAL_FONT_NAME,
     );
@@ -224,6 +232,34 @@ export function SettingsPage() {
                                 <SelectItem value="ru">Русский</SelectItem>
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    <div className="h-px w-full bg-border" />
+
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div
+                                className="flex size-10 shrink-0 items-center justify-center
+                                           rounded-lg bg-primary/10 text-primary"
+                            >
+                                <Monitor className="size-5" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-sm font-medium text-foreground">
+                                    {t("show_localhost_host_label")}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("show_localhost_host_desc")}
+                                </span>
+                            </div>
+                        </div>
+                        <Switch
+                            checked={localhostHostEnabled}
+                            disabled={isLocalhostHostPending}
+                            onCheckedChange={(checked) =>
+                                void setLocalhostHostEnabled(checked)
+                            }
+                        />
                     </div>
 
                     <div className="h-px w-full bg-border" />

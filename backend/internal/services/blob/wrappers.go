@@ -31,6 +31,10 @@ func (s *HostService) GetAll(ctx context.Context) ([]Host, error) {
 	return getAllItems[Host](ctx, s.q, s.v, TypeHost)
 }
 
+func (s *HostService) BuiltinLocalhost() Host {
+	return defaultLocalhostHost()
+}
+
 func (s *HostService) Delete(ctx context.Context, id string) error {
 	return deleteItem(ctx, s.q, id)
 }

@@ -16,6 +16,7 @@ type AppSettings struct {
 	Language           string `json:"language"`
 	TerminalFontFamily string `json:"terminalFontFamily"`
 	TerminalFontSize   int    `json:"terminalFontSize"`
+	ShowLocalhostHost  bool   `json:"showLocalhostHost"`
 }
 
 func normalizeSettings(settings AppSettings) AppSettings {
@@ -50,6 +51,7 @@ func (s *SettingsService) GetSettings() (AppSettings, error) {
 		Language:           "en",
 		TerminalFontFamily: DefaultTerminalFontFamily,
 		TerminalFontSize:   DefaultTerminalFontSize,
+		ShowLocalhostHost:  true,
 	}
 
 	data, err := os.ReadFile(s.configPath)

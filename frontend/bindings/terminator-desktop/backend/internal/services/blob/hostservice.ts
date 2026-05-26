@@ -9,6 +9,12 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 // @ts-ignore: Unused imports
 import * as $models from "./models.js";
 
+export function BuiltinLocalhost(): $CancellablePromise<$models.Host> {
+    return $Call.ByID(2305178458).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
 export function Delete(id: string): $CancellablePromise<void> {
     return $Call.ByID(1313366989, id);
 }

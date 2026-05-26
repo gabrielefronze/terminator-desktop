@@ -7,6 +7,7 @@ import { Create as $Create } from "@wailsio/runtime";
 
 export class SSHConnectionConfig {
     "id": string;
+    "local": boolean;
     "host": string;
     "port": number;
     "username": string;
@@ -17,6 +18,9 @@ export class SSHConnectionConfig {
     constructor($$source: Partial<SSHConnectionConfig> = {}) {
         if (!("id" in $$source)) {
             this["id"] = "";
+        }
+        if (!("local" in $$source)) {
+            this["local"] = false;
         }
         if (!("host" in $$source)) {
             this["host"] = "";

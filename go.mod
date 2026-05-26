@@ -4,6 +4,7 @@ go 1.25.0
 
 require (
 	github.com/adrg/sysfont v0.1.2
+	github.com/creack/pty v1.1.24
 	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/google/uuid v1.6.0
 	github.com/mattn/go-sqlite3 v1.14.22

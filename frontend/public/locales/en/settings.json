@@ -25,6 +25,8 @@
   "terminal_font_no_results": "No matching fonts",
   "terminal_font_size_label": "Terminal font size",
   "terminal_reset_font_btn": "Reset to defaults",
+  "show_localhost_host_label": "Show Localhost",
+  "show_localhost_host_desc": "Show a sidebar icon that opens a local shell on this machine.",
   "switch_server_title": "Switch Server",
   "connect_cloud_title": "Connect to Cloud",
   "switch_warning": "You are currently connected to {{url}}. Switching will upload your local encrypted data to the new server.",

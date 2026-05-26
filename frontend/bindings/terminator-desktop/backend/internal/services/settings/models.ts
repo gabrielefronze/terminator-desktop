@@ -9,6 +9,7 @@ export class AppSettings {
     "language": string;
     "terminalFontFamily": string;
     "terminalFontSize": number;
+    "showLocalhostHost": boolean;
 
     /** Creates a new AppSettings instance. */
     constructor($$source: Partial<AppSettings> = {}) {
@@ -21,6 +22,9 @@ export class AppSettings {
         if (!("terminalFontSize" in $$source)) {
             this["terminalFontSize"] = 0;
         }
+        if (!("showLocalhostHost" in $$source)) {
+            this["showLocalhostHost"] = false;
+        }
 
         Object.assign(this, $$source);
     }
@@ -31,5 +35,37 @@ export class AppSettings {
     static createFrom($$source: any = {}): AppSettings {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new AppSettings($$parsedSource as Partial<AppSettings>);
+    }
+}
+
+/**
+ * TerminalFontFace describes how the frontend should load the terminal font.
+ */
+export class TerminalFontFace {
+    /**
+     * Family is the CSS font-family value for xterm (may be a @font-face alias).
+     */
+    "family": string;
+
+    /**
+     * CSS is an optional @font-face rule (data URL) when a system file was resolved.
+     */
+    "css"?: string;
+
+    /** Creates a new TerminalFontFace instance. */
+    constructor($$source: Partial<TerminalFontFace> = {}) {
+        if (!("family" in $$source)) {
+            this["family"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new TerminalFontFace instance from a string or object.
+     */
+    static createFrom($$source: any = {}): TerminalFontFace {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new TerminalFontFace($$parsedSource as Partial<TerminalFontFace>);
     }
 }

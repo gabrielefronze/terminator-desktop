@@ -6,6 +6,7 @@ import { SyncStatus } from "../../../bindings/terminator-desktop/backend/interna
 import { useSyncStore } from "@/store/syncStore.ts";
 import { useTranslation } from "react-i18next";
 import { UpdatePopover } from "@/components/layout/UpdatePopover.tsx";
+import { LocalhostSidebarButton } from "@/components/layout/LocalhostSidebarButton";
 
 export function Sidebar() {
     const { t } = useTranslation(["hosts", "update"]);
@@ -44,6 +45,8 @@ export function Sidebar() {
                 )}
             >
                 <nav className="flex flex-col gap-2">
+                    <LocalhostSidebarButton />
+
                     <Button
                         variant={
                             activeView === ViewType.Hosts

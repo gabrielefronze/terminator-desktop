@@ -10,6 +10,10 @@ import "@xterm/xterm/css/xterm.css";
 import { SSHConnectionConfig, SshService } from "../../../bindings/terminator-desktop/backend/internal/services/ssh";
 import { useTranslation } from "react-i18next";
 import { AppEvent } from "@/lib/events.ts";
+import {
+    applyUnicode11Addon,
+    resolveTerminalFontFamily,
+} from "@/lib/terminalSetup";
 
 interface TerminalInstanceProps {
     sessionId: string;
@@ -31,9 +35,6 @@ export function TerminalInstance({sessionId, isActive, config}: TerminalInstance
         if (!terminalRef.current) return;
         const appError = parseAppError(error);
 
-        // TODO think of something better
-        // \x1b[0m = reset formatting
-        // \x1b[31m = red
         console.log(appError)
         const translated = t("error_message", { message: appError.message, error: appError.detailsString })
         terminalRef.current.write(`\r\n\x1b[31m${translated}\x1b[0m\r\n`)
@@ -42,89 +43,114 @@ export function TerminalInstance({sessionId, isActive, config}: TerminalInstance
     useEffect(() => {
         if (!containerRef.current || terminalRef.current) return;
         const container = containerRef.current;
+        let disposed = false;
 
-        const term = new Terminal(buildTerminalOptions(settings));
-        const fitAddon = new FitAddon();
+        const init = async () => {
+            const fontFamily = await resolveTerminalFontFamily(
+                settings?.terminalFontFamily,
+            );
+            if (disposed || !containerRef.current) return;
 
-        term.loadAddon(fitAddon);
-        term.open(containerRef.current);
+            const term = new Terminal({
+                ...buildTerminalOptions(settings),
+                fontFamily,
+            });
+            const fitAddon = new FitAddon();
 
-        terminalRef.current = term;
-        fitAddonRef.current = fitAddon;
+            applyUnicode11Addon(term);
+            term.loadAddon(fitAddon);
+            term.open(containerRef.current);
 
-        term.attachCustomKeyEventHandler((arg) => {
-            if (arg.type === "keydown") {
-                if (arg.ctrlKey && arg.shiftKey && arg.code === "KeyC") {
-                    arg.preventDefault();
-                    const selection = term.getSelection();
-                    if (selection) {
-                        navigator.clipboard.writeText(selection).catch(console.error);
+            terminalRef.current = term;
+            fitAddonRef.current = fitAddon;
+
+            term.attachCustomKeyEventHandler((arg) => {
+                if (arg.type === "keydown") {
+                    if (arg.ctrlKey && arg.shiftKey && arg.code === "KeyC") {
+                        arg.preventDefault();
+                        const selection = term.getSelection();
+                        if (selection) {
+                            navigator.clipboard.writeText(selection).catch(console.error);
+                        }
+                        return false;
                     }
-                    return false;
-                }
 
-                if (arg.ctrlKey && arg.shiftKey && arg.code === "KeyV") {
-                    arg.preventDefault();
+                    if (arg.ctrlKey && arg.shiftKey && arg.code === "KeyV") {
+                        arg.preventDefault();
+                        navigator.clipboard.readText().then((text) => {
+                            if (text && isReadyRef.current) {
+                                term.paste(text);
+                            }
+                        }).catch(console.error);
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            const handleContextMenu = (e: MouseEvent) => {
+                e.preventDefault();
+
+                const selection = term.getSelection();
+                if (selection) {
+                    navigator.clipboard.writeText(selection).catch(console.error);
+                    term.clearSelection();
+                } else {
                     navigator.clipboard.readText().then((text) => {
                         if (text && isReadyRef.current) {
-                            term.paste(text);
+                            SshService.Input(sessionId, text).catch(printErrorToTerminal);
                         }
                     }).catch(console.error);
-                    return false;
                 }
+            };
+            container.addEventListener("contextmenu", handleContextMenu);
+
+            if (!hasConnectedRef.current) {
+                hasConnectedRef.current = true;
+                SshService.Connect(config)
+                    .then(() => {
+                        isReadyRef.current = true;
+
+                        if (terminalRef.current && fitAddonRef.current) {
+                            fitAddonRef.current.fit();
+
+                            SshService.Resize(sessionId, terminalRef.current.rows, terminalRef.current.cols)
+                                .catch(console.error);
+                        }
+                    })
+                    .catch((err) => {
+                        printErrorToTerminal(err);
+                    });
             }
-            return true;
-        });
 
-        const handleContextMenu = (e: MouseEvent) => {
-            e.preventDefault();
+            const onDataDisposable = term.onData((data) => {
+                if (!isReadyRef.current) return;
 
-            const selection = term.getSelection();
-            if (selection) {
-                navigator.clipboard.writeText(selection).catch(console.error);
-                term.clearSelection();
-            } else {
-                navigator.clipboard.readText().then((text) => {
-                    if (text && isReadyRef.current) {
-                        SshService.Input(sessionId, text).catch(printErrorToTerminal);
-                    }
-                }).catch(console.error);
-            }
-        };
-        containerRef.current.addEventListener("contextmenu", handleContextMenu);
-
-        if (!hasConnectedRef.current) {
-            hasConnectedRef.current = true;
-            SshService.Connect(config)
-                .then(() => {
-                    isReadyRef.current = true;
-
-                    if (terminalRef.current && fitAddonRef.current) {
-                        fitAddonRef.current.fit();
-
-                        SshService.Resize(sessionId, terminalRef.current.rows, terminalRef.current.cols)
-                            .catch(console.error);
-                    }
-                })
-                .catch((err) => {
+                SshService.Input(sessionId, data).catch((err) => {
                     printErrorToTerminal(err);
                 });
-        }
-
-        const onDataDisposable = term.onData((data) => {
-            if (!isReadyRef.current) return;
-
-            SshService.Input(sessionId, data).catch((err) => {
-                printErrorToTerminal(err);
             });
+
+            return () => {
+                container.removeEventListener("contextmenu", handleContextMenu);
+                onDataDisposable.dispose();
+            };
+        };
+
+        let cleanupListeners: (() => void) | undefined;
+
+        void init().then((cleanup) => {
+            cleanupListeners = cleanup;
         });
 
         return () => {
-            container.removeEventListener("contextmenu", handleContextMenu);
-            onDataDisposable.dispose();
-            term.dispose();
+            disposed = true;
+            cleanupListeners?.();
+            terminalRef.current?.dispose();
             terminalRef.current = null;
             fitAddonRef.current = null;
+            hasConnectedRef.current = false;
+            isReadyRef.current = false;
             SshService.Disconnect(sessionId).catch(() => {
             });
         };
@@ -135,20 +161,32 @@ export function TerminalInstance({sessionId, isActive, config}: TerminalInstance
         const fit = fitAddonRef.current;
         if (!term || !settings) return;
 
-        const options = buildTerminalOptions(settings);
-        term.options.fontFamily = options.fontFamily!;
-        term.options.fontSize = options.fontSize!;
+        let cancelled = false;
 
-        if (isReadyRef.current && fit) {
-            try {
-                fit.fit();
-                SshService.Resize(sessionId, term.rows, term.cols).catch(
-                    console.error,
-                );
-            } catch (e) {
-                console.warn("xterm fit failed:", e);
+        void (async () => {
+            const fontFamily = await resolveTerminalFontFamily(
+                settings.terminalFontFamily,
+            );
+            if (cancelled || !terminalRef.current) return;
+
+            term.options.fontFamily = fontFamily;
+            term.options.fontSize = buildTerminalOptions(settings).fontSize!;
+
+            if (isReadyRef.current && fit) {
+                try {
+                    fit.fit();
+                    SshService.Resize(sessionId, term.rows, term.cols).catch(
+                        console.error,
+                    );
+                } catch (e) {
+                    console.warn("xterm fit failed:", e);
+                }
             }
-        }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
     }, [settings, sessionId]);
 
     useEffect(() => {

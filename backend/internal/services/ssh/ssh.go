@@ -3,6 +3,8 @@ package ssh
 import (
 	"fmt"
 	"io"
+	"os"
+	"os/exec"
 	"sync"
 	"terminator-desktop/backend/internal/apperror"
 	"time"
@@ -17,6 +19,7 @@ type SSHEmitter interface {
 
 type SSHConnectionConfig struct {
 	ID         string `json:"id"`
+	Local      bool   `json:"local"`
 	Host       string `json:"host"`
 	Port       int    `json:"port"`
 	Username   string `json:"username"`
@@ -25,9 +28,13 @@ type SSHConnectionConfig struct {
 }
 
 type activeSession struct {
-	client  *ssh.Client
-	session *ssh.Session
-	stdin   io.WriteCloser
+	local    bool
+	stdin    io.WriteCloser
+	stdout   io.Reader
+	client   *ssh.Client
+	session  *ssh.Session
+	localCmd *exec.Cmd
+	ptyFile  *os.File
 }
 
 type SshService struct {
@@ -49,6 +56,10 @@ func NewSshService(emitter SSHEmitter) *SshService {
 }
 
 func (s *SshService) Connect(config *SSHConnectionConfig) error {
+	if config.Local {
+		return s.connectLocal(config)
+	}
+
 	var authMethods []ssh.AuthMethod
 
 	if config.PrivateKey != "" {
@@ -118,9 +129,11 @@ func (s *SshService) Connect(config *SSHConnectionConfig) error {
 
 	s.mu.Lock()
 	currentSession := &activeSession{
+		local:   false,
 		client:  client,
 		session: session,
 		stdin:   stdin,
+		stdout:  stdout,
 	}
 	s.sessions[config.ID] = currentSession
 	s.mu.Unlock()
@@ -153,6 +166,10 @@ func (s *SshService) Resize(sessionID string, rows, cols int) error {
 		return apperror.SSHSessionNotFound()
 	}
 
+	if active.local {
+		return resizeLocalPTY(active.ptyFile, rows, cols)
+	}
+
 	return active.session.WindowChange(rows, cols)
 }
 
@@ -165,8 +182,12 @@ func (s *SshService) Disconnect(sessionID string) {
 	s.mu.Unlock()
 
 	if exists {
-		_ = active.session.Close()
-		_ = active.client.Close()
+		if active.local {
+			closeLocalSession(active)
+		} else {
+			_ = active.session.Close()
+			_ = active.client.Close()
+		}
 		s.emitter.EmitClosed(sessionID)
 	}
 }
@@ -233,11 +254,15 @@ func (s *SshService) cleanupSession(sessionID string, current *activeSession) {
 		delete(s.sessions, sessionID)
 		s.mu.Unlock()
 
-		if current.session != nil {
-			_ = current.session.Close()
-		}
-		if current.client != nil {
-			_ = current.client.Close()
+		if current.local {
+			closeLocalSession(current)
+		} else {
+			if current.session != nil {
+				_ = current.session.Close()
+			}
+			if current.client != nil {
+				_ = current.client.Close()
+			}
 		}
 		s.emitter.EmitClosed(sessionID)
 	} else {

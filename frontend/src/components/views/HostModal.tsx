@@ -35,6 +35,8 @@ interface HostModalProps {
     initialData?: Host | null;
     groups: HostGroup[];
     isSaving: boolean;
+    /** Local sidebar shell: only label and appearance, no SSH fields. */
+    localShellOnly?: boolean;
 }
 
 const DEFAULT_HOST: Partial<Host> = {
@@ -62,6 +64,7 @@ export function HostModal({
     initialData,
     groups,
     isSaving,
+    localShellOnly = false,
 }: HostModalProps) {
     const { t } = useTranslation(["hosts", "common"]);
     const [formData, setFormData] = useState<Partial<Host>>(DEFAULT_HOST);
@@ -145,10 +148,12 @@ export function HostModal({
             ...formData,
             id: formData.id || "",
             type: ItemType.TypeHost,
-            port: Number(formData.port) || 22,
-            keyId,
-            identityId,
-            password: password || undefined,
+            host: localShellOnly ? "" : formData.host || "",
+            port: localShellOnly ? 0 : Number(formData.port) || 22,
+            username: localShellOnly ? "" : formData.username || "",
+            keyId: localShellOnly ? undefined : keyId,
+            identityId: localShellOnly ? undefined : identityId,
+            password: localShellOnly ? undefined : password || undefined,
             groupId:
                 formData.groupId === "none" || !formData.groupId
                     ? undefined
@@ -206,6 +211,7 @@ export function HostModal({
                         />
                     </div>
 
+                    {!localShellOnly && (
                     <div className="grid grid-cols-4 gap-4">
                         <div className="col-span-3 grid gap-2">
                             <Label htmlFor="host">
@@ -237,7 +243,10 @@ export function HostModal({
                             />
                         </div>
                     </div>
+                    )}
 
+                    {!localShellOnly && (
+                    <>
                     <div className="grid gap-2">
                         <Label>{t("auth_method_label")}</Label>
                         <Select
@@ -406,6 +415,8 @@ export function HostModal({
                             </SelectContent>
                         </Select>
                     </div>
+                    </>
+                    )}
 
                     <div className="mt-4 flex justify-end gap-2">
                         <Button

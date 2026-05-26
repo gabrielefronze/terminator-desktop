@@ -4,11 +4,20 @@ import { Host } from "../../bindings/terminator-desktop/backend/internal/service
 import { handleAppError } from "@/lib/error";
 
 export const HOSTS_QUERY_KEY = ["hosts"];
+export const BUILTIN_LOCALHOST_QUERY_KEY = ["builtinLocalhost"];
 
 export function useHosts() {
     return useQuery({
         queryKey: HOSTS_QUERY_KEY,
         queryFn: async () => HostService.GetAll(),
+    });
+}
+
+export function useBuiltinLocalhost() {
+    return useQuery({
+        queryKey: BUILTIN_LOCALHOST_QUERY_KEY,
+        queryFn: async () => HostService.BuiltinLocalhost(),
+        staleTime: Number.POSITIVE_INFINITY,
     });
 }
 

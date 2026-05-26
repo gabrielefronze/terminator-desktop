@@ -9,15 +9,21 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 // @ts-ignore: Unused imports
 import * as $models from "./models.js";
 
+export function BuildTerminalFontFace(familyName: string): $CancellablePromise<$models.TerminalFontFace> {
+    return $Call.ByID(4225722761, familyName).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
 export function GetSettings(): $CancellablePromise<$models.AppSettings> {
     return $Call.ByID(1855091376).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
 export function ListSystemFonts(): $CancellablePromise<string[]> {
     return $Call.ByID(14813264).then(($result: any) => {
-        return $$createType1($result);
+        return $$createType2($result);
     });
 }
 
@@ -26,5 +32,6 @@ export function SaveSettings(settings: $models.AppSettings): $CancellablePromise
 }
 
 // Private type creation functions
-const $$createType0 = $models.AppSettings.createFrom;
-const $$createType1 = $Create.Array($Create.Any);
+const $$createType0 = $models.TerminalFontFace.createFrom;
+const $$createType1 = $models.AppSettings.createFrom;
+const $$createType2 = $Create.Array($Create.Any);

@@ -7,5 +7,6 @@ export {
 };
 
 export {
-    AppSettings
+    AppSettings,
+    TerminalFontFace
 } from "./models.js";
