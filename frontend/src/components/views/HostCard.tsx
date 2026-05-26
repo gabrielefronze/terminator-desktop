@@ -1,4 +1,5 @@
-import { Server, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { HostIconBadge } from "@/components/views/HostIconBadge";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -37,10 +38,7 @@ export function HostCard({host, onConnect, onEdit, onDelete}: HostCardProps) {
                 onClick={() => onConnect(host)}
                 className="flex min-w-0 flex-1 cursor-pointer items-center gap-4 p-5"
             >
-                <div className="flex size-10 shrink-0 items-center justify-center
-                                rounded-lg bg-primary/10 text-primary">
-                    <Server className="size-5" />
-                </div>
+                <HostIconBadge icon={host.icon} color={host.color} />
                 <div className="flex min-w-0 flex-col pr-4">
                     <h3 className="truncate font-semibold text-card-foreground">
                         {host.name || host.host}

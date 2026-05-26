@@ -6,6 +6,8 @@ export interface TerminalSession {
     id: string;
     title: string;
     config: SSHConnectionConfig;
+    icon?: string;
+    color?: string;
 }
 
 export interface CreateSessionParams {
@@ -15,6 +17,8 @@ export interface CreateSessionParams {
     password?: string;
     privateKey?: string;
     title?: string;
+    icon?: string;
+    color?: string;
 }
 
 interface SessionState {
@@ -46,6 +50,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             id: newId,
             title: params.title || params.host,
             config: fullConfig,
+            icon: params.icon,
+            color: params.color,
         };
 
         useUIStore.getState().setActiveView(ViewType.Terminal);

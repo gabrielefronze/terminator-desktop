@@ -16,6 +16,8 @@ export class Host {
     "keyId"?: string;
     "identityId"?: string;
     "groupId"?: string;
+    "icon"?: string;
+    "color"?: string;
 
     /** Creates a new Host instance. */
     constructor($$source: Partial<Host> = {}) {

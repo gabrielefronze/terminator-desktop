@@ -13,6 +13,8 @@
   "no_search_results": "No hosts or groups match your search.",
   "edit_title": "Edit Host",
   "new_title": "New Host",
+  "host_icon_label": "Icon",
+  "host_color_label": "Color",
   "label_placeholder": "e.g. Production Database",
   "host_placeholder": "10.0.0.1",
   "auth_method_label": "Authentication",

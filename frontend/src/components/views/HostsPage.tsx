@@ -172,6 +172,8 @@ export function HostsPage() {
             password: creds.password,
             privateKey: creds.privateKey,
             title: host.name || host.host,
+            icon: host.icon,
+            color: host.color,
         });
     };
 

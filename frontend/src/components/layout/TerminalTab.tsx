@@ -2,10 +2,11 @@ import { X } from "lucide-react";
 import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { TerminalSession } from "@/store/sessionStore";
+import { HostIconBadge } from "@/components/views/HostIconBadge";
 
 const tabStyles = cva(
-    "wails-no-drag group my-1 mt-2 flex h-8 min-w-30 max-w-50 cursor-pointer items-center " +
-    "justify-between rounded-md border px-3 text-xs font-medium transition-colors",
+    "wails-no-drag group my-1 mt-2 flex h-8 min-w-30 max-w-50 cursor-pointer items-center gap-2 " +
+    "rounded-md border px-2 text-xs font-medium transition-colors",
     {
         variants: {
             state: {
@@ -56,7 +57,12 @@ export function TerminalTab({session, isActive, onClick, onClose}: TerminalTabPr
                  }
              }}
              className={cn(tabStyles({state}))}>
-            <span className="truncate">{session.title}</span>
+            <HostIconBadge
+                icon={session.icon}
+                color={session.color}
+                size="sm"
+            />
+            <span className="min-w-0 flex-1 truncate">{session.title}</span>
             <button
                 type="button"
                 title="Close tab"

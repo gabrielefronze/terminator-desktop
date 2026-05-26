@@ -13,6 +13,8 @@
   "no_search_results": "Нет хостов или групп по вашему запросу.",
   "edit_title": "Изменить хост",
   "new_title": "Новый хост",
+  "host_icon_label": "Иконка",
+  "host_color_label": "Цвет",
   "label_placeholder": "напр. Рабочая база данных",
   "host_placeholder": "10.0.0.1",
   "auth_method_label": "Аутентификация",

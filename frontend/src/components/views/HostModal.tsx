@@ -16,6 +16,15 @@ import { useKeys } from "@/hooks/useKeys";
 import { useIdentities } from "@/hooks/useIdentities";
 import { HostGroup } from "../../../bindings/terminator-desktop/backend/internal/services/blob/";
 import { flattenGroupsForSelect } from "@/lib/hostTree";
+import { HostAppearancePicker } from "@/components/views/HostAppearancePicker";
+import { HostIconBadge } from "@/components/views/HostIconBadge";
+import {
+    DEFAULT_HOST_COLOR,
+    DEFAULT_HOST_ICON,
+    normalizeHostColor,
+    normalizeHostIcon,
+    type HostIconId,
+} from "@/lib/hostAppearance";
 
 type AuthMode = "password" | "identity" | "key";
 
@@ -36,6 +45,8 @@ const DEFAULT_HOST: Partial<Host> = {
     password: "",
     keyId: undefined,
     identityId: undefined,
+    icon: DEFAULT_HOST_ICON,
+    color: DEFAULT_HOST_COLOR,
 };
 
 function deriveAuthMode(host: Partial<Host> | null | undefined): AuthMode {
@@ -142,6 +153,8 @@ export function HostModal({
                 formData.groupId === "none" || !formData.groupId
                     ? undefined
                     : formData.groupId,
+            icon: normalizeHostIcon(formData.icon),
+            color: normalizeHostColor(formData.color),
         });
 
         onSave(finalHost);
@@ -151,7 +164,7 @@ export function HostModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>
                         {isEditing ? t("edit_title") : t("new_title")}
@@ -159,6 +172,27 @@ export function HostModal({
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+                    <div className="flex items-start gap-4">
+                        <HostIconBadge
+                            icon={formData.icon}
+                            color={formData.color}
+                            className="size-12"
+                            iconClassName="size-6"
+                        />
+                        <div className="min-w-0 flex-1">
+                            <HostAppearancePicker
+                                icon={formData.icon}
+                                color={formData.color}
+                                onIconChange={(icon: HostIconId) =>
+                                    setFormData((prev) => ({ ...prev, icon }))
+                                }
+                                onColorChange={(color) =>
+                                    setFormData((prev) => ({ ...prev, color }))
+                                }
+                            />
+                        </div>
+                    </div>
+
                     <div className="grid gap-2">
                         <Label htmlFor="name">
                             {t("label_optional", { ns: "common" })}
