@@ -1,0 +1,17 @@
+{
+  "page_title": "Identities",
+  "new_identity": "New Identity",
+  "search_identities": "Search identities...",
+  "loading_identities": "Loading identities...",
+  "empty_title": "No identities found",
+  "empty_desc": "Add a reusable username and password pair.",
+  "add_first_identity": "Add an Identity",
+  "edit_title": "Edit Identity",
+  "new_title": "New Identity",
+  "identity_name_label": "Name",
+  "identity_name_placeholder": "e.g. Production Admin",
+  "save_identity": "Save Identity",
+  "delete_title": "Delete Identity?",
+  "delete_desc": "Are you sure you want to delete \"{{name}}\"? Hosts using this identity must be updated first.",
+  "delete_in_use": "This identity is used by one or more hosts. Remove it from those hosts before deleting."
+}

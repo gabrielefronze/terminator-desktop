@@ -2,6 +2,7 @@ import { useUIStore, ViewType } from "@/store/uiStore";
 import { TerminalStack } from "@/components/terminal/TerminalStack";
 import { HostsPage } from "@/components/views/HostsPage.tsx";
 import { KeysPage } from "@/components/views/KeysPage.tsx";
+import { IdentitiesPage } from "@/components/views/IdentitiesPage.tsx";
 import { SettingsPage } from "@/components/views/SettingsPage.tsx";
 
 export function ContentView() {
@@ -12,6 +13,7 @@ export function ContentView() {
 
             {activeView === ViewType.Hosts && <HostsPage/>}
             {activeView === ViewType.Keys && <KeysPage/>}
+            {activeView === ViewType.Identities && <IdentitiesPage/>}
             {activeView === ViewType.Settings && <SettingsPage/>}
 
             <TerminalStack isVisible={activeView === ViewType.Terminal}/>

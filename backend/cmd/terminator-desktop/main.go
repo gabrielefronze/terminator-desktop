@@ -170,6 +170,7 @@ func main() {
 	hostService := blob.NewHostService(queries, v)
 	keyService := blob.NewKeyService(queries, v)
 	groupService := blob.NewGroupService(queries, v)
+	identityService := blob.NewIdentityService(queries, v)
 	settingsService := settings.NewSettingsService(appDir)
 	updaterService := updater.NewUpdaterService(updateUrl, updaterEmitter)
 
@@ -179,6 +180,7 @@ func main() {
 	app.RegisterService(application.NewService(hostService))
 	app.RegisterService(application.NewService(keyService))
 	app.RegisterService(application.NewService(groupService))
+	app.RegisterService(application.NewService(identityService))
 	app.RegisterService(application.NewService(settingsService))
 	app.RegisterService(application.NewService(updaterService))
 	app.RegisterService(application.NewService(&WindowControls{mainWindow}))

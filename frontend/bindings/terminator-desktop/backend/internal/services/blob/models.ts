@@ -14,6 +14,7 @@ export class Host {
     "username": string;
     "password"?: string;
     "keyId"?: string;
+    "identityId"?: string;
     "groupId"?: string;
 
     /** Creates a new Host instance. */
@@ -89,7 +90,45 @@ export enum ItemType {
     TypeHost = "host",
     TypeKey = "key",
     TypeGroup = "group",
+    TypeIdentity = "identity",
 };
+
+export class SavedIdentity {
+    "id": string;
+    "type": ItemType;
+    "name": string;
+    "username": string;
+    "password": string;
+
+    /** Creates a new SavedIdentity instance. */
+    constructor($$source: Partial<SavedIdentity> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("type" in $$source)) {
+            this["type"] = ItemType.$zero;
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("username" in $$source)) {
+            this["username"] = "";
+        }
+        if (!("password" in $$source)) {
+            this["password"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new SavedIdentity instance from a string or object.
+     */
+    static createFrom($$source: any = {}): SavedIdentity {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new SavedIdentity($$parsedSource as Partial<SavedIdentity>);
+    }
+}
 
 export class SavedKey {
     "id": string;

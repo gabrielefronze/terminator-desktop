@@ -1,4 +1,4 @@
-import { Server, Key, Settings } from "lucide-react";
+import { Server, Key, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUIStore, ViewType } from "@/store/uiStore";
 import { cn } from "@/lib/utils";
@@ -44,6 +44,16 @@ export function Sidebar() {
                     title={t("page_title", { ns: "keys" })}
                 >
                     <Key className="size-5"/>
+                </Button>
+
+                <Button
+                    variant={activeView === ViewType.Identities ? "secondary" : "ghost"}
+                    size="icon"
+                    onClick={() => setActiveView(ViewType.Identities)}
+                    className="wails-no-drag"
+                    title={t("page_title", { ns: "identities" })}
+                >
+                    <User className="size-5"/>
                 </Button>
             </nav>
 

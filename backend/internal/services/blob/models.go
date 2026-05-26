@@ -3,9 +3,10 @@ package blob
 type ItemType string
 
 const (
-	TypeHost  ItemType = "host"
-	TypeKey   ItemType = "key"
-	TypeGroup ItemType = "group"
+	TypeHost     ItemType = "host"
+	TypeKey      ItemType = "key"
+	TypeGroup    ItemType = "group"
+	TypeIdentity ItemType = "identity"
 )
 
 type VaultItemHeader struct {
@@ -20,8 +21,17 @@ type Host struct {
 	Port     int      `json:"port"`
 	Username string   `json:"username"`
 	Password string   `json:"password,omitempty"`
-	KeyID    string   `json:"keyId,omitempty"`
-	GroupID  string   `json:"groupId,omitempty"`
+	KeyID      string   `json:"keyId,omitempty"`
+	IdentityID string   `json:"identityId,omitempty"`
+	GroupID    string   `json:"groupId,omitempty"`
+}
+
+type SavedIdentity struct {
+	ID       string   `json:"id"`
+	Type     ItemType `json:"type"`
+	Name     string   `json:"name"`
+	Username string   `json:"username"`
+	Password string   `json:"password"`
 }
 
 type HostGroup struct {

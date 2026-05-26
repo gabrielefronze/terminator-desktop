@@ -26,6 +26,8 @@ import {
     useDeleteHostGroup,
 } from "@/hooks/useHostGroups";
 import { useKeys } from "@/hooks/useKeys";
+import { useIdentities } from "@/hooks/useIdentities";
+import { resolveHostCredentials } from "@/lib/resolveHostCredentials";
 import { useSessionStore } from "@/store/sessionStore";
 import { Host, HostGroup } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import { buildHostTree, filterHostTree } from "@/lib/hostTree";
@@ -35,6 +37,7 @@ export function HostsPage() {
     const { data: hosts, isLoading } = useHosts();
     const { data: groups } = useHostGroups();
     const { data: keys } = useKeys();
+    const { data: identities } = useIdentities();
 
     const saveHostMutation = useSaveHost();
     const deleteHostMutation = useDeleteHost();
@@ -150,19 +153,14 @@ export function HostsPage() {
     };
 
     const handleConnect = (host: Host) => {
-        let keyString: string | undefined = undefined;
-
-        if (host.keyId && keys) {
-            const foundKey = keys.find((k) => k.id === host.keyId);
-            if (foundKey) keyString = foundKey.privateKey;
-        }
+        const creds = resolveHostCredentials(host, keys, identities);
 
         addSession({
             host: host.host,
             port: host.port,
-            username: host.username,
-            password: host.password,
-            privateKey: keyString,
+            username: creds.username,
+            password: creds.password,
+            privateKey: creds.privateKey,
             title: host.name || host.host,
         });
     };
