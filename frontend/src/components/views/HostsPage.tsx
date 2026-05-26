@@ -81,11 +81,13 @@ export function HostsPage() {
     }, [hostTree]);
 
     const handleCreateHost = () => {
+        setSearchQuery("");
         setEditingHost(null);
         setIsHostModalOpen(true);
     };
 
     const handleCreateGroup = () => {
+        setSearchQuery("");
         setEditingGroup(null);
         setIsGroupModalOpen(true);
     };
@@ -134,6 +136,7 @@ export function HostsPage() {
     };
 
     const handleSaveHost = (host: Host) => {
+        const isNew = editingHost === null;
         const normalized = new Host({
             ...host,
             groupId:
@@ -142,13 +145,20 @@ export function HostsPage() {
                     : host.groupId,
         });
         saveHostMutation.mutate(normalized, {
-            onSuccess: () => setIsHostModalOpen(false),
+            onSuccess: () => {
+                setIsHostModalOpen(false);
+                if (isNew) setSearchQuery("");
+            },
         });
     };
 
     const handleSaveGroup = (group: HostGroup) => {
+        const isNew = editingGroup === null;
         saveGroupMutation.mutate(group, {
-            onSuccess: () => setIsGroupModalOpen(false),
+            onSuccess: () => {
+                setIsGroupModalOpen(false);
+                if (isNew) setSearchQuery("");
+            },
         });
     };
 
