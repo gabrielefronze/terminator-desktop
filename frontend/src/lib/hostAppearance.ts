@@ -111,21 +111,40 @@ export function normalizeGroupColor(color?: string | null): string {
 }
 
 export function groupCardBorderColor(color?: string | null): string {
-    const resolved = normalizeGroupColor(color);
-    return `color-mix(in srgb, ${resolved} 55%, var(--color-border, #27272a))`;
+    return normalizeGroupColor(color);
 }
+
+/** Shared host card chrome (hue follows app background theme). */
+export const HOST_CARD_SURFACE_CLASS =
+    "bg-host-card text-card-foreground border border-border shadow-sm";
+
+/** Shared group card chrome (slightly elevated vs host cards). Border color set per group. */
+export const GROUP_CARD_SURFACE_CLASS = "bg-group-card border";
 
 export function resolveHostIcon(icon?: string | null): LucideIcon {
     return HOST_ICONS[normalizeHostIcon(icon)];
+}
+
+export function iconBadgeStyle(color: string): {
+    backgroundColor: string;
+    color: string;
+} {
+    return {
+        backgroundColor: `color-mix(in srgb, ${color} 18%, transparent)`,
+        color,
+    };
 }
 
 export function hostIconBadgeStyle(color?: string | null): {
     backgroundColor: string;
     color: string;
 } {
-    const resolved = normalizeHostColor(color);
-    return {
-        backgroundColor: `color-mix(in srgb, ${resolved} 18%, transparent)`,
-        color: resolved,
-    };
+    return iconBadgeStyle(normalizeHostColor(color));
+}
+
+export function groupIconBadgeStyle(color?: string | null): {
+    backgroundColor: string;
+    color: string;
+} {
+    return iconBadgeStyle(normalizeGroupColor(color));
 }

@@ -8,15 +8,16 @@ import (
 )
 
 const (
-	DefaultTerminalFontFamily = "Cascadia Code"
-	DefaultTerminalFontSize   = 14
+	DefaultTerminalFontFamily  = "Cascadia Code"
+	DefaultTerminalFontSize    = 14
 )
 
 type AppSettings struct {
-	Language           string `json:"language"`
-	TerminalFontFamily string `json:"terminalFontFamily"`
-	TerminalFontSize   int    `json:"terminalFontSize"`
-	ShowLocalhostHost  bool   `json:"showLocalhostHost"`
+	Language            string `json:"language"`
+	TerminalFontFamily  string `json:"terminalFontFamily"`
+	TerminalFontSize    int    `json:"terminalFontSize"`
+	ShowLocalhostHost   bool   `json:"showLocalhostHost"`
+	AppBackgroundColor  string `json:"appBackgroundColor"`
 }
 
 func normalizeSettings(settings AppSettings) AppSettings {
@@ -29,6 +30,7 @@ func normalizeSettings(settings AppSettings) AppSettings {
 	if settings.TerminalFontSize <= 0 {
 		settings.TerminalFontSize = DefaultTerminalFontSize
 	}
+	settings.AppBackgroundColor = normalizeAppBackgroundColor(settings.AppBackgroundColor)
 	return settings
 }
 
@@ -48,10 +50,11 @@ func (s *SettingsService) GetSettings() (AppSettings, error) {
 	defer s.mutex.RUnlock()
 
 	settings := AppSettings{
-		Language:           "en",
-		TerminalFontFamily: DefaultTerminalFontFamily,
-		TerminalFontSize:   DefaultTerminalFontSize,
-		ShowLocalhostHost:  true,
+		Language:            "en",
+		TerminalFontFamily:  DefaultTerminalFontFamily,
+		TerminalFontSize:    DefaultTerminalFontSize,
+		ShowLocalhostHost:   true,
+		AppBackgroundColor:  DefaultAppBackgroundColor,
 	}
 
 	data, err := os.ReadFile(s.configPath)

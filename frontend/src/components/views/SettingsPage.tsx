@@ -9,6 +9,7 @@ import {
     AlertTriangle,
     Type,
     Monitor,
+    Paintbrush,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SwitchServerModal } from "@/components/views/SwitchServerModal";
@@ -39,6 +40,12 @@ import {
 import { TerminalFontSelect } from "@/components/views/TerminalFontSelect";
 import { Switch } from "@/components/ui/switch";
 import { useLocalhostHostSetting } from "@/hooks/useLocalhostHostSetting";
+import { AppBackgroundPicker } from "@/components/views/AppBackgroundPicker";
+import {
+    DEFAULT_APP_BACKGROUND_COLOR,
+    applyAppBackgroundColor,
+    normalizeAppBackgroundColor,
+} from "@/lib/appTheme";
 
 export function SettingsPage() {
     const {t, i18n} = useTranslation(["settings", "common", "errors"]);
@@ -63,6 +70,9 @@ export function SettingsPage() {
     const [terminalFontSize, setTerminalFontSize] = useState(
         DEFAULT_TERMINAL_FONT_SIZE,
     );
+    const [appBackgroundColor, setAppBackgroundColor] = useState(
+        DEFAULT_APP_BACKGROUND_COLOR,
+    );
 
     useEffect(() => {
         if (!settings) return;
@@ -73,6 +83,9 @@ export function SettingsPage() {
             settings.terminalFontSize > 0
                 ? settings.terminalFontSize
                 : DEFAULT_TERMINAL_FONT_SIZE,
+        );
+        setAppBackgroundColor(
+            normalizeAppBackgroundColor(settings.appBackgroundColor),
         );
     }, [settings]);
 
@@ -130,6 +143,29 @@ export function SettingsPage() {
         setTerminalFontSize(size);
         try {
             await persistSettings({ terminalFontSize: size });
+        } catch (error) {
+            handleAppError(error);
+        }
+    };
+
+    const changeAppBackgroundColor = async (color: string) => {
+        const normalized = normalizeAppBackgroundColor(color);
+        setAppBackgroundColor(normalized);
+        applyAppBackgroundColor(normalized);
+        try {
+            await persistSettings({ appBackgroundColor: normalized });
+        } catch (error) {
+            handleAppError(error);
+        }
+    };
+
+    const resetAppBackgroundColor = async () => {
+        setAppBackgroundColor(DEFAULT_APP_BACKGROUND_COLOR);
+        applyAppBackgroundColor(DEFAULT_APP_BACKGROUND_COLOR);
+        try {
+            await persistSettings({
+                appBackgroundColor: DEFAULT_APP_BACKGROUND_COLOR,
+            });
         } catch (error) {
             handleAppError(error);
         }
@@ -232,6 +268,31 @@ export function SettingsPage() {
                                 <SelectItem value="ru">Русский</SelectItem>
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    <div className="h-px w-full bg-border" />
+
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-start gap-4">
+                            <div
+                                className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+                            >
+                                <Paintbrush className="size-5" />
+                            </div>
+                            <div className="flex min-w-0 flex-1 flex-col gap-1">
+                                <span className="text-sm font-medium text-foreground">
+                                    {t("app_background_label")}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("app_background_desc")}
+                                </span>
+                            </div>
+                        </div>
+                        <AppBackgroundPicker
+                            value={appBackgroundColor}
+                            onChange={(color) => void changeAppBackgroundColor(color)}
+                            onReset={() => void resetAppBackgroundColor()}
+                        />
                     </div>
 
                     <div className="h-px w-full bg-border" />

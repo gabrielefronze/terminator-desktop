@@ -12,6 +12,8 @@ import { GROUPS_QUERY_KEY } from "@/hooks/useHostGroups.ts";
 import { IDENTITIES_QUERY_KEY } from "@/hooks/useIdentities.ts";
 import { KEYS_QUERY_KEY } from "@/hooks/useKeys.ts";
 import { SETTINGS_QUERY_KEY } from "@/hooks/useSettings";
+import { useAppBackground } from "@/hooks/useAppBackground";
+import { applyAppBackgroundColor } from "@/lib/appTheme";
 import { SettingsService } from "../bindings/terminator-desktop/backend/internal/services/settings";
 import { useTranslation } from "react-i18next";
 import { AppEvent } from "@/lib/events.ts";
@@ -26,6 +28,8 @@ export default function App() {
     const queryClient = useQueryClient();
     const {i18n} = useTranslation();
 
+    useAppBackground();
+
     useEffect(() => {
         queryClient
             .fetchQuery({
@@ -36,6 +40,7 @@ export default function App() {
                 if (settings.language && settings.language !== i18n.language) {
                     void i18n.changeLanguage(settings.language);
                 }
+                applyAppBackgroundColor(settings.appBackgroundColor);
             })
             .catch(console.error);
     }, [i18n, queryClient]);

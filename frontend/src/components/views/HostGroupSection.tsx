@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { HostIconBadge } from "@/components/views/HostIconBadge";
-import { groupCardBorderColor } from "@/lib/hostAppearance";
+import {
+    GROUP_CARD_SURFACE_CLASS,
+    groupCardBorderColor,
+} from "@/lib/hostAppearance";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -32,8 +35,10 @@ const GROUP_HOST_GRID_CLASS = "grid grid-cols-2 gap-3 justify-items-start";
 const UNCATEGORIZED_HOST_GRID_CLASS =
     "grid gap-3 grid-cols-[repeat(auto-fill,minmax(17rem,20rem))] justify-items-start";
 
-const GROUP_CARD_CLASS =
-    "flex w-full max-w-[var(--group-card-width)] flex-col rounded-xl border bg-muted/10";
+const GROUP_CARD_CLASS = cn(
+    "flex w-full max-w-[var(--group-card-width)] flex-col rounded-xl",
+    GROUP_CARD_SURFACE_CLASS,
+);
 
 function GroupMenuItems({
     group,
@@ -132,12 +137,12 @@ export function HostGroupSection({
         >
             <ContextMenu>
                 <ContextMenuTrigger asChild>
-                    <div className="flex items-center gap-2 border-b border-border/40 px-1 py-3">
+                    <div className="flex items-center gap-2 border-b border-border px-1 py-3">
                         <button
                             type="button"
                             onClick={() => setExpanded((e) => !e)}
                             className="flex min-w-0 flex-1 items-center gap-2 rounded-lg text-left
-                                       hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                       hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                             {expanded ? (
                                 <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
@@ -281,7 +286,7 @@ export function UncategorizedHostSection({
                 type="button"
                 onClick={() => setExpanded((e) => !e)}
                 className="mb-3 flex w-full items-center gap-2 rounded-lg px-1 py-1 text-left
-                           hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                           hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
                 {expanded ? (
                     <ChevronDown className="size-4 shrink-0 text-muted-foreground" />

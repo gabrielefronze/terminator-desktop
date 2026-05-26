@@ -10,6 +10,7 @@ export class AppSettings {
     "terminalFontFamily": string;
     "terminalFontSize": number;
     "showLocalhostHost": boolean;
+    "appBackgroundColor": string;
 
     /** Creates a new AppSettings instance. */
     constructor($$source: Partial<AppSettings> = {}) {
@@ -24,6 +25,9 @@ export class AppSettings {
         }
         if (!("showLocalhostHost" in $$source)) {
             this["showLocalhostHost"] = false;
+        }
+        if (!("appBackgroundColor" in $$source)) {
+            this["appBackgroundColor"] = "";
         }
 
         Object.assign(this, $$source);

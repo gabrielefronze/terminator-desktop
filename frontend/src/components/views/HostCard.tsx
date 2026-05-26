@@ -16,7 +16,9 @@ import {
     ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Host } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
+import { HOST_CARD_SURFACE_CLASS } from "@/lib/hostAppearance";
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 interface HostCardProps {
     host: Host;
@@ -77,10 +79,12 @@ export function HostCard({ host, onConnect, onEdit, onDelete }: HostCardProps) {
                             onConnect(host);
                         }
                     }}
-                    className="group flex flex-row justify-between bg-card shadow-sm transition-all
-                               rounded-xl border border-border
-                               hover:border-primary/40 hover:shadow-md
-                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className={cn(
+                        "group flex flex-row justify-between rounded-xl transition-all",
+                        HOST_CARD_SURFACE_CLASS,
+                        "hover:border-primary/40 hover:shadow-md",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    )}
                 >
                     <div
                         onClick={() => onConnect(host)}
