@@ -15,6 +15,7 @@ import { HostModal } from "@/components/views/HostModal";
 import { HostGroupModal } from "@/components/views/HostGroupModal";
 import {
     HostGroupSection,
+    HostGroupCardGrid,
     UncategorizedHostSection,
 } from "@/components/views/HostGroupSection";
 import { DraggableHostCard } from "@/components/views/DraggableHostCard";
@@ -271,18 +272,22 @@ export function HostsPage() {
                 ((hosts?.length ?? 0) > 0 || (groups?.length ?? 0) > 0) && (
                 <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
                     <div className="flex w-full flex-col gap-8">
-                        {hostTree.roots.map((node) => (
-                            <HostGroupSection
-                                key={node.group.id}
-                                node={node}
-                                onConnect={handleConnect}
-                                onEditHost={handleEditHost}
-                                onDeleteHost={handleDeleteHostPrompt}
-                                onEditGroup={handleEditGroup}
-                                onDeleteGroup={handleDeleteGroupPrompt}
-                                renderHostCard={renderHostCard}
-                            />
-                        ))}
+                        {hostTree.roots.length > 0 && (
+                            <HostGroupCardGrid>
+                                {hostTree.roots.map((node) => (
+                                    <HostGroupSection
+                                        key={node.group.id}
+                                        node={node}
+                                        onConnect={handleConnect}
+                                        onEditHost={handleEditHost}
+                                        onDeleteHost={handleDeleteHostPrompt}
+                                        onEditGroup={handleEditGroup}
+                                        onDeleteGroup={handleDeleteGroupPrompt}
+                                        renderHostCard={renderHostCard}
+                                    />
+                                ))}
+                            </HostGroupCardGrid>
+                        )}
 
                         <UncategorizedHostSection
                             hosts={hostTree.uncategorized}

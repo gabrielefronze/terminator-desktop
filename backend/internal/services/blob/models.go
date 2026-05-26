@@ -42,6 +42,8 @@ type HostGroup struct {
 	Name      string   `json:"name"`
 	ParentID  string   `json:"parentId,omitempty"`
 	SortOrder int      `json:"sortOrder,omitempty"`
+	Icon      string   `json:"icon,omitempty"`
+	Color     string   `json:"color,omitempty"`
 }
 
 type SavedKey struct {

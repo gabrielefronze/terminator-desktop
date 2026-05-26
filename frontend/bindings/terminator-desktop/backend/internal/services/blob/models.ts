@@ -58,6 +58,8 @@ export class HostGroup {
     "name": string;
     "parentId"?: string;
     "sortOrder"?: number;
+    "icon"?: string;
+    "color"?: string;
 
     /** Creates a new HostGroup instance. */
     constructor($$source: Partial<HostGroup> = {}) {

@@ -15,11 +15,14 @@ import {
     Layers,
     Monitor,
     Router,
+    Folder,
     type LucideIcon,
 } from "lucide-react";
 
 export const DEFAULT_HOST_ICON = "server";
 export const DEFAULT_HOST_COLOR = "#3b82f6";
+export const DEFAULT_GROUP_ICON = "folder";
+export const DEFAULT_GROUP_COLOR = "#a855f7";
 
 export const HOST_ICONS = {
     server: Server,
@@ -38,6 +41,7 @@ export const HOST_ICONS = {
     layers: Layers,
     monitor: Monitor,
     router: Router,
+    folder: Folder,
 } as const;
 
 export type HostIconId = keyof typeof HOST_ICONS;
@@ -59,6 +63,7 @@ export const HOST_ICON_OPTIONS: { id: HostIconId; label: string }[] = [
     { id: "layers", label: "Layers" },
     { id: "monitor", label: "Monitor" },
     { id: "router", label: "Router" },
+    { id: "folder", label: "Folder" },
 ];
 
 export const HOST_COLOR_OPTIONS: { value: string; label: string }[] = [
@@ -89,6 +94,25 @@ export function normalizeHostColor(color?: string | null): string {
         return color;
     }
     return DEFAULT_HOST_COLOR;
+}
+
+export function normalizeGroupIcon(icon?: string | null): HostIconId {
+    if (icon && iconIds.has(icon)) {
+        return icon as HostIconId;
+    }
+    return DEFAULT_GROUP_ICON;
+}
+
+export function normalizeGroupColor(color?: string | null): string {
+    if (color && colorValues.has(color)) {
+        return color;
+    }
+    return DEFAULT_GROUP_COLOR;
+}
+
+export function groupCardBorderColor(color?: string | null): string {
+    const resolved = normalizeGroupColor(color);
+    return `color-mix(in srgb, ${resolved} 55%, var(--color-border, #27272a))`;
 }
 
 export function resolveHostIcon(icon?: string | null): LucideIcon {

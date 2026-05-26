@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { ChevronDown, ChevronRight, Folder, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { HostIconBadge } from "@/components/views/HostIconBadge";
+import { groupCardBorderColor } from "@/lib/hostAppearance";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -8,15 +10,75 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuSeparator,
+    ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import { Host, HostGroup } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import { HostTreeNode } from "@/lib/hostTree";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
 
+/** Host cards use max-w-80 (20rem); groups span two cards plus gap-3. */
+const HOST_CARD_MAX = "20rem";
+const GROUP_CARD_WIDTH = `calc(2 * ${HOST_CARD_MAX} + 0.75rem)`;
+
+const GROUP_HOST_GRID_CLASS = "grid grid-cols-2 gap-3 justify-items-start";
+
+const UNCATEGORIZED_HOST_GRID_CLASS =
+    "grid gap-3 grid-cols-[repeat(auto-fill,minmax(17rem,20rem))] justify-items-start";
+
+const GROUP_CARD_CLASS =
+    "flex w-full max-w-[var(--group-card-width)] flex-col rounded-xl border bg-muted/10";
+
+function GroupMenuItems({
+    group,
+    onEditGroup,
+    onDeleteGroup,
+    Item,
+    Separator,
+}: {
+    group: HostGroup;
+    onEditGroup: (group: HostGroup) => void;
+    onDeleteGroup: (group: HostGroup) => void;
+    Item: typeof ContextMenuItem | typeof DropdownMenuItem;
+    Separator: typeof ContextMenuSeparator | typeof DropdownMenuSeparator;
+}) {
+    const { t } = useTranslation(["hosts", "common"]);
+
+    return (
+        <>
+            <Item onClick={() => onEditGroup(group)}>
+                <Edit className="mr-2 size-4" />
+                {t("edit_group")}
+            </Item>
+            <Separator />
+            <Item
+                variant="destructive"
+                onClick={() => onDeleteGroup(group)}
+                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+            >
+                <Trash2 className="mr-2 size-4" />
+                {t("delete_group")}
+            </Item>
+        </>
+    );
+}
+
+function countHostsInNode(node: HostTreeNode): number {
+    return (
+        node.hosts.length +
+        node.children.reduce((sum, child) => sum + countHostsInNode(child), 0)
+    );
+}
+
 interface HostGroupSectionProps {
     node: HostTreeNode;
-    depth?: number;
+    nested?: boolean;
     onConnect: (host: Host) => void;
     onEditHost: (host: Host) => void;
     onDeleteHost: (host: Host) => void;
@@ -34,7 +96,7 @@ interface HostGroupSectionProps {
 
 export function HostGroupSection({
     node,
-    depth = 0,
+    nested = false,
     onConnect,
     onEditHost,
     onDeleteHost,
@@ -56,94 +118,129 @@ export function HostGroupSection({
         onDelete: onDeleteHost,
     };
 
-    return (
-        <section
-            className={cn("w-full", depth > 0 && "ml-4 border-l border-border pl-4")}
-        >
-            <div className="mb-3 flex items-center gap-2">
-                <button
-                    type="button"
-                    onClick={() => setExpanded((e) => !e)}
-                    className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-1 py-1 text-left
-                               hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                    {expanded ? (
-                        <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
-                    ) : (
-                        <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-                    )}
-                    <Folder className="size-4 shrink-0 text-primary" />
-                    <span className="truncate font-semibold text-foreground">
-                        {node.group.name}
-                    </span>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                        {t("host_count", { count: node.hosts.length })}
-                    </span>
-                </button>
+    const hostCount = countHostsInNode(node);
 
-                <DropdownMenu modal={false}>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-sm">
-                            <MoreHorizontal className="size-4 text-muted-foreground" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-40 z-50">
-                        <DropdownMenuItem onClick={() => onEditGroup(node.group)}>
-                            <Edit className="mr-2 size-4" />
-                            {t("edit_group")}
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            onClick={() => onDeleteGroup(node.group)}
-                            className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+    const borderColor = groupCardBorderColor(node.group.color);
+
+    return (
+        <article
+            style={{
+                ["--group-card-width" as string]: GROUP_CARD_WIDTH,
+                borderColor,
+            }}
+            className={cn(GROUP_CARD_CLASS, nested && "max-w-none")}
+        >
+            <ContextMenu>
+                <ContextMenuTrigger asChild>
+                    <div className="flex items-center gap-2 border-b border-border/40 px-1 py-3">
+                        <button
+                            type="button"
+                            onClick={() => setExpanded((e) => !e)}
+                            className="flex min-w-0 flex-1 items-center gap-2 rounded-lg text-left
+                                       hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
-                            <Trash2 className="mr-2 size-4" />
-                            {t("delete_group")}
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
+                            {expanded ? (
+                                <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+                            ) : (
+                                <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                            )}
+                            <HostIconBadge
+                                kind="group"
+                                icon={node.group.icon}
+                                color={node.group.color}
+                                className="size-9 rounded-lg"
+                                iconClassName="size-5"
+                            />
+                            <div className="flex min-w-0 flex-col">
+                                <span className="truncate font-semibold text-foreground">
+                                    {node.group.name}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("host_count", { count: hostCount })}
+                                </span>
+                            </div>
+                        </button>
+
+                        <DropdownMenu modal={false}>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <MoreHorizontal className="size-4 text-muted-foreground" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="z-50 w-40">
+                                <GroupMenuItems
+                                    group={node.group}
+                                    onEditGroup={onEditGroup}
+                                    onDeleteGroup={onDeleteGroup}
+                                    Item={DropdownMenuItem}
+                                    Separator={DropdownMenuSeparator}
+                                />
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </ContextMenuTrigger>
+
+                <ContextMenuContent className="w-40">
+                    <GroupMenuItems
+                        group={node.group}
+                        onEditGroup={onEditGroup}
+                        onDeleteGroup={onDeleteGroup}
+                        Item={ContextMenuItem}
+                        Separator={ContextMenuSeparator}
+                    />
+                </ContextMenuContent>
+            </ContextMenu>
 
             {expanded && (
                 <div
                     ref={setNodeRef}
                     className={cn(
-                        "min-h-8 rounded-lg transition-colors",
-                        isOver && "bg-primary/5 ring-1 ring-primary/30",
+                        "flex min-h-12 flex-col gap-4 px-1 pb-1 pt-3 transition-colors",
+                        isOver && "rounded-lg bg-primary/5 ring-1 ring-inset ring-primary/30",
                     )}
                 >
                     {node.hosts.length > 0 && (
-                        <div
-                            className="mb-4 grid w-full gap-4"
-                            style={{
-                                gridTemplateColumns:
-                                    "repeat(auto-fit, minmax(20rem, 1fr))",
-                            }}
-                        >
+                        <div className={GROUP_HOST_GRID_CLASS}>
                             {node.hosts.map((host) => (
-                                <div key={host.id}>
+                                <div key={host.id} className="w-full max-w-80">
                                     {renderHostCard(host, handlers)}
                                 </div>
                             ))}
                         </div>
                     )}
 
-                    {node.children.map((child) => (
-                        <HostGroupSection
-                            key={child.group.id}
-                            node={child}
-                            depth={depth + 1}
-                            onConnect={onConnect}
-                            onEditHost={onEditHost}
-                            onDeleteHost={onDeleteHost}
-                            onEditGroup={onEditGroup}
-                            onDeleteGroup={onDeleteGroup}
-                            renderHostCard={renderHostCard}
-                        />
-                    ))}
+                    {node.children.length > 0 && (
+                        <div className="flex flex-col gap-4">
+                            {node.children.map((child) => (
+                                <HostGroupSection
+                                    key={child.group.id}
+                                    node={child}
+                                    nested
+                                    onConnect={onConnect}
+                                    onEditHost={onEditHost}
+                                    onDeleteHost={onDeleteHost}
+                                    onEditGroup={onEditGroup}
+                                    onDeleteGroup={onDeleteGroup}
+                                    renderHostCard={renderHostCard}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    {node.hosts.length === 0 && node.children.length === 0 && (
+                        <p className="text-center text-xs text-muted-foreground py-2">
+                            {t("group_empty_hint", {
+                                defaultValue: "Drop hosts here or add one to this group.",
+                            })}
+                        </p>
+                    )}
                 </div>
             )}
-        </section>
+        </article>
     );
 }
 
@@ -207,15 +304,9 @@ export function UncategorizedHostSection({
                         isOver && "bg-primary/5 ring-1 ring-primary/30",
                     )}
                 >
-                    <div
-                        className="grid w-full gap-4"
-                        style={{
-                            gridTemplateColumns:
-                                "repeat(auto-fit, minmax(20rem, 1fr))",
-                        }}
-                    >
+                    <div className={UNCATEGORIZED_HOST_GRID_CLASS}>
                         {hosts.map((host) => (
-                            <div key={host.id}>
+                            <div key={host.id} className="w-full max-w-80">
                                 {renderHostCard(host, handlers)}
                             </div>
                         ))}
@@ -223,5 +314,18 @@ export function UncategorizedHostSection({
                 </div>
             )}
         </section>
+    );
+}
+
+export function HostGroupCardGrid({ children }: { children: React.ReactNode }) {
+    return (
+        <div
+            style={{ ["--group-card-width" as string]: GROUP_CARD_WIDTH }}
+            className="grid w-full gap-6
+                       grid-cols-[repeat(auto-fill,var(--group-card-width))]
+                       justify-items-start"
+        >
+            {children}
+        </div>
     );
 }

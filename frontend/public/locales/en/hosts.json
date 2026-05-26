@@ -8,6 +8,7 @@
   "empty_desc": "Add a server to start establishing SSH connections.",
   "add_first_host": "Add your first host",
   "uncategorized": "Uncategorized",
+  "group_empty_hint": "Drop hosts here or add one to this group.",
   "host_count": "{{count}} hosts",
   "host_count_one": "1 host",
   "no_search_results": "No hosts or groups match your search.",

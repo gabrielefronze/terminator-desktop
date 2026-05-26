@@ -16,6 +16,15 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { flattenGroupsForSelect } from "@/lib/hostTree";
+import { HostAppearancePicker } from "@/components/views/HostAppearancePicker";
+import { HostIconBadge } from "@/components/views/HostIconBadge";
+import {
+    DEFAULT_GROUP_COLOR,
+    DEFAULT_GROUP_ICON,
+    normalizeGroupColor,
+    normalizeGroupIcon,
+    type HostIconId,
+} from "@/lib/hostAppearance";
 
 interface HostGroupModalProps {
     isOpen: boolean;
@@ -29,6 +38,8 @@ interface HostGroupModalProps {
 const DEFAULT_GROUP: Partial<HostGroup> = {
     name: "",
     parentId: undefined,
+    icon: DEFAULT_GROUP_ICON,
+    color: DEFAULT_GROUP_COLOR,
 };
 
 export function HostGroupModal({
@@ -66,6 +77,8 @@ export function HostGroupModal({
             id: formData.id || "",
             type: ItemType.TypeGroup,
             parentId,
+            icon: normalizeGroupIcon(formData.icon),
+            color: normalizeGroupColor(formData.color),
         });
 
         onSave(finalGroup);
@@ -75,7 +88,7 @@ export function HostGroupModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>
                         {isEditing ? t("edit_group_title") : t("new_group_title")}
@@ -83,6 +96,28 @@ export function HostGroupModal({
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+                    <div className="flex items-start gap-4">
+                        <HostIconBadge
+                            kind="group"
+                            icon={formData.icon}
+                            color={formData.color}
+                            className="size-12"
+                            iconClassName="size-6"
+                        />
+                        <div className="min-w-0 flex-1">
+                            <HostAppearancePicker
+                                icon={formData.icon}
+                                color={formData.color}
+                                onIconChange={(icon: HostIconId) =>
+                                    setFormData((prev) => ({ ...prev, icon }))
+                                }
+                                onColorChange={(color) =>
+                                    setFormData((prev) => ({ ...prev, color }))
+                                }
+                            />
+                        </div>
+                    </div>
+
                     <div className="grid gap-2">
                         <Label htmlFor="group-name">{t("group_name")}</Label>
                         <Input

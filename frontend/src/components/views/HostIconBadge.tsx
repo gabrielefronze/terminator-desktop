@@ -1,5 +1,12 @@
 import { cn } from "@/lib/utils";
-import { hostIconBadgeStyle, resolveHostIcon } from "@/lib/hostAppearance";
+import {
+    HOST_ICONS,
+    hostIconBadgeStyle,
+    normalizeGroupColor,
+    normalizeGroupIcon,
+    normalizeHostColor,
+    normalizeHostIcon,
+} from "@/lib/hostAppearance";
 
 interface HostIconBadgeProps {
     icon?: string | null;
@@ -7,6 +14,8 @@ interface HostIconBadgeProps {
     size?: "sm" | "md";
     className?: string;
     iconClassName?: string;
+    /** Host cards default to server/blue; groups default to folder/purple. */
+    kind?: "host" | "group";
 }
 
 export function HostIconBadge({
@@ -15,9 +24,13 @@ export function HostIconBadge({
     size = "md",
     className,
     iconClassName,
+    kind = "host",
 }: HostIconBadgeProps) {
-    const Icon = resolveHostIcon(icon);
-    const style = hostIconBadgeStyle(color);
+    const iconId = kind === "group" ? normalizeGroupIcon(icon) : normalizeHostIcon(icon);
+    const resolvedColor =
+        kind === "group" ? normalizeGroupColor(color) : normalizeHostColor(color);
+    const Icon = HOST_ICONS[iconId];
+    const style = hostIconBadgeStyle(resolvedColor);
 
     return (
         <div
