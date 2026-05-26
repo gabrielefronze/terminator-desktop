@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"runtime"
 	"runtime/debug"
 	"terminator-desktop/backend/cmd/terminator-desktop/emitters"
 	"terminator-desktop/backend/cmd/terminator-desktop/env"
@@ -190,10 +191,14 @@ func main() {
 	// 'Mac' options tailor the window when running on macOS.
 	// 'BackgroundColour' is the background colour of the window.
 	// 'URL' is the URL that will be loaded into the webview.
+	// Frameless on Windows/Linux enables custom title-bar controls. On macOS,
+	// Frameless hides native traffic lights in Wails v3; use the inset title bar instead.
+	frameless := runtime.GOOS != "darwin"
+
 	mainWindow = app.Window.NewWithOptions(application.WebviewWindowOptions{
 		Title:          AppName,
 		EnableFileDrop: true,
-		Frameless:      true,
+		Frameless:      frameless,
 		Mac: application.MacWindow{
 			InvisibleTitleBarHeight: 50,
 			Backdrop:                application.MacBackdropTranslucent,
