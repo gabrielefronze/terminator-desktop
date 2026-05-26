@@ -41,3 +41,4 @@ webview2
 releases/
 
 __debug_bin.exe
+.pnpm-store
