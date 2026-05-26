@@ -15,9 +15,16 @@ export function GetSettings(): $CancellablePromise<$models.AppSettings> {
     });
 }
 
+export function ListSystemFonts(): $CancellablePromise<string[]> {
+    return $Call.ByID(14813264).then(($result: any) => {
+        return $$createType1($result);
+    });
+}
+
 export function SaveSettings(settings: $models.AppSettings): $CancellablePromise<void> {
     return $Call.ByID(532647211, settings);
 }
 
 // Private type creation functions
 const $$createType0 = $models.AppSettings.createFrom;
+const $$createType1 = $Create.Array($Create.Any);

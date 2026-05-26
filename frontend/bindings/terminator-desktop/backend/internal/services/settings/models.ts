@@ -7,11 +7,19 @@ import { Create as $Create } from "@wailsio/runtime";
 
 export class AppSettings {
     "language": string;
+    "terminalFontFamily": string;
+    "terminalFontSize": number;
 
     /** Creates a new AppSettings instance. */
     constructor($$source: Partial<AppSettings> = {}) {
         if (!("language" in $$source)) {
             this["language"] = "";
+        }
+        if (!("terminalFontFamily" in $$source)) {
+            this["terminalFontFamily"] = "";
+        }
+        if (!("terminalFontSize" in $$source)) {
+            this["terminalFontSize"] = 0;
         }
 
         Object.assign(this, $$source);

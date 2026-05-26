@@ -7,8 +7,28 @@ import (
 	"sync"
 )
 
+const (
+	DefaultTerminalFontFamily = "Cascadia Code"
+	DefaultTerminalFontSize   = 14
+)
+
 type AppSettings struct {
-	Language string `json:"language"`
+	Language           string `json:"language"`
+	TerminalFontFamily string `json:"terminalFontFamily"`
+	TerminalFontSize   int    `json:"terminalFontSize"`
+}
+
+func normalizeSettings(settings AppSettings) AppSettings {
+	if settings.Language == "" {
+		settings.Language = "en"
+	}
+	if settings.TerminalFontFamily == "" {
+		settings.TerminalFontFamily = DefaultTerminalFontFamily
+	}
+	if settings.TerminalFontSize <= 0 {
+		settings.TerminalFontSize = DefaultTerminalFontSize
+	}
+	return settings
 }
 
 type SettingsService struct {
@@ -27,13 +47,15 @@ func (s *SettingsService) GetSettings() (AppSettings, error) {
 	defer s.mutex.RUnlock()
 
 	settings := AppSettings{
-		Language: "en",
+		Language:           "en",
+		TerminalFontFamily: DefaultTerminalFontFamily,
+		TerminalFontSize:   DefaultTerminalFontSize,
 	}
 
 	data, err := os.ReadFile(s.configPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return settings, nil
+			return normalizeSettings(settings), nil
 		}
 		return settings, err
 	}
@@ -43,12 +65,14 @@ func (s *SettingsService) GetSettings() (AppSettings, error) {
 		return settings, err
 	}
 
-	return settings, nil
+	return normalizeSettings(settings), nil
 }
 
 func (s *SettingsService) SaveSettings(settings AppSettings) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
+
+	settings = normalizeSettings(settings)
 
 	data, err := json.MarshalIndent(settings, "", "  ")
 	if err != nil {

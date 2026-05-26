@@ -1,6 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { User, Server, Lock, Trash2, Globe, AlertTriangle } from "lucide-react";
+import {
+    User,
+    Server,
+    Lock,
+    Trash2,
+    Globe,
+    AlertTriangle,
+    Type,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SwitchServerModal } from "@/components/views/SwitchServerModal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -19,6 +27,15 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useSyncStore } from "@/store/syncStore.ts";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useSettings, useSaveSettings, useSystemFonts } from "@/hooks/useSettings";
+import { DEFAULT_TERMINAL_FONT_SIZE } from "@/lib/terminalTheme";
+import {
+    DEFAULT_TERMINAL_FONT_NAME,
+    parseStoredFontFamily,
+} from "@/lib/terminalFont";
+import { TerminalFontSelect } from "@/components/views/TerminalFontSelect";
 
 export function SettingsPage() {
     const {t, i18n} = useTranslation(["settings", "common", "errors"]);
@@ -29,6 +46,27 @@ export function SettingsPage() {
 
     const [isServerModalOpen, setIsServerModalOpen] = useState(false);
     const [isWipeModalOpen, setIsWipeModalOpen] = useState(false);
+    const { data: settings } = useSettings();
+    const { data: systemFonts, isLoading: isFontsLoading } = useSystemFonts();
+    const saveSettingsMutation = useSaveSettings();
+    const [terminalFontFamily, setTerminalFontFamily] = useState(
+        DEFAULT_TERMINAL_FONT_NAME,
+    );
+    const [terminalFontSize, setTerminalFontSize] = useState(
+        DEFAULT_TERMINAL_FONT_SIZE,
+    );
+
+    useEffect(() => {
+        if (!settings) return;
+        setTerminalFontFamily(
+            parseStoredFontFamily(settings.terminalFontFamily),
+        );
+        setTerminalFontSize(
+            settings.terminalFontSize > 0
+                ? settings.terminalFontSize
+                : DEFAULT_TERMINAL_FONT_SIZE,
+        );
+    }, [settings]);
 
     const handleLockVault = async () => {
         try {
@@ -51,17 +89,52 @@ export function SettingsPage() {
         }
     };
 
+    const persistSettings = async (patch: Partial<AppSettings>) => {
+        const current = settings ?? (await SettingsService.GetSettings());
+        await saveSettingsMutation.mutateAsync(
+            new AppSettings({ ...current, ...patch }),
+        );
+    };
+
     const changeLanguage = async (lng: string) => {
         try {
-            const current = await SettingsService.GetSettings();
-
-            const updated = new AppSettings({
-                ...current,
-                language: lng,
-            });
-
-            await SettingsService.SaveSettings(updated);
+            await persistSettings({ language: lng });
             void i18n.changeLanguage(lng);
+        } catch (error) {
+            handleAppError(error);
+        }
+    };
+
+    const changeTerminalFontFamily = async (family: string) => {
+        setTerminalFontFamily(family);
+        try {
+            await persistSettings({ terminalFontFamily: family });
+        } catch (error) {
+            handleAppError(error);
+        }
+    };
+
+    const saveTerminalFontSize = async () => {
+        const size = Math.min(
+            32,
+            Math.max(8, Number(terminalFontSize) || DEFAULT_TERMINAL_FONT_SIZE),
+        );
+        setTerminalFontSize(size);
+        try {
+            await persistSettings({ terminalFontSize: size });
+        } catch (error) {
+            handleAppError(error);
+        }
+    };
+
+    const resetTerminalFont = async () => {
+        setTerminalFontFamily(DEFAULT_TERMINAL_FONT_NAME);
+        setTerminalFontSize(DEFAULT_TERMINAL_FONT_SIZE);
+        try {
+            await persistSettings({
+                terminalFontFamily: DEFAULT_TERMINAL_FONT_NAME,
+                terminalFontSize: DEFAULT_TERMINAL_FONT_SIZE,
+            });
         } catch (error) {
             handleAppError(error);
         }
@@ -151,6 +224,69 @@ export function SettingsPage() {
                                 <SelectItem value="ru">Русский</SelectItem>
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    <div className="h-px w-full bg-border" />
+
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-start gap-4">
+                            <div
+                                className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+                            >
+                                <Type className="size-5" />
+                            </div>
+                            <div className="flex min-w-0 flex-1 flex-col gap-1">
+                                <span className="text-sm font-medium text-foreground">
+                                    {t("terminal_font_family_label")}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("terminal_font_family_desc")}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap items-end gap-3">
+                            <div className="min-w-0 flex-1 basis-48">
+                                <TerminalFontSelect
+                                    value={terminalFontFamily}
+                                    fonts={systemFonts ?? []}
+                                    isLoading={isFontsLoading}
+                                    onValueChange={(family) =>
+                                        void changeTerminalFontFamily(family)
+                                    }
+                                />
+                            </div>
+                            <div className="flex shrink-0 flex-col gap-2">
+                                <Label
+                                    htmlFor="terminal-font-size"
+                                    className="text-xs text-muted-foreground"
+                                >
+                                    {t("terminal_font_size_label")}
+                                </Label>
+                                <Input
+                                    id="terminal-font-size"
+                                    type="number"
+                                    min={8}
+                                    max={32}
+                                    value={terminalFontSize}
+                                    onChange={(e) =>
+                                        setTerminalFontSize(
+                                            Number(e.target.value),
+                                        )
+                                    }
+                                    onBlur={() => void saveTerminalFontSize()}
+                                    className="h-8 w-20"
+                                />
+                            </div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="h-8 shrink-0"
+                                onClick={() => void resetTerminalFont()}
+                            >
+                                {t("terminal_reset_font_btn")}
+                            </Button>
+                        </div>
                     </div>
                 </SettingsCard>
 

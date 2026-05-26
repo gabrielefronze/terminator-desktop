@@ -11,6 +11,7 @@ import { HOSTS_QUERY_KEY } from "@/hooks/useHosts.ts";
 import { GROUPS_QUERY_KEY } from "@/hooks/useHostGroups.ts";
 import { IDENTITIES_QUERY_KEY } from "@/hooks/useIdentities.ts";
 import { KEYS_QUERY_KEY } from "@/hooks/useKeys.ts";
+import { SETTINGS_QUERY_KEY } from "@/hooks/useSettings";
 import { SettingsService } from "../bindings/terminator-desktop/backend/internal/services/settings";
 import { useTranslation } from "react-i18next";
 import { AppEvent } from "@/lib/events.ts";
@@ -26,14 +27,18 @@ export default function App() {
     const {i18n} = useTranslation();
 
     useEffect(() => {
-        SettingsService.GetSettings()
+        queryClient
+            .fetchQuery({
+                queryKey: SETTINGS_QUERY_KEY,
+                queryFn: () => SettingsService.GetSettings(),
+            })
             .then((settings) => {
                 if (settings.language && settings.language !== i18n.language) {
                     void i18n.changeLanguage(settings.language);
                 }
             })
             .catch(console.error);
-    }, [i18n]);
+    }, [i18n, queryClient]);
 
     useEffect(() => {
         const unsubscribe = Events.On(AppEvent.SshClosed, (event) => {

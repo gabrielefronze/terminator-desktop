@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { Events } from "@wailsio/runtime";
-import { TERMINAL_THEME } from "@/lib/terminalTheme";
+import { buildTerminalOptions } from "@/lib/terminalTheme";
+import { useSettings } from "@/hooks/useSettings";
 import { parseAppError } from "@/lib/error";
 import { cn, decodeBase64ToUint8Array } from "@/lib/utils";
 import "@xterm/xterm/css/xterm.css";
@@ -18,6 +19,7 @@ interface TerminalInstanceProps {
 
 export function TerminalInstance({sessionId, isActive, config}: TerminalInstanceProps) {
     const {t} = useTranslation("terminal");
+    const {data: settings} = useSettings();
 
     const containerRef = useRef<HTMLDivElement>(null);
     const terminalRef = useRef<Terminal | null>(null);
@@ -41,7 +43,7 @@ export function TerminalInstance({sessionId, isActive, config}: TerminalInstance
         if (!containerRef.current || terminalRef.current) return;
         const container = containerRef.current;
 
-        const term = new Terminal(TERMINAL_THEME);
+        const term = new Terminal(buildTerminalOptions(settings));
         const fitAddon = new FitAddon();
 
         term.loadAddon(fitAddon);
@@ -127,6 +129,27 @@ export function TerminalInstance({sessionId, isActive, config}: TerminalInstance
             });
         };
     }, [sessionId, config]);
+
+    useEffect(() => {
+        const term = terminalRef.current;
+        const fit = fitAddonRef.current;
+        if (!term || !settings) return;
+
+        const options = buildTerminalOptions(settings);
+        term.options.fontFamily = options.fontFamily!;
+        term.options.fontSize = options.fontSize!;
+
+        if (isReadyRef.current && fit) {
+            try {
+                fit.fit();
+                SshService.Resize(sessionId, term.rows, term.cols).catch(
+                    console.error,
+                );
+            } catch (e) {
+                console.warn("xterm fit failed:", e);
+            }
+        }
+    }, [settings, sessionId]);
 
     useEffect(() => {
         const unsubscribe = Events.On(AppEvent.SshData, (event) => {
