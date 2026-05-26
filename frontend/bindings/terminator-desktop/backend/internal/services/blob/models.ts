@@ -14,6 +14,7 @@ export class Host {
     "username": string;
     "password"?: string;
     "keyId"?: string;
+    "groupId"?: string;
 
     /** Creates a new Host instance. */
     constructor($$source: Partial<Host> = {}) {
@@ -48,6 +49,37 @@ export class Host {
     }
 }
 
+export class HostGroup {
+    "id": string;
+    "type": ItemType;
+    "name": string;
+    "parentId"?: string;
+    "sortOrder"?: number;
+
+    /** Creates a new HostGroup instance. */
+    constructor($$source: Partial<HostGroup> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("type" in $$source)) {
+            this["type"] = ItemType.$zero;
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new HostGroup instance from a string or object.
+     */
+    static createFrom($$source: any = {}): HostGroup {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new HostGroup($$parsedSource as Partial<HostGroup>);
+    }
+}
+
 export enum ItemType {
     /**
      * The Go zero value for the underlying type of the enum.
@@ -56,6 +88,7 @@ export enum ItemType {
 
     TypeHost = "host",
     TypeKey = "key",
+    TypeGroup = "group",
 };
 
 export class SavedKey {

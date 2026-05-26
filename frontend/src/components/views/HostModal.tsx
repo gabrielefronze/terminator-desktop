@@ -1,4 +1,4 @@
-import { useState, useEffect, SyntheticEvent } from "react";
+import { useState, useEffect, SyntheticEvent, useMemo } from "react";
 import {useTranslation} from "react-i18next";
 import {Host, ItemType} from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import {Dialog, DialogContent, DialogHeader, DialogTitle} from "@/components/ui/dialog";
@@ -13,12 +13,15 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {useKeys} from "@/hooks/useKeys";
+import {HostGroup} from "../../../bindings/terminator-desktop/backend/internal/services/blob/";
+import {flattenGroupsForSelect} from "@/lib/hostTree";
 
 interface HostModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: (host: Host) => void;
     initialData?: Host | null;
+    groups: HostGroup[];
     isSaving: boolean;
 }
 
@@ -31,10 +34,15 @@ const DEFAULT_HOST: Partial<Host> = {
     keyId: undefined,
 };
 
-export function HostModal({isOpen, onClose, onSave, initialData, isSaving}: HostModalProps) {
+export function HostModal({isOpen, onClose, onSave, initialData, groups, isSaving}: HostModalProps) {
     const {t} = useTranslation(["hosts", "common"]);
     const [formData, setFormData] = useState<Partial<Host>>(DEFAULT_HOST);
     const {data: keys} = useKeys();
+
+    const groupOptions = useMemo(
+        () => flattenGroupsForSelect(groups),
+        [groups],
+    );
 
     useEffect(() => {
         if (isOpen) {
@@ -51,6 +59,10 @@ export function HostModal({isOpen, onClose, onSave, initialData, isSaving}: Host
             type: ItemType.TypeHost,
             port: Number(formData.port) || 22,
             keyId: formData.keyId === "none" ? undefined : formData.keyId,
+            groupId:
+                formData.groupId === "none" || !formData.groupId
+                    ? undefined
+                    : formData.groupId,
         });
 
         onSave(finalHost);
@@ -123,6 +135,31 @@ export function HostModal({isOpen, onClose, onSave, initialData, isSaving}: Host
                             onChange={(e) =>
                                 setFormData({...formData, password: e.target.value})}
                         />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label>{t("host_group_label")}</Label>
+                        <Select
+                            value={formData.groupId || "none"}
+                            onValueChange={(val) =>
+                                setFormData({
+                                    ...formData,
+                                    groupId: val === "none" ? undefined : val,
+                                })}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder={t("select_group_placeholder")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">{t("uncategorized")}</SelectItem>
+                                {groupOptions.map(({ group, depth }) => (
+                                    <SelectItem key={group.id} value={group.id}>
+                                        {"\u00A0".repeat(depth * 2)}
+                                        {group.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="grid gap-2">

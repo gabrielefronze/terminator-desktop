@@ -8,6 +8,7 @@ import { Events } from "@wailsio/runtime";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { HOSTS_QUERY_KEY } from "@/hooks/useHosts.ts";
+import { GROUPS_QUERY_KEY } from "@/hooks/useHostGroups.ts";
 import { KEYS_QUERY_KEY } from "@/hooks/useKeys.ts";
 import { SettingsService } from "../bindings/terminator-desktop/backend/internal/services/settings";
 import { useTranslation } from "react-i18next";
@@ -51,6 +52,7 @@ export default function App() {
             console.debug(`${AppEvent.SyncUpdatesAvailable}: invalidating queries`);
 
             void queryClient.invalidateQueries({queryKey: HOSTS_QUERY_KEY});
+            void queryClient.invalidateQueries({queryKey: GROUPS_QUERY_KEY});
             void queryClient.invalidateQueries({queryKey: KEYS_QUERY_KEY});
         });
 
