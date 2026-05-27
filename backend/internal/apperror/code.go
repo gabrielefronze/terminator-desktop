@@ -11,6 +11,12 @@ const (
 	CodeSSHConnectionError = ErrorCode("SSH_CONNECTION_FAILED")
 	CodeSSHSessionNotFound = ErrorCode("SSH_SESSION_NOT_FOUND")
 
+	CodeBiometricUnavailable = ErrorCode("BIOMETRIC_UNAVAILABLE")
+	CodeBiometricNotEnabled  = ErrorCode("BIOMETRIC_NOT_ENABLED")
+	CodeBiometricCancelled   = ErrorCode("BIOMETRIC_CANCELLED")
+	CodeBiometricFailed      = ErrorCode("BIOMETRIC_FAILED")
+	CodeBiometricStale       = ErrorCode("BIOMETRIC_STALE")
+
 	CodeInternalError = ErrorCode("INTERNAL_ERROR")
 	CodeUnknownError  = ErrorCode("UNKNOWN_ERROR")
 	CodeAPIError      = ErrorCode("API_ERROR")

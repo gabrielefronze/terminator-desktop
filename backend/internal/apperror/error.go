@@ -99,6 +99,20 @@ func SSHConnectionFailed(msg string, err error) *AppError {
 	}
 }
 
+func New(code ErrorCode, message string, err error) *AppError {
+	errorString := message
+	if err != nil {
+		errorString = err.Error()
+	}
+
+	return &AppError{
+		Code:        code,
+		Message:     message,
+		Err:         err,
+		ErrorString: errorString,
+	}
+}
+
 func SSHSessionNotFound() *AppError {
 	message := "session not found"
 

@@ -10,6 +10,7 @@ import {
     Type,
     Monitor,
     Paintbrush,
+    Fingerprint,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SwitchServerModal } from "@/components/views/SwitchServerModal";
@@ -40,6 +41,7 @@ import {
 import { TerminalFontSelect } from "@/components/views/TerminalFontSelect";
 import { Switch } from "@/components/ui/switch";
 import { useLocalhostHostSetting } from "@/hooks/useLocalhostHostSetting";
+import { useBiometric } from "@/hooks/useBiometric";
 import { AppBackgroundPicker } from "@/components/views/AppBackgroundPicker";
 import {
     DEFAULT_APP_BACKGROUND_COLOR,
@@ -73,6 +75,10 @@ export function SettingsPage() {
     const [appBackgroundColor, setAppBackgroundColor] = useState(
         DEFAULT_APP_BACKGROUND_COLOR,
     );
+    const biometric = useBiometric();
+    const [touchIdPassword, setTouchIdPassword] = useState("");
+    const [touchIdEnabling, setTouchIdEnabling] = useState(false);
+    const [showTouchIdSetup, setShowTouchIdSetup] = useState(false);
 
     useEffect(() => {
         if (!settings) return;
@@ -88,6 +94,36 @@ export function SettingsPage() {
             normalizeAppBackgroundColor(settings.appBackgroundColor),
         );
     }, [settings]);
+
+    const handleTouchIdToggle = async (checked: boolean) => {
+        if (!checked) {
+            try {
+                await AuthService.DisableBiometric();
+                await biometric.refresh();
+                setShowTouchIdSetup(false);
+                setTouchIdPassword("");
+            } catch (error) {
+                handleAppError(error);
+            }
+            return;
+        }
+        setShowTouchIdSetup(true);
+    };
+
+    const handleEnableTouchId = async () => {
+        if (!touchIdPassword) return;
+        setTouchIdEnabling(true);
+        try {
+            await AuthService.EnableBiometric(touchIdPassword);
+            setTouchIdPassword("");
+            setShowTouchIdSetup(false);
+            await biometric.refresh();
+        } catch (error) {
+            handleAppError(error);
+        } finally {
+            setTouchIdEnabling(false);
+        }
+    };
 
     const handleLockVault = async () => {
         try {
@@ -398,6 +434,75 @@ export function SettingsPage() {
                             {t("lock_btn")}
                         </Button>
                     </div>
+
+                    {biometric.available && (
+                        <>
+                            <div className="my-2 h-px w-full bg-border" />
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div
+                                            className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+                                        >
+                                            <Fingerprint className="size-5" />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="font-medium text-foreground">
+                                                {t("touch_id_label")}
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                {t("touch_id_desc")}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <Switch
+                                        checked={biometric.enabled}
+                                        onCheckedChange={(checked) =>
+                                            void handleTouchIdToggle(checked)
+                                        }
+                                    />
+                                </div>
+                                {showTouchIdSetup && !biometric.enabled && (
+                                    <div className="flex flex-col gap-3 rounded-lg border border-border bg-background p-4">
+                                        <p className="text-xs text-muted-foreground">
+                                            {t("touch_id_password_hint")}
+                                        </p>
+                                        <Input
+                                            type="password"
+                                            value={touchIdPassword}
+                                            onChange={(e) =>
+                                                setTouchIdPassword(e.target.value)
+                                            }
+                                            autoComplete="current-password"
+                                        />
+                                        <div className="flex justify-end gap-2">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => {
+                                                    setShowTouchIdSetup(false);
+                                                    setTouchIdPassword("");
+                                                }}
+                                            >
+                                                {t("cancel", { ns: "common" })}
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                size="sm"
+                                                disabled={
+                                                    touchIdEnabling || !touchIdPassword
+                                                }
+                                                onClick={() => void handleEnableTouchId()}
+                                            >
+                                                {t("touch_id_enable_btn")}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    )}
 
                     <div className="my-2 h-px w-full bg-border"/>
 

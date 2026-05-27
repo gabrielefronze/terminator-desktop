@@ -1,13 +1,16 @@
-import { useState, useEffect, SyntheticEvent } from "react";
+import { useState, useEffect, useRef, SyntheticEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { Lock, Server, Shield, ArrowLeft } from "lucide-react";
+import { Lock, Server, Shield, ArrowLeft, Fingerprint } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthService } from "../../../bindings/terminator-desktop/backend/internal/services/auth";
 import { SyncService } from "../../../bindings/terminator-desktop/backend/internal/services/sync";
 import { useAuthStore } from "@/store/authStore";
-import { handleAppError } from "@/lib/error";
+import { handleAppError, parseAppError } from "@/lib/error";
+import { ErrorCode } from "@/lib/errorCodes";
+import { useBiometric } from "@/hooks/useBiometric";
+import { cn } from "@/lib/utils";
 import { formatServerUrl } from "@/lib/utils.ts";
 import { defaultServerUrl } from "@/lib/defaultServer.ts";
 
@@ -24,6 +27,28 @@ export function LockScreen() {
     const [password, setPassword] = useState("");
     const [url, setUrl] = useState(defaultServerUrl);
     const [isLoading, setIsLoading] = useState(false);
+    const biometric = useBiometric();
+    const biometricPrompted = useRef(false);
+
+    const tryBiometricLogin = async (silent = false) => {
+        setIsLoading(true);
+        try {
+            await AuthService.LoginWithBiometric();
+            await SyncService.StartAutoSync();
+            setUnlocked(true);
+        } catch (error) {
+            const parsed = parseAppError(error);
+            if (silent && parsed.code === ErrorCode.BIOMETRIC_CANCELLED) {
+                return;
+            }
+            if (parsed.code === ErrorCode.BIOMETRIC_STALE) {
+                await biometric.refresh();
+            }
+            handleAppError(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
         AuthService.HasUser()
@@ -34,6 +59,20 @@ export function LockScreen() {
             .catch(handleAppError)
             .finally(() => setIsChecking(false));
     }, [setHasUser]);
+
+    useEffect(() => {
+        if (
+            mode !== "login" ||
+            !biometric.ready ||
+            !biometric.enabled ||
+            biometricPrompted.current ||
+            isLoading
+        ) {
+            return;
+        }
+        biometricPrompted.current = true;
+        void tryBiometricLogin(true);
+    }, [mode, biometric.ready, biometric.enabled, isLoading]);
 
     const handleLogin = async (e: SyntheticEvent) => {
         e.preventDefault();
@@ -116,14 +155,44 @@ export function LockScreen() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="password-login">{t("master_password")}</Label>
-                            <Input
-                                id="password-login"
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
+                            <div className="relative">
+                                <Input
+                                    id="password-login"
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    className={cn(
+                                        biometric.available && biometric.enabled && "pr-11",
+                                    )}
+                                />
+                                {biometric.available && biometric.enabled && (
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        className="absolute right-1 top-1/2 -translate-y-1/2"
+                                        title={t("touch_id_unlock")}
+                                        disabled={isLoading}
+                                        onClick={() => void tryBiometricLogin()}
+                                    >
+                                        <Fingerprint className="size-4" />
+                                    </Button>
+                                )}
+                            </div>
                         </div>
+                        {biometric.available && biometric.enabled && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full"
+                                disabled={isLoading}
+                                onClick={() => void tryBiometricLogin()}
+                            >
+                                <Fingerprint className="mr-2 size-4" />
+                                {t("touch_id_btn")}
+                            </Button>
+                        )}
                         <Button type="submit" className="w-full" disabled={isLoading}>
                             {isLoading ? t("unlocking", {ns: "common"}) : t("unlock")}
                         </Button>

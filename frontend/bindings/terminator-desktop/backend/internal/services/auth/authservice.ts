@@ -9,6 +9,22 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 // @ts-ignore: Unused imports
 import * as $models from "./models.js";
 
+export function BiometricAvailable(): $CancellablePromise<boolean> {
+    return $Call.ByID(323124892);
+}
+
+export function BiometricEnabled(): $CancellablePromise<boolean> {
+    return $Call.ByID(2956800378);
+}
+
+export function DisableBiometric(): $CancellablePromise<void> {
+    return $Call.ByID(3119833051);
+}
+
+export function EnableBiometric(password: string): $CancellablePromise<void> {
+    return $Call.ByID(279000264, password);
+}
+
 export function GetCurrentUser(): $CancellablePromise<$models.UserInfo | null> {
     return $Call.ByID(3254285799).then(($result: any) => {
         return $$createType1($result);
@@ -35,6 +51,10 @@ export function Login(password: string): $CancellablePromise<void> {
  */
 export function LoginFromSync(serverUrl: string, username: string, password: string): $CancellablePromise<void> {
     return $Call.ByID(259731729, serverUrl, username, password);
+}
+
+export function LoginWithBiometric(): $CancellablePromise<void> {
+    return $Call.ByID(4180337264);
 }
 
 export function RegisterLocal(username: string, password: string): $CancellablePromise<void> {

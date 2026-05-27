@@ -9,6 +9,7 @@ import (
 	"runtime/debug"
 	"terminator-desktop/backend/internal/api"
 	"terminator-desktop/backend/internal/apperror"
+	"terminator-desktop/backend/internal/biometric"
 	"terminator-desktop/backend/internal/crypto"
 	"terminator-desktop/backend/internal/dbgen"
 	"terminator-desktop/backend/internal/vault"
@@ -251,6 +252,7 @@ func (s *AuthService) WipeData(ctx context.Context) error {
 		return err
 	}
 
+	_ = biometric.Delete()
 	s.vault.Lock()
 	s.client.ClearToken()
 
