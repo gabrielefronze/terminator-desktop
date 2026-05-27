@@ -9,6 +9,10 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 // @ts-ignore: Unused imports
 import * as $models from "./models.js";
 
+export function CheckPrivateKeyNeedsPassphrase(privateKey: string): $CancellablePromise<boolean> {
+    return $Call.ByID(2238678926, privateKey);
+}
+
 export function Connect(config: $models.SSHConnectionConfig | null): $CancellablePromise<void> {
     return $Call.ByID(662660765, config);
 }
@@ -24,6 +28,40 @@ export function Input(sessionID: string, data: string): $CancellablePromise<void
     return $Call.ByID(187872847, sessionID, data);
 }
 
+export function ListPortForwards(sessionID: string): $CancellablePromise<$models.PortForward[]> {
+    return $Call.ByID(2962886936, sessionID).then(($result: any) => {
+        return $$createType1($result);
+    });
+}
+
 export function Resize(sessionID: string, rows: number, cols: number): $CancellablePromise<void> {
     return $Call.ByID(639676773, sessionID, rows, cols);
 }
+
+export function SftpDownload(sessionID: string, remotePath: string, localPath: string): $CancellablePromise<void> {
+    return $Call.ByID(2112044164, sessionID, remotePath, localPath);
+}
+
+export function SftpList(sessionID: string, remotePath: string): $CancellablePromise<$models.SftpEntry[]> {
+    return $Call.ByID(417381892, sessionID, remotePath).then(($result: any) => {
+        return $$createType3($result);
+    });
+}
+
+export function SftpUpload(sessionID: string, localPath: string, remotePath: string): $CancellablePromise<void> {
+    return $Call.ByID(4185042813, sessionID, localPath, remotePath);
+}
+
+export function StartLocalForward(sessionID: string, id: string, localHost: string, localPort: number, remoteHost: string, remotePort: number): $CancellablePromise<void> {
+    return $Call.ByID(3842866583, sessionID, id, localHost, localPort, remoteHost, remotePort);
+}
+
+export function StopPortForward(id: string): $CancellablePromise<void> {
+    return $Call.ByID(302194887, id);
+}
+
+// Private type creation functions
+const $$createType0 = $models.PortForward.createFrom;
+const $$createType1 = $Create.Array($$createType0);
+const $$createType2 = $models.SftpEntry.createFrom;
+const $$createType3 = $Create.Array($$createType2);

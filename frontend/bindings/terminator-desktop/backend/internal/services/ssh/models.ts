@@ -5,6 +5,84 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+export class PortForward {
+    "id": string;
+    "sessionId": string;
+    "mode": string;
+    "localHost": string;
+    "localPort": number;
+    "remoteHost": string;
+    "remotePort": number;
+
+    /** Creates a new PortForward instance. */
+    constructor($$source: Partial<PortForward> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("sessionId" in $$source)) {
+            this["sessionId"] = "";
+        }
+        if (!("mode" in $$source)) {
+            this["mode"] = "";
+        }
+        if (!("localHost" in $$source)) {
+            this["localHost"] = "";
+        }
+        if (!("localPort" in $$source)) {
+            this["localPort"] = 0;
+        }
+        if (!("remoteHost" in $$source)) {
+            this["remoteHost"] = "";
+        }
+        if (!("remotePort" in $$source)) {
+            this["remotePort"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new PortForward instance from a string or object.
+     */
+    static createFrom($$source: any = {}): PortForward {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new PortForward($$parsedSource as Partial<PortForward>);
+    }
+}
+
+export class RelayHopConfig {
+    "host": string;
+    "port": number;
+    "username": string;
+    "password"?: string;
+    "privateKey"?: string;
+    "keyPassphrase"?: string;
+    "keyboardInteractivePassword"?: string;
+
+    /** Creates a new RelayHopConfig instance. */
+    constructor($$source: Partial<RelayHopConfig> = {}) {
+        if (!("host" in $$source)) {
+            this["host"] = "";
+        }
+        if (!("port" in $$source)) {
+            this["port"] = 0;
+        }
+        if (!("username" in $$source)) {
+            this["username"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new RelayHopConfig instance from a string or object.
+     */
+    static createFrom($$source: any = {}): RelayHopConfig {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new RelayHopConfig($$parsedSource as Partial<RelayHopConfig>);
+    }
+}
+
 export class SSHConnectionConfig {
     "id": string;
     "local": boolean;
@@ -13,15 +91,22 @@ export class SSHConnectionConfig {
     "username": string;
     "password"?: string;
     "privateKey"?: string;
+    "keyPassphrase"?: string;
+    "keyboardInteractivePassword"?: string;
+    "startupCommand"?: string;
+    "environment"?: { [_ in string]?: string };
 
     /**
-     * Optional jump host / relay (bastion) — one hop only.
+     * Legacy single relay (still supported when RelayHops is empty).
      */
     "relayHost"?: string;
     "relayPort"?: number;
     "relayUsername"?: string;
     "relayPassword"?: string;
     "relayPrivateKey"?: string;
+    "relayKeyPassphrase"?: string;
+    "relayKeyboardInteractivePassword"?: string;
+    "relayHops"?: RelayHopConfig[];
 
     /** Creates a new SSHConnectionConfig instance. */
     constructor($$source: Partial<SSHConnectionConfig> = {}) {
@@ -48,7 +133,57 @@ export class SSHConnectionConfig {
      * Creates a new SSHConnectionConfig instance from a string or object.
      */
     static createFrom($$source: any = {}): SSHConnectionConfig {
+        const $$createField10_0 = $$createType0;
+        const $$createField18_0 = $$createType2;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("environment" in $$parsedSource) {
+            $$parsedSource["environment"] = $$createField10_0($$parsedSource["environment"]);
+        }
+        if ("relayHops" in $$parsedSource) {
+            $$parsedSource["relayHops"] = $$createField18_0($$parsedSource["relayHops"]);
+        }
         return new SSHConnectionConfig($$parsedSource as Partial<SSHConnectionConfig>);
     }
 }
+
+export class SftpEntry {
+    "name": string;
+    "path": string;
+    "size": number;
+    "isDir": boolean;
+    "modTime": number;
+
+    /** Creates a new SftpEntry instance. */
+    constructor($$source: Partial<SftpEntry> = {}) {
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("path" in $$source)) {
+            this["path"] = "";
+        }
+        if (!("size" in $$source)) {
+            this["size"] = 0;
+        }
+        if (!("isDir" in $$source)) {
+            this["isDir"] = false;
+        }
+        if (!("modTime" in $$source)) {
+            this["modTime"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new SftpEntry instance from a string or object.
+     */
+    static createFrom($$source: any = {}): SftpEntry {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new SftpEntry($$parsedSource as Partial<SftpEntry>);
+    }
+}
+
+// Private type creation functions
+const $$createType0 = $Create.Map($Create.Any, $Create.Any);
+const $$createType1 = RelayHopConfig.createFrom;
+const $$createType2 = $Create.Array($$createType1);
