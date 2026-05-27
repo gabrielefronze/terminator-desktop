@@ -39,38 +39,19 @@ export function buildSessionFromHost(
     const creds = resolveHostCredentials(host, keys, identities);
     const sudoCredentials: SudoCredential[] = [];
     const seen = new Set<string>();
-    const addCredential = (id: string, label: string, password?: string) => {
-        if (!password) return;
-        const key = `${label}::${password}`;
-        if (seen.has(key)) return;
-        seen.add(key);
-        sudoCredentials.push({ id, label, password });
-    };
 
-    // Include login password used for SSH (host password or selected identity password).
-    addCredential("login-password", "Login password", creds.password);
-
-    // Include selected auth identity too, even if not added in auto list.
-    if (host.identityId) {
-        const authIdentity = identities?.find((item) => item.id === host.identityId);
-        if (authIdentity) {
-            addCredential(
-                `identity:${authIdentity.id}`,
-                authIdentity.name || authIdentity.username,
-                authIdentity.password,
-            );
-        }
-    }
-
-    // Include explicit extra sudo identities.
     for (const identityId of host.userpassIdentityIds ?? []) {
         const identity = identities?.find((item) => item.id === identityId);
-        if (!identity) continue;
-        addCredential(
-            `identity:${identity.id}`,
-            identity.name || identity.username,
-            identity.password,
-        );
+        if (!identity?.password) continue;
+        const label = identity.name || identity.username;
+        const key = `${label}::${identity.password}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        sudoCredentials.push({
+            id: `identity:${identity.id}`,
+            label,
+            password: identity.password,
+        });
     }
 
     const relay = resolveRelaySessionFields(

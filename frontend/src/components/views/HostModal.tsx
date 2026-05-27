@@ -1,7 +1,13 @@
-import { useState, useEffect, SyntheticEvent, useMemo } from "react";
+import { useState, useEffect, SyntheticEvent, useMemo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Host, ItemType } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +33,7 @@ import {
 } from "@/lib/hostAppearance";
 import { BUILTIN_LOCALHOST_HOST_ID } from "@/lib/defaultLocalhost";
 import { validateRelayHostId } from "@/lib/relayHost";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 type AuthMode = "password" | "identity" | "key";
@@ -39,7 +46,6 @@ interface HostModalProps {
     allHosts?: Host[];
     groups: HostGroup[];
     isSaving: boolean;
-    /** Local sidebar shell: only label and appearance, no SSH fields. */
     localShellOnly?: boolean;
 }
 
@@ -60,6 +66,54 @@ function deriveAuthMode(host: Partial<Host> | null | undefined): AuthMode {
     if (host?.keyId) return "key";
     if (host?.identityId) return "identity";
     return "password";
+}
+
+function HostFormSection({
+    title,
+    description,
+    children,
+    className,
+}: {
+    title: string;
+    description?: string;
+    children: ReactNode;
+    className?: string;
+}) {
+    return (
+        <section className={cn("grid gap-2.5", className)}>
+            <div className="space-y-0.5">
+                <h3 className="text-sm font-medium leading-none">{title}</h3>
+                {description ? (
+                    <p className="text-xs text-muted-foreground">{description}</p>
+                ) : null}
+            </div>
+            <div className="grid gap-3 rounded-lg border border-border/70 bg-muted/15 p-3">
+                {children}
+            </div>
+        </section>
+    );
+}
+
+function FieldGroup({
+    label,
+    hint,
+    children,
+    className,
+}: {
+    label: string;
+    hint?: string;
+    children: ReactNode;
+    className?: string;
+}) {
+    return (
+        <div className={cn("grid gap-1.5", className)}>
+            <Label>{label}</Label>
+            {children}
+            {hint ? (
+                <p className="text-xs text-muted-foreground">{hint}</p>
+            ) : null}
+        </div>
+    );
 }
 
 export function HostModal({
@@ -221,321 +275,405 @@ export function HostModal({
 
     const isEditing = !!initialData;
 
+    const authFields = (
+        <div className="grid gap-3">
+            <FieldGroup label={t("auth_method_label")}>
+                <Select
+                    value={authMode}
+                    onValueChange={(val) =>
+                        handleAuthModeChange(val as AuthMode)}
+                >
+                    <SelectTrigger>
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="password">
+                            {t("auth_mode_password")}
+                        </SelectItem>
+                        <SelectItem value="identity">
+                            {t("auth_mode_identity")}
+                        </SelectItem>
+                        <SelectItem value="key">
+                            {t("auth_mode_key")}
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
+            </FieldGroup>
+
+            {authMode === "password" && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                    <FieldGroup label={t("username", { ns: "common" })}>
+                        <Input
+                            id="username"
+                            required
+                            value={formData.username || ""}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    username: e.target.value,
+                                })}
+                        />
+                    </FieldGroup>
+                    <FieldGroup label={t("password_optional")}>
+                        <Input
+                            id="password"
+                            type="password"
+                            placeholder={t("password_placeholder")}
+                            value={formData.password || ""}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    password: e.target.value,
+                                })}
+                        />
+                    </FieldGroup>
+                </div>
+            )}
+
+            {authMode === "identity" && (
+                <FieldGroup
+                    label={t("identity_label")}
+                    hint={t("identity_username_hint")}
+                >
+                    <Select
+                        value={formData.identityId || "none"}
+                        onValueChange={handleIdentityChange}
+                    >
+                        <SelectTrigger>
+                            <SelectValue
+                                placeholder={t("select_identity_placeholder")}
+                            />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="none">
+                                {t("select_identity_placeholder")}
+                            </SelectItem>
+                            {identities?.map((identity) => (
+                                <SelectItem
+                                    key={identity.id}
+                                    value={identity.id}
+                                >
+                                    {identity.name} ({identity.username})
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </FieldGroup>
+            )}
+
+            {authMode === "key" && (
+                <div className="grid gap-3 sm:grid-cols-2">
+                    <FieldGroup label={t("username", { ns: "common" })}>
+                        <Input
+                            id="username-key"
+                            required
+                            value={formData.username || ""}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    username: e.target.value,
+                                })}
+                        />
+                    </FieldGroup>
+                    <FieldGroup label={t("ssh_key_label")}>
+                        <Select
+                            value={formData.keyId || "none"}
+                            onValueChange={(val) =>
+                                setFormData({
+                                    ...formData,
+                                    keyId:
+                                        val === "none" ? undefined : val,
+                                })}
+                        >
+                            <SelectTrigger>
+                                <SelectValue
+                                    placeholder={t("select_key_placeholder")}
+                                />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">
+                                    {t("select_key_placeholder")}
+                                </SelectItem>
+                                {keys?.map((key) => (
+                                    <SelectItem key={key.id} value={key.id}>
+                                        {key.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </FieldGroup>
+                </div>
+            )}
+        </div>
+    );
+
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-lg">
-                <DialogHeader>
+            <DialogContent className="flex max-h-[min(90vh,40rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
+                <DialogHeader className="shrink-0 border-b border-border px-5 py-4">
                     <DialogTitle>
                         {isEditing ? t("edit_title") : t("new_title")}
                     </DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-                    <div className="flex items-start gap-4">
-                        <HostIconBadge
-                            icon={formData.icon}
-                            color={formData.color}
-                            className="size-12"
-                            iconClassName="size-6"
-                        />
-                        <div className="min-w-0 flex-1">
-                            <HostAppearancePicker
-                                icon={formData.icon}
-                                color={formData.color}
-                                onIconChange={(icon: HostIconId) =>
-                                    setFormData((prev) => ({ ...prev, icon }))
-                                }
-                                onColorChange={(color) =>
-                                    setFormData((prev) => ({ ...prev, color }))
-                                }
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="name">
-                            {t("label_optional", { ns: "common" })}
-                        </Label>
-                        <Input
-                            id="name"
-                            placeholder={t("label_placeholder")}
-                            value={formData.name || ""}
-                            onChange={(e) =>
-                                setFormData({ ...formData, name: e.target.value })}
-                        />
-                    </div>
-
-                    {!localShellOnly && (
-                    <>
-                    <div className="grid grid-cols-4 gap-4">
-                        <div className="col-span-3 grid gap-2">
-                            <Label htmlFor="host">
-                                {t("host_ip", { ns: "common" })}
-                            </Label>
-                            <Input
-                                id="host"
-                                placeholder={t("host_placeholder")}
-                                required
-                                value={formData.host || ""}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, host: e.target.value })}
-                            />
-                        </div>
-                        <div className="col-span-1 grid gap-2">
-                            <Label htmlFor="port">
-                                {t("port", { ns: "common" })}
-                            </Label>
-                            <Input
-                                id="port"
-                                type="number"
-                                required
-                                value={formData.port || 22}
-                                onChange={(e) =>
-                                    setFormData({
-                                        ...formData,
-                                        port: parseInt(e.target.value),
-                                    })}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label>{t("relay_host_label")}</Label>
-                        <p className="text-xs text-muted-foreground">
-                            {t("relay_host_hint")}
-                        </p>
-                        <Select
-                            value={formData.relayHostId || "none"}
-                            onValueChange={(val) =>
-                                setFormData({
-                                    ...formData,
-                                    relayHostId: val === "none" ? undefined : val,
-                                })}
+                <form
+                    onSubmit={handleSubmit}
+                    className="flex min-h-0 flex-1 flex-col"
+                >
+                    <div className="grid flex-1 gap-5 overflow-y-auto px-5 py-4">
+                        <HostFormSection
+                            title={t("form_section_general")}
+                            description={t("form_section_general_desc")}
                         >
-                            <SelectTrigger>
-                                <SelectValue
-                                    placeholder={t("relay_host_placeholder")}
-                                />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="none">
-                                    {t("relay_host_none")}
-                                </SelectItem>
-                                {relayHostOptions.map((relayHost) => (
-                                    <SelectItem
-                                        key={relayHost.id}
-                                        value={relayHost.id}
-                                    >
-                                        {relayHost.name || relayHost.host}
-                                        {relayHost.host
-                                            ? ` (${relayHost.host})`
-                                            : ""}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label>{t("auth_method_label")}</Label>
-                        <Select
-                            value={authMode}
-                            onValueChange={(val) =>
-                                handleAuthModeChange(val as AuthMode)}
-                        >
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="password">
-                                    {t("auth_mode_password")}
-                                </SelectItem>
-                                <SelectItem value="identity">
-                                    {t("auth_mode_identity")}
-                                </SelectItem>
-                                <SelectItem value="key">
-                                    {t("auth_mode_key")}
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    {authMode === "password" && (
-                        <>
-                            <div className="grid gap-2">
-                                <Label htmlFor="username">
-                                    {t("username", { ns: "common" })}
-                                </Label>
-                                <Input
-                                    id="username"
-                                    required
-                                    value={formData.username || ""}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            username: e.target.value,
-                                        })}
-                                />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="password">
-                                    {t("password_optional")}
-                                </Label>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    placeholder={t("password_placeholder")}
-                                    value={formData.password || ""}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            password: e.target.value,
-                                        })}
-                                />
-                            </div>
-                        </>
-                    )}
-
-                    {authMode === "identity" && (
-                        <div className="grid gap-2">
-                            <Label>{t("identity_label")}</Label>
-                            <Select
-                                value={formData.identityId || "none"}
-                                onValueChange={handleIdentityChange}
+                            <FieldGroup
+                                label={t("label_optional", { ns: "common" })}
                             >
-                                <SelectTrigger>
-                                    <SelectValue
-                                        placeholder={t("select_identity_placeholder")}
-                                    />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="none">
-                                        {t("select_identity_placeholder")}
-                                    </SelectItem>
-                                    {identities?.map((identity) => (
-                                        <SelectItem
-                                            key={identity.id}
-                                            value={identity.id}
-                                        >
-                                            {identity.name} ({identity.username})
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <p className="text-xs text-muted-foreground">
-                                {t("identity_username_hint")}
-                            </p>
-                        </div>
-                    )}
-
-                    {authMode === "key" && (
-                        <>
-                            <div className="grid gap-2">
-                                <Label htmlFor="username-key">
-                                    {t("username", { ns: "common" })}
-                                </Label>
                                 <Input
-                                    id="username-key"
-                                    required
-                                    value={formData.username || ""}
+                                    id="name"
+                                    placeholder={t("label_placeholder")}
+                                    value={formData.name || ""}
                                     onChange={(e) =>
                                         setFormData({
                                             ...formData,
-                                            username: e.target.value,
+                                            name: e.target.value,
                                         })}
                                 />
+                            </FieldGroup>
+
+                            <div className="flex items-start gap-3">
+                                <HostIconBadge
+                                    icon={formData.icon}
+                                    color={formData.color}
+                                    className="size-11 shrink-0"
+                                    iconClassName="size-5"
+                                />
+                                <div className="min-w-0 flex-1">
+                                    <HostAppearancePicker
+                                        icon={formData.icon}
+                                        color={formData.color}
+                                        onIconChange={(icon: HostIconId) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                icon,
+                                            }))
+                                        }
+                                        onColorChange={(color) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                color,
+                                            }))
+                                        }
+                                    />
+                                </div>
                             </div>
-                            <div className="grid gap-2">
-                                <Label>{t("ssh_key_label")}</Label>
+                        </HostFormSection>
+
+                        {!localShellOnly && (
+                            <>
+                                <HostFormSection
+                                    title={t("form_section_connection")}
+                                    description={t(
+                                        "form_section_connection_desc",
+                                    )}
+                                >
+                                    <div className="grid grid-cols-4 gap-3">
+                                        <FieldGroup
+                                            label={t("host_ip", {
+                                                ns: "common",
+                                            })}
+                                            className="col-span-3"
+                                        >
+                                            <Input
+                                                id="host"
+                                                placeholder={t(
+                                                    "host_placeholder",
+                                                )}
+                                                required
+                                                value={formData.host || ""}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        host: e.target.value,
+                                                    })}
+                                            />
+                                        </FieldGroup>
+                                        <FieldGroup
+                                            label={t("port", { ns: "common" })}
+                                            className="col-span-1"
+                                        >
+                                            <Input
+                                                id="port"
+                                                type="number"
+                                                required
+                                                value={formData.port || 22}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        port: parseInt(
+                                                            e.target.value,
+                                                            10,
+                                                        ),
+                                                    })}
+                                            />
+                                        </FieldGroup>
+                                    </div>
+
+                                    <FieldGroup
+                                        label={t("relay_host_label")}
+                                        hint={t("relay_host_hint")}
+                                    >
+                                        <Select
+                                            value={
+                                                formData.relayHostId || "none"
+                                            }
+                                            onValueChange={(val) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    relayHostId:
+                                                        val === "none"
+                                                            ? undefined
+                                                            : val,
+                                                })}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue
+                                                    placeholder={t(
+                                                        "relay_host_placeholder",
+                                                    )}
+                                                />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="none">
+                                                    {t("relay_host_none")}
+                                                </SelectItem>
+                                                {relayHostOptions.map(
+                                                    (relayHost) => (
+                                                        <SelectItem
+                                                            key={relayHost.id}
+                                                            value={relayHost.id}
+                                                        >
+                                                            {relayHost.name ||
+                                                                relayHost.host}
+                                                            {relayHost.host
+                                                                ? ` (${relayHost.host})`
+                                                                : ""}
+                                                        </SelectItem>
+                                                    ),
+                                                )}
+                                            </SelectContent>
+                                        </Select>
+                                    </FieldGroup>
+                                </HostFormSection>
+
+                                <HostFormSection
+                                    title={t("form_section_authentication")}
+                                    description={t(
+                                        "form_section_authentication_desc",
+                                    )}
+                                >
+                                    {authFields}
+                                </HostFormSection>
+
+                                <HostFormSection
+                                    title={t("form_section_terminal")}
+                                    description={t(
+                                        "form_section_terminal_desc",
+                                    )}
+                                >
+                                    <FieldGroup
+                                        label={t(
+                                            "auto_password_identities_label",
+                                        )}
+                                        hint={t(
+                                            "auto_password_identities_hint",
+                                        )}
+                                    >
+                                        <div className="flex min-h-9 flex-wrap gap-2 rounded-md border border-border bg-background/50 p-2">
+                                            {userpassIdentities.length ===
+                                                0 && (
+                                                <span className="text-xs text-muted-foreground">
+                                                    {t(
+                                                        "auto_password_identities_empty",
+                                                    )}
+                                                </span>
+                                            )}
+                                            {userpassIdentities.map(
+                                                (identity) => {
+                                                    const selected = (
+                                                        formData.userpassIdentityIds ??
+                                                        []
+                                                    ).includes(identity.id);
+                                                    return (
+                                                        <Button
+                                                            key={identity.id}
+                                                            type="button"
+                                                            size="sm"
+                                                            variant={
+                                                                selected
+                                                                    ? "default"
+                                                                    : "outline"
+                                                            }
+                                                            onClick={() =>
+                                                                toggleAutoIdentity(
+                                                                    identity.id,
+                                                                )
+                                                            }
+                                                        >
+                                                            {identity.name}
+                                                        </Button>
+                                                    );
+                                                },
+                                            )}
+                                        </div>
+                                    </FieldGroup>
+                                </HostFormSection>
+                            </>
+                        )}
+
+                        <HostFormSection title={t("form_section_organization")}>
+                            <FieldGroup label={t("host_group_label")}>
                                 <Select
-                                    value={formData.keyId || "none"}
+                                    value={formData.groupId || "none"}
                                     onValueChange={(val) =>
                                         setFormData({
                                             ...formData,
-                                            keyId:
-                                                val === "none" ? undefined : val,
+                                            groupId:
+                                                val === "none"
+                                                    ? undefined
+                                                    : val,
                                         })}
                                 >
                                     <SelectTrigger>
                                         <SelectValue
-                                            placeholder={t("select_key_placeholder")}
+                                            placeholder={t(
+                                                "select_group_placeholder",
+                                            )}
                                         />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="none">
-                                            {t("select_key_placeholder")}
+                                            {t("uncategorized")}
                                         </SelectItem>
-                                        {keys?.map((key) => (
-                                            <SelectItem key={key.id} value={key.id}>
-                                                {key.name}
-                                            </SelectItem>
-                                        ))}
+                                        {groupOptions.map(
+                                            ({ group, depth }) => (
+                                                <SelectItem
+                                                    key={group.id}
+                                                    value={group.id}
+                                                >
+                                                    {"\u00A0".repeat(
+                                                        depth * 2,
+                                                    )}
+                                                    {group.name}
+                                                </SelectItem>
+                                            ),
+                                        )}
                                     </SelectContent>
                                 </Select>
-                            </div>
-                        </>
-                    )}
-
-                    <div className="grid gap-2">
-                        <Label>{t("auto_password_identities_label")}</Label>
-                        <p className="text-xs text-muted-foreground">
-                            {t("auto_password_identities_hint")}
-                        </p>
-                        <div className="flex flex-wrap gap-2 rounded-lg border border-border p-2">
-                            {userpassIdentities.length === 0 && (
-                                <span className="text-xs text-muted-foreground">
-                                    {t("auto_password_identities_empty")}
-                                </span>
-                            )}
-                            {userpassIdentities.map((identity) => {
-                                const selected = (formData.userpassIdentityIds ?? []).includes(identity.id);
-                                return (
-                                    <Button
-                                        key={identity.id}
-                                        type="button"
-                                        size="sm"
-                                        variant={selected ? "default" : "outline"}
-                                        onClick={() => toggleAutoIdentity(identity.id)}
-                                    >
-                                        {identity.name}
-                                    </Button>
-                                );
-                            })}
-                        </div>
+                            </FieldGroup>
+                        </HostFormSection>
                     </div>
 
-                    <div className="grid gap-2">
-                        <Label>{t("host_group_label")}</Label>
-                        <Select
-                            value={formData.groupId || "none"}
-                            onValueChange={(val) =>
-                                setFormData({
-                                    ...formData,
-                                    groupId: val === "none" ? undefined : val,
-                                })}
-                        >
-                            <SelectTrigger>
-                                <SelectValue
-                                    placeholder={t("select_group_placeholder")}
-                                />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="none">
-                                    {t("uncategorized")}
-                                </SelectItem>
-                                {groupOptions.map(({ group, depth }) => (
-                                    <SelectItem key={group.id} value={group.id}>
-                                        {"\u00A0".repeat(depth * 2)}
-                                        {group.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    </>
-                    )}
-
-                    <div className="mt-4 flex justify-end gap-2">
+                    <DialogFooter className="shrink-0">
                         <Button
                             type="button"
                             variant="outline"
@@ -549,7 +687,7 @@ export function HostModal({
                                 ? t("saving", { ns: "common" })
                                 : t("save_host")}
                         </Button>
-                    </div>
+                    </DialogFooter>
                 </form>
             </DialogContent>
         </Dialog>
