@@ -101,22 +101,24 @@ export default function App() {
 
     return (
         <div
-            className="box-border flex h-dvh w-dvw flex-col overflow-hidden rounded-[var(--window-radius)] border border-border bg-background text-foreground"
+            className="box-border flex h-dvh w-dvw flex-col overflow-hidden rounded-[var(--window-radius)] bg-border p-px"
         >
-            <TitleBar/>
-            <div className="relative flex min-h-0 flex-1 overflow-hidden">
-
-                {!isUnlocked ? (
-                    <LockScreen/>
-                ) : (
-                    <>
-                        <Sidebar/>
-                        <ContentView/>
-                    </>
-                )}
-
+            <div
+                className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[calc(var(--window-radius)-1px)] bg-background text-foreground"
+            >
+                <TitleBar />
+                <div className="relative flex min-h-0 flex-1 overflow-hidden">
+                    {!isUnlocked ? (
+                        <LockScreen />
+                    ) : (
+                        <>
+                            <Sidebar />
+                            <ContentView />
+                        </>
+                    )}
+                </div>
+                <Toaster position="bottom-right" theme="dark" richColors />
             </div>
-            <Toaster position="bottom-right" theme="dark" richColors/>
         </div>
     );
 }
