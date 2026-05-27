@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
-import { Events } from "@wailsio/runtime";
+import { WebLinksAddon } from "@xterm/addon-web-links";
+import { Browser, Events } from "@wailsio/runtime";
 import { buildTerminalOptions } from "@/lib/terminalTheme";
 import { useSettings } from "@/hooks/useSettings";
 import { parseAppError } from "@/lib/error";
@@ -56,9 +57,17 @@ export function TerminalInstance({sessionId, isActive, config}: TerminalInstance
                 fontFamily,
             });
             const fitAddon = new FitAddon();
+            const linksAddon = new WebLinksAddon((event, uri) => {
+                if (!event.metaKey) {
+                    return;
+                }
+                event.preventDefault();
+                void Browser.OpenURL(uri).catch(console.error);
+            });
 
             applyUnicode11Addon(term);
             term.loadAddon(fitAddon);
+            term.loadAddon(linksAddon);
             term.open(containerRef.current);
 
             terminalRef.current = term;
