@@ -4,12 +4,15 @@ import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { Browser, Events } from "@wailsio/runtime";
 import { buildTerminalOptions } from "@/lib/terminalTheme";
+import { ErrorCode } from "@/lib/errorCodes";
+import { PassphrasePromptModal } from "@/components/terminal/PassphrasePromptModal";
 import { useSettings } from "@/hooks/useSettings";
 import { parseAppError } from "@/lib/error";
 import { cn, decodeBase64ToUint8Array } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import "@xterm/xterm/css/xterm.css";
-import { SSHConnectionConfig, SshService } from "../../../bindings/terminator-desktop/backend/internal/services/ssh";
+import { SshService } from "../../../bindings/terminator-desktop/backend/internal/services/ssh";
+import { SSHConnectionConfig } from "../../../bindings/terminator-desktop/backend/internal/services/ssh/models";
 import { useTranslation } from "react-i18next";
 import { AppEvent } from "@/lib/events.ts";
 import { SudoCredential } from "@/store/sessionStore";
@@ -23,6 +26,8 @@ interface TerminalInstanceProps {
     isActive: boolean;
     config: SSHConnectionConfig;
     sudoCredentials?: SudoCredential[];
+    terminalFontFamily?: string;
+    terminalFontSize?: number;
 }
 
 const PASSWORD_PROMPT_REGEX =
@@ -45,11 +50,20 @@ function looksLikePasswordPrompt(buffer: string): boolean {
     );
 }
 
-export function TerminalInstance({sessionId, isActive, config, sudoCredentials = []}: TerminalInstanceProps) {
+export function TerminalInstance({
+    sessionId,
+    isActive,
+    config,
+    sudoCredentials = [],
+    terminalFontFamily,
+    terminalFontSize,
+}: TerminalInstanceProps) {
     const {t} = useTranslation("terminal");
     const {data: settings} = useSettings();
     const [showPasswordMenu, setShowPasswordMenu] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 12, y: 12 });
+    const [keyPassphrase, setKeyPassphrase] = useState(config.keyPassphrase ?? "");
+    const [showPassphraseModal, setShowPassphraseModal] = useState(false);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const terminalRef = useRef<Terminal | null>(null);
@@ -74,7 +88,42 @@ export function TerminalInstance({sessionId, isActive, config, sudoCredentials =
         promptBufferRef.current = "";
         setShowPasswordMenu(false);
         suppressMenuUntilRef.current = 0;
-    }, [sessionId]);
+        setKeyPassphrase(config.keyPassphrase ?? "");
+    }, [sessionId, config.keyPassphrase]);
+
+    const hostOverrides = { terminalFontFamily, terminalFontSize };
+
+    const buildConnectConfig = () =>
+        new SSHConnectionConfig({
+            ...config,
+            keyPassphrase: keyPassphrase || undefined,
+            keyboardInteractivePassword:
+                config.keyboardInteractivePassword || config.password,
+        });
+
+    const attemptConnect = () => {
+        return SshService.Connect(buildConnectConfig())
+            .then(() => {
+                isReadyRef.current = true;
+                setShowPassphraseModal(false);
+                if (terminalRef.current && fitAddonRef.current) {
+                    fitAddonRef.current.fit();
+                    void SshService.Resize(
+                        sessionId,
+                        terminalRef.current.rows,
+                        terminalRef.current.cols,
+                    ).catch(console.error);
+                }
+            })
+            .catch((err) => {
+                const appError = parseAppError(err);
+                if (appError.code === ErrorCode.SSH_KEY_PASSPHRASE_REQUIRED) {
+                    setShowPassphraseModal(true);
+                    return;
+                }
+                printErrorToTerminal(err);
+            });
+    };
 
     const submitSelectedPassword = (password: string) => {
         if (!isReadyRef.current || !password) {
@@ -127,7 +176,7 @@ export function TerminalInstance({sessionId, isActive, config, sudoCredentials =
             if (disposed || !containerRef.current) return;
 
             const term = new Terminal({
-                ...buildTerminalOptions(settings),
+                ...buildTerminalOptions(settings, hostOverrides),
                 fontFamily,
             });
             const fitAddon = new FitAddon();
@@ -198,20 +247,7 @@ export function TerminalInstance({sessionId, isActive, config, sudoCredentials =
 
             if (!hasConnectedRef.current) {
                 hasConnectedRef.current = true;
-                SshService.Connect(config)
-                    .then(() => {
-                        isReadyRef.current = true;
-
-                        if (terminalRef.current && fitAddonRef.current) {
-                            fitAddonRef.current.fit();
-
-                            SshService.Resize(sessionId, terminalRef.current.rows, terminalRef.current.cols)
-                                .catch(console.error);
-                        }
-                    })
-                    .catch((err) => {
-                        printErrorToTerminal(err);
-                    });
+                void attemptConnect();
             }
 
             const onDataDisposable = term.onData((data) => {
@@ -262,7 +298,10 @@ export function TerminalInstance({sessionId, isActive, config, sudoCredentials =
             if (cancelled || !terminalRef.current) return;
 
             term.options.fontFamily = fontFamily;
-            term.options.fontSize = buildTerminalOptions(settings).fontSize!;
+            term.options.fontSize = buildTerminalOptions(
+                settings,
+                hostOverrides,
+            ).fontSize!;
 
             if (isReadyRef.current && fit) {
                 try {
@@ -279,7 +318,7 @@ export function TerminalInstance({sessionId, isActive, config, sudoCredentials =
         return () => {
             cancelled = true;
         };
-    }, [settings, sessionId]);
+    }, [settings, sessionId, terminalFontFamily, terminalFontSize]);
 
     useEffect(() => {
         const unsubscribe = Events.On(AppEvent.SshData, (event) => {
@@ -349,6 +388,14 @@ export function TerminalInstance({sessionId, isActive, config, sudoCredentials =
             <div
                 ref={containerRef}
                 className="terminal-host h-full min-h-0 w-full"
+            />
+            <PassphrasePromptModal
+                open={showPassphraseModal}
+                onCancel={() => setShowPassphraseModal(false)}
+                onSubmit={(passphrase) => {
+                    setKeyPassphrase(passphrase);
+                    void attemptConnect();
+                }}
             />
             {showPasswordMenu && sudoCredentials.length > 0 && (
                 <div
