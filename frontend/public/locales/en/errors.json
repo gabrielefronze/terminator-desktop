@@ -11,6 +11,8 @@
   "NETWORK_FAILED": "Failed to connect to the server. Check your connection.",
   "SSH_CONNECTION_FAILED": "Could not establish an SSH connection to the host.",
   "SSH_SESSION_NOT_FOUND": "The SSH session was disconnected or lost.",
+  "SSH_KEY_PASSPHRASE_REQUIRED": "This private key requires a passphrase.",
+  "SSH_HOST_KEY_NOT_TRUSTED": "The server host key is not trusted.",
   "API_ERROR": "The server rejected the request.",
   "INTERNAL_ERROR": "An internal application error occurred.",
   "RUNTIME_ERROR": "An unexpected client error occurred.",

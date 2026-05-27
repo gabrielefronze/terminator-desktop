@@ -9,7 +9,9 @@ const (
 	CodeVaultLocked        = ErrorCode("VAULT_LOCKED")
 	CodeNetworkFailed      = ErrorCode("NETWORK_FAILED")
 	CodeSSHConnectionError = ErrorCode("SSH_CONNECTION_FAILED")
-	CodeSSHSessionNotFound = ErrorCode("SSH_SESSION_NOT_FOUND")
+	CodeSSHSessionNotFound        = ErrorCode("SSH_SESSION_NOT_FOUND")
+	CodeSSHKeyPassphraseRequired  = ErrorCode("SSH_KEY_PASSPHRASE_REQUIRED")
+	CodeSSHHostKeyNotTrusted      = ErrorCode("SSH_HOST_KEY_NOT_TRUSTED")
 
 	CodeBiometricUnavailable = ErrorCode("BIOMETRIC_UNAVAILABLE")
 	CodeBiometricNotEnabled  = ErrorCode("BIOMETRIC_NOT_ENABLED")
