@@ -8,6 +8,49 @@ import {
 } from "@/lib/defaultLocalhost";
 import { resolveRelaySessionFields } from "@/lib/relayHost";
 import type { CreateSessionParams, SudoCredential } from "@/store/sessionStore";
+import type { ResolvedHostCredentials } from "@/lib/resolveHostCredentials";
+
+export function buildSudoCredentials(
+    host: Host,
+    creds: ResolvedHostCredentials,
+    identities: SavedIdentity[] | undefined,
+): SudoCredential[] {
+    const sudoCredentials: SudoCredential[] = [];
+    const seen = new Set<string>();
+
+    const addCredential = (id: string, label: string, password?: string) => {
+        if (!password) return;
+        const key = `${label}::${password}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        sudoCredentials.push({ id, label, password });
+    };
+
+    addCredential("login-password", "Login password", creds.password);
+
+    if (host.identityId) {
+        const authIdentity = identities?.find((item) => item.id === host.identityId);
+        if (authIdentity) {
+            addCredential(
+                `identity:${authIdentity.id}`,
+                authIdentity.name || authIdentity.username,
+                authIdentity.password,
+            );
+        }
+    }
+
+    for (const identityId of host.userpassIdentityIds ?? []) {
+        const identity = identities?.find((item) => item.id === identityId);
+        if (!identity) continue;
+        addCredential(
+            `identity:${identity.id}`,
+            identity.name || identity.username,
+            identity.password,
+        );
+    }
+
+    return sudoCredentials;
+}
 
 export function buildLocalShellSession(
     title?: string,
@@ -37,22 +80,7 @@ export function buildSessionFromHost(
     }
 
     const creds = resolveHostCredentials(host, keys, identities);
-    const sudoCredentials: SudoCredential[] = [];
-    const seen = new Set<string>();
-
-    for (const identityId of host.userpassIdentityIds ?? []) {
-        const identity = identities?.find((item) => item.id === identityId);
-        if (!identity?.password) continue;
-        const label = identity.name || identity.username;
-        const key = `${label}::${identity.password}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        sudoCredentials.push({
-            id: `identity:${identity.id}`,
-            label,
-            password: identity.password,
-        });
-    }
+    const sudoCredentials = buildSudoCredentials(host, creds, identities);
 
     const relay = resolveRelaySessionFields(
         host.relayHostId,

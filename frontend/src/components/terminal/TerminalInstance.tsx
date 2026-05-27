@@ -26,7 +26,7 @@ interface TerminalInstanceProps {
 }
 
 const PASSWORD_PROMPT_REGEX =
-    /(?:\[sudo\]\s*password for [^:\r\n]+:|password(?: for [^:\r\n]+)?:)\s*$/i;
+    /(?:\[sudo\]\s*password for [^:\r\n]+:|(?:^|[\r\n])password(?: for [^:\r\n]+)?:|root'?s password:)\s*$/i;
 
 function looksLikePasswordPrompt(buffer: string): boolean {
     const cleaned = buffer
