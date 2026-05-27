@@ -7,6 +7,7 @@ const (
 	TypeKey      ItemType = "key"
 	TypeGroup    ItemType = "group"
 	TypeIdentity ItemType = "identity"
+	TypeSnippet  ItemType = "snippet"
 )
 
 type VaultItemHeader struct {
@@ -28,6 +29,17 @@ type Host struct {
 	RelayHostID string   `json:"relayHostId,omitempty"`
 	Icon        string   `json:"icon,omitempty"`
 	Color       string   `json:"color,omitempty"`
+	StartupCommand      string            `json:"startupCommand,omitempty"`
+	Environment         map[string]string `json:"environment,omitempty"`
+	TerminalFontFamily  string            `json:"terminalFontFamily,omitempty"`
+	TerminalFontSize    int               `json:"terminalFontSize,omitempty"`
+}
+
+type SavedSnippet struct {
+	ID      string   `json:"id"`
+	Type    ItemType `json:"type"`
+	Name    string   `json:"name"`
+	Content string   `json:"content"`
 }
 
 type SavedIdentity struct {

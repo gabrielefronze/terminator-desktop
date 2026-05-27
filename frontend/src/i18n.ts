@@ -17,6 +17,8 @@ void i18n
                 "hosts",
                 "keys",
                 "identities",
+                "snippets",
+                "sftp",
                 "settings",
                 "terminal",
                 "update"

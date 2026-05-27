@@ -78,6 +78,10 @@ export class Host {
     "relayHostId"?: string;
     "icon"?: string;
     "color"?: string;
+    "startupCommand"?: string;
+    "environment"?: { [_ in string]?: string };
+    "terminalFontFamily"?: string;
+    "terminalFontSize"?: number;
 
     /** Creates a new Host instance. */
     constructor($$source: Partial<Host> = {}) {
@@ -108,9 +112,13 @@ export class Host {
      */
     static createFrom($$source: any = {}): Host {
         const $$createField9_0 = $$createType0;
+        const $$createField15_0 = $$createType1;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("userpassIdentityIds" in $$parsedSource) {
             $$parsedSource["userpassIdentityIds"] = $$createField9_0($$parsedSource["userpassIdentityIds"]);
+        }
+        if ("environment" in $$parsedSource) {
+            $$parsedSource["environment"] = $$createField15_0($$parsedSource["environment"]);
         }
         return new Host($$parsedSource as Partial<Host>);
     }
@@ -159,6 +167,7 @@ export enum ItemType {
     TypeKey = "key",
     TypeGroup = "group",
     TypeIdentity = "identity",
+    TypeSnippet = "snippet",
 };
 
 export class SavedIdentity {
@@ -232,5 +241,39 @@ export class SavedKey {
     }
 }
 
+export class SavedSnippet {
+    "id": string;
+    "type": ItemType;
+    "name": string;
+    "content": string;
+
+    /** Creates a new SavedSnippet instance. */
+    constructor($$source: Partial<SavedSnippet> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("type" in $$source)) {
+            this["type"] = ItemType.$zero;
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("content" in $$source)) {
+            this["content"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new SavedSnippet instance from a string or object.
+     */
+    static createFrom($$source: any = {}): SavedSnippet {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new SavedSnippet($$parsedSource as Partial<SavedSnippet>);
+    }
+}
+
 // Private type creation functions
 const $$createType0 = $Create.Array($Create.Any);
+const $$createType1 = $Create.Map($Create.Any, $Create.Any);

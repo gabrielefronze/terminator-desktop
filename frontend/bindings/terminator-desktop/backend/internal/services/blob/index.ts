@@ -5,11 +5,13 @@ import * as GroupService from "./groupservice.js";
 import * as HostService from "./hostservice.js";
 import * as IdentityService from "./identityservice.js";
 import * as KeyService from "./keyservice.js";
+import * as SnippetService from "./snippetservice.js";
 export {
     GroupService,
     HostService,
     IdentityService,
-    KeyService
+    KeyService,
+    SnippetService
 };
 
 export {
@@ -19,5 +21,6 @@ export {
     HostGroup,
     ItemType,
     SavedIdentity,
-    SavedKey
+    SavedKey,
+    SavedSnippet
 } from "./models.js";

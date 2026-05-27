@@ -1,0 +1,9 @@
+{
+  "page_title": "Snippets",
+  "page_description": "Saved commands you can run from the terminal toolbar after connecting to a remote host. Use the SFTP section in the sidebar to browse files.",
+  "search_placeholder": "Search snippets…",
+  "add_snippet": "New snippet",
+  "empty": "No snippets yet. Create one to use from an SSH session.",
+  "delete_title": "Delete snippet",
+  "delete_desc": "Delete \"{{name}}\"?"
+}

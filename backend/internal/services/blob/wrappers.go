@@ -86,3 +86,28 @@ func fillSavedKeyPublicKey(key *SavedKey) {
 func (s *KeyService) Delete(ctx context.Context, id string) error {
 	return deleteItem(ctx, s.q, id)
 }
+
+type SnippetService struct {
+	q *dbgen.Queries
+	v *vault.Vault
+}
+
+func NewSnippetService(q *dbgen.Queries, v *vault.Vault) *SnippetService {
+	return &SnippetService{q: q, v: v}
+}
+
+func (s *SnippetService) Save(ctx context.Context, snippet SavedSnippet) (string, error) {
+	if snippet.ID == "" {
+		snippet.ID = uuid.New().String()
+	}
+	snippet.Type = TypeSnippet
+	return saveItem(ctx, s.q, s.v, snippet.ID, snippet)
+}
+
+func (s *SnippetService) GetAll(ctx context.Context) ([]SavedSnippet, error) {
+	return getAllItems[SavedSnippet](ctx, s.q, s.v, TypeSnippet)
+}
+
+func (s *SnippetService) Delete(ctx context.Context, id string) error {
+	return deleteItem(ctx, s.q, id)
+}
