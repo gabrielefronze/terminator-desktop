@@ -1,11 +1,18 @@
 import { create } from "zustand";
+import { Host } from "../../bindings/terminator-desktop/backend/internal/services/blob";
 import { SSHConnectionConfig, SshService } from "../../bindings/terminator-desktop/backend/internal/services/ssh";
 import { useUIStore, ViewType } from "@/store/uiStore";
+import {
+    findHostForSession,
+    sessionAppearanceChanged,
+    sessionAppearanceFromHost,
+} from "@/lib/syncSessionHost";
 
 export interface TerminalSession {
     id: string;
     title: string;
     config: SSHConnectionConfig;
+    hostId?: string;
     icon?: string;
     color?: string;
     sudoCredentials?: SudoCredential[];
@@ -25,6 +32,7 @@ export interface CreateSessionParams {
     password?: string;
     privateKey?: string;
     title?: string;
+    hostId?: string;
     icon?: string;
     color?: string;
     sudoCredentials?: SudoCredential[];
@@ -36,6 +44,7 @@ interface SessionState {
     addSession: (params: CreateSessionParams) => void;
     removeSession: (id: string) => void;
     setActiveSession: (id: string) => void;
+    syncSessionsFromHosts: (hosts: Host[]) => void;
     clearSessions: () => void;
 }
 
@@ -60,6 +69,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             id: newId,
             title: params.title || params.host,
             config: fullConfig,
+            hostId: params.hostId,
             icon: params.icon,
             color: params.color,
             sudoCredentials: params.sudoCredentials,
@@ -98,6 +108,25 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         useUIStore.getState().setActiveView(ViewType.Terminal);
         set({activeSessionId: id});
     },
+
+    syncSessionsFromHosts: (hosts) =>
+        set((state) => {
+            let changed = false;
+            const sessions = state.sessions.map((session) => {
+                const host = findHostForSession(session, hosts);
+                if (!host) return session;
+
+                const nextAppearance = sessionAppearanceFromHost(session, host);
+                if (!sessionAppearanceChanged(session, nextAppearance)) {
+                    return session;
+                }
+
+                changed = true;
+                return { ...session, ...nextAppearance };
+            });
+
+            return changed ? { sessions } : state;
+        }),
 
     clearSessions: () => {
         const {sessions} = get();

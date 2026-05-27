@@ -2,7 +2,10 @@ import { Host } from "../../bindings/terminator-desktop/backend/internal/service
 import { SavedIdentity } from "../../bindings/terminator-desktop/backend/internal/services/blob/models";
 import { SavedKey } from "../../bindings/terminator-desktop/backend/internal/services/blob/models";
 import { resolveHostCredentials } from "@/lib/resolveHostCredentials";
-import { isBuiltinLocalhostHost } from "@/lib/defaultLocalhost";
+import {
+    BUILTIN_LOCALHOST_HOST_ID,
+    isBuiltinLocalhostHost,
+} from "@/lib/defaultLocalhost";
 import type { CreateSessionParams, SudoCredential } from "@/store/sessionStore";
 
 export function buildLocalShellSession(
@@ -16,6 +19,7 @@ export function buildLocalShellSession(
         port: 0,
         username: "",
         title: title ?? "Local",
+        hostId: BUILTIN_LOCALHOST_HOST_ID,
         icon,
         color,
     };
@@ -74,6 +78,7 @@ export function buildSessionFromHost(
         password: creds.password,
         privateKey: creds.privateKey,
         title: host.name || host.host,
+        hostId: host.id,
         icon: host.icon,
         color: host.color,
         sudoCredentials,

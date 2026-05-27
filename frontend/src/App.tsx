@@ -13,6 +13,7 @@ import { IDENTITIES_QUERY_KEY } from "@/hooks/useIdentities.ts";
 import { KEYS_QUERY_KEY } from "@/hooks/useKeys.ts";
 import { SETTINGS_QUERY_KEY } from "@/hooks/useSettings";
 import { useAppBackground } from "@/hooks/useAppBackground";
+import { useSyncSessionHostAppearance } from "@/hooks/useSyncSessionHostAppearance";
 import { applyAppBackgroundColor } from "@/lib/appTheme";
 import { SettingsService } from "../bindings/terminator-desktop/backend/internal/services/settings";
 import { useTranslation } from "react-i18next";
@@ -29,6 +30,7 @@ export default function App() {
     const {i18n} = useTranslation();
 
     useAppBackground();
+    useSyncSessionHostAppearance();
 
     useEffect(() => {
         queryClient
