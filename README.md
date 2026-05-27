@@ -27,6 +27,14 @@ Terminator is a cross-platform SSH client built with [Wails v3](https://v3.wails
    - [Linux](https://github.com/terminator-ssh/terminator-desktop/releases/latest/download/Terminator-linux-stable.AppImage)
    - [MacOS](https://github.com/terminator-ssh/terminator-desktop/releases/latest/download/Terminator-macos-stable-Setup.pkg)
 - Local first. You *don't have to* use a server!
+- **SSH host key verification** with a local known-hosts store and trust prompts.
+- **Hosts & groups** with drag-and-drop organization, icons, and colors.
+- **Jump hosts / relay chains** (multi-hop bastion).
+- **SSH keys & identities** with passphrase-protected key support.
+- **Multi-tab terminals** with split panes, snippets panel, and SFTP browser.
+- **Per-host** startup command, environment variables, and terminal font overrides.
+- **Port forwarding** (local) on active SSH sessions.
+- **Sudo / password picker** for common interactive prompts.
 
 ## Server
 Terminator is designed as a local-first app, but it supports E2E encrypted sync. Grab the server [here](https://github.com/terminator-ssh/terminator-server)!
@@ -35,14 +43,22 @@ Terminator is designed as a local-first app, but it supports E2E encrypted sync.
 - [x] Encryption
 - [x] Sync
 - [x] SSH keys
-- [ ] Host groups
-- [ ] Interactive passwords
+- [x] Host groups
+- [x] Jump / relay hosts (multi-hop)
+- [x] Interactive passwords (sudo picker + keyboard-interactive auth)
+- [x] Custom themes (app accent & background)
+- [x] Known host keys & trust UI
+- [x] Snippets & startup commands
+- [x] SFTP file browser (read-only navigation MVP)
+- [x] Local port forwarding
+- [x] Split terminal panes
+- [ ] Remote / dynamic port forwarding
+- [ ] SFTP upload & download
+- [ ] Command history (encrypted, searchable)
+- [ ] Import / export hosts
 - [ ] Multiple profiles (teams?)
-- [ ] Custom themes
-- [ ] Shortcuts
 - [ ] Android client
 - [ ] CLI client
-- [ ] SFTP
 
 Something missing? Suggest more! [Issues](https://github.com/terminator-ssh/terminator-desktop/issues/new) | [Discord](https://discord.gg/x7K9BRrQJE)
 

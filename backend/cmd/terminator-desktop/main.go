@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"runtime/debug"
 	"terminator-desktop/backend/cmd/terminator-desktop/emitters"
 	"terminator-desktop/backend/cmd/terminator-desktop/env"
@@ -17,6 +18,8 @@ import (
 	"terminator-desktop/backend/internal/migration"
 	"terminator-desktop/backend/internal/services/auth"
 	"terminator-desktop/backend/internal/services/blob"
+	"terminator-desktop/backend/internal/services/knownhosts"
+	"terminator-desktop/backend/internal/services/localfs"
 	"terminator-desktop/backend/internal/services/reachability"
 	"terminator-desktop/backend/internal/services/settings"
 	"terminator-desktop/backend/internal/services/ssh"
@@ -169,14 +172,21 @@ func main() {
 
 	authService := auth.NewAuthService(queries, v, client)
 	syncService := sync.NewSyncService(queries, client, v, syncEmitter, nil)
-	sshService := ssh.NewSshService(sshEmitter)
+	knownHostsService, khErr := knownhosts.NewService(appDir)
+	if khErr != nil {
+		log.Fatal(fmt.Errorf("error creating known hosts service: %w", khErr))
+	}
+
+	sshService := ssh.NewSshService(sshEmitter, knownHostsService)
 	hostService := blob.NewHostService(queries, v)
 	keyService := blob.NewKeyService(queries, v)
 	groupService := blob.NewGroupService(queries, v)
 	identityService := blob.NewIdentityService(queries, v)
+	snippetService := blob.NewSnippetService(queries, v)
 	settingsService := settings.NewSettingsService(appDir)
 	updaterService := updater.NewUpdaterService(updateUrl, updaterEmitter)
 	reachabilityService := reachability.NewReachabilityService()
+	localFsService := localfs.NewService()
 
 	app.RegisterService(application.NewService(authService))
 	app.RegisterService(application.NewService(syncService))
@@ -185,9 +195,12 @@ func main() {
 	app.RegisterService(application.NewService(keyService))
 	app.RegisterService(application.NewService(groupService))
 	app.RegisterService(application.NewService(identityService))
+	app.RegisterService(application.NewService(snippetService))
+	app.RegisterService(application.NewService(knownHostsService))
 	app.RegisterService(application.NewService(settingsService))
 	app.RegisterService(application.NewService(reachabilityService))
 	app.RegisterService(application.NewService(updaterService))
+	app.RegisterService(application.NewService(localFsService))
 
 	savedLayout, hasSavedLayout := loadWindowLayout(appDir)
 	windowOpts := applyLayoutToOptions(savedLayout, hasSavedLayout)
@@ -230,8 +243,20 @@ func getAppDir(isDebug bool) (string, error) {
 		if err != nil {
 			return "", err
 		}
+		// Dev .app bundle: store mutable files in bin/, not inside Contents/ (breaks codesign).
+		if strings.Contains(executablePath, ".app/Contents/MacOS") {
+			appDir := filepath.Join(filepath.Dir(executablePath), "..", "..", "..")
+			if err = os.MkdirAll(appDir, 0755); err != nil {
+				return "", err
+			}
+			return appDir, nil
+		}
 		executableDir := filepath.Dir(executablePath)
-		return filepath.Join(executableDir, ".."), nil
+		appDir := filepath.Join(executableDir, "..")
+		if err = os.MkdirAll(appDir, 0755); err != nil {
+			return "", err
+		}
+		return appDir, nil
 	}
 
 	userDir, err := os.UserConfigDir()
