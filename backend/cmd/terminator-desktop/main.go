@@ -17,6 +17,7 @@ import (
 	"terminator-desktop/backend/internal/migration"
 	"terminator-desktop/backend/internal/services/auth"
 	"terminator-desktop/backend/internal/services/blob"
+	"terminator-desktop/backend/internal/services/reachability"
 	"terminator-desktop/backend/internal/services/settings"
 	"terminator-desktop/backend/internal/services/ssh"
 	"terminator-desktop/backend/internal/services/sync"
@@ -174,6 +175,7 @@ func main() {
 	identityService := blob.NewIdentityService(queries, v)
 	settingsService := settings.NewSettingsService(appDir)
 	updaterService := updater.NewUpdaterService(updateUrl, updaterEmitter)
+	reachabilityService := reachability.NewReachabilityService()
 
 	app.RegisterService(application.NewService(authService))
 	app.RegisterService(application.NewService(syncService))
@@ -183,6 +185,7 @@ func main() {
 	app.RegisterService(application.NewService(groupService))
 	app.RegisterService(application.NewService(identityService))
 	app.RegisterService(application.NewService(settingsService))
+	app.RegisterService(application.NewService(reachabilityService))
 	app.RegisterService(application.NewService(updaterService))
 	app.RegisterService(application.NewService(&WindowControls{mainWindow}))
 

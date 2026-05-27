@@ -33,10 +33,13 @@ import { useIdentities } from "@/hooks/useIdentities";
 import { useSessionStore } from "@/store/sessionStore";
 import { Host, HostGroup } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import { buildHostTree, filterHostTree } from "@/lib/hostTree";
+import { useHostReachability } from "@/hooks/useHostReachability";
 
 export function HostsPage() {
     const { t } = useTranslation(["hosts", "common"]);
     const { data: hosts, isLoading } = useHostsWithoutBuiltin();
+    const { byId: reachabilityById, isChecking: reachabilityChecking } =
+        useHostReachability(hosts);
     const { data: groups } = useHostGroups();
     const { data: keys } = useKeys();
     const { data: identities } = useIdentities();
@@ -203,6 +206,8 @@ export function HostsPage() {
         <DraggableHostCard host={host}>
             <HostCard
                 host={host}
+                reachability={reachabilityById.get(host.id)}
+                reachabilityChecking={reachabilityChecking}
                 onConnect={handlers.onConnect}
                 onEdit={handlers.onEdit}
                 onDelete={handlers.onDelete}

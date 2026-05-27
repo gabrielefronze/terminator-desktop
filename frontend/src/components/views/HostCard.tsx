@@ -16,12 +16,16 @@ import {
     ContextMenuTrigger,
 } from "@/components/ui/context-menu";
 import { Host } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
+import { HostPingResult } from "../../../bindings/terminator-desktop/backend/internal/services/reachability";
+import { HostReachabilityIndicator } from "@/components/views/HostReachabilityIndicator";
 import { HOST_CARD_SURFACE_CLASS } from "@/lib/hostAppearance";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
 interface HostCardProps {
     host: Host;
+    reachability?: HostPingResult;
+    reachabilityChecking?: boolean;
     onConnect: (host: Host) => void;
     onEdit: (host: Host) => void;
     onDelete: (host: Host) => void;
@@ -67,7 +71,14 @@ function HostCardMenuItems({
     );
 }
 
-export function HostCard({ host, onConnect, onEdit, onDelete }: HostCardProps) {
+export function HostCard({
+    host,
+    reachability,
+    reachabilityChecking,
+    onConnect,
+    onEdit,
+    onDelete,
+}: HostCardProps) {
     return (
         <ContextMenu>
             <ContextMenuTrigger asChild>
@@ -90,7 +101,14 @@ export function HostCard({ host, onConnect, onEdit, onDelete }: HostCardProps) {
                         onClick={() => onConnect(host)}
                         className="flex min-w-0 flex-1 cursor-pointer items-center gap-4 p-5"
                     >
-                        <HostIconBadge icon={host.icon} color={host.color} />
+                        <div className="relative shrink-0">
+                            <HostIconBadge icon={host.icon} color={host.color} />
+                            <HostReachabilityIndicator
+                                result={reachability}
+                                isChecking={reachabilityChecking}
+                                className="absolute -right-0.5 -top-0.5"
+                            />
+                        </div>
                         <div className="flex min-w-0 flex-col pr-4">
                             <h3 className="truncate font-semibold text-card-foreground">
                                 {host.name || host.host}
