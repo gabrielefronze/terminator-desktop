@@ -16,6 +16,7 @@ export function TerminalStack({isVisible}: TerminalStackProps) {
                     key={session.id}
                     sessionId={session.id}
                     config={session.config}
+                    sudoCredentials={session.sudoCredentials}
                     isActive={session.id === activeSessionId}
                 />
             ))}

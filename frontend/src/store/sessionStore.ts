@@ -8,6 +8,13 @@ export interface TerminalSession {
     config: SSHConnectionConfig;
     icon?: string;
     color?: string;
+    sudoCredentials?: SudoCredential[];
+}
+
+export interface SudoCredential {
+    id: string;
+    label: string;
+    password: string;
 }
 
 export interface CreateSessionParams {
@@ -20,6 +27,7 @@ export interface CreateSessionParams {
     title?: string;
     icon?: string;
     color?: string;
+    sudoCredentials?: SudoCredential[];
 }
 
 interface SessionState {
@@ -54,6 +62,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             config: fullConfig,
             icon: params.icon,
             color: params.color,
+            sudoCredentials: params.sudoCredentials,
         };
 
         useUIStore.getState().setActiveView(ViewType.Terminal);

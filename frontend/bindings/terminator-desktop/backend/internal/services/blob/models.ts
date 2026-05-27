@@ -15,6 +15,7 @@ export class Host {
     "password"?: string;
     "keyId"?: string;
     "identityId"?: string;
+    "userpassIdentityIds"?: string[];
     "groupId"?: string;
     "icon"?: string;
     "color"?: string;
@@ -47,7 +48,11 @@ export class Host {
      * Creates a new Host instance from a string or object.
      */
     static createFrom($$source: any = {}): Host {
+        const $$createField9_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("userpassIdentityIds" in $$parsedSource) {
+            $$parsedSource["userpassIdentityIds"] = $$createField9_0($$parsedSource["userpassIdentityIds"]);
+        }
         return new Host($$parsedSource as Partial<Host>);
     }
 }
@@ -166,3 +171,6 @@ export class SavedKey {
         return new SavedKey($$parsedSource as Partial<SavedKey>);
     }
 }
+
+// Private type creation functions
+const $$createType0 = $Create.Array($Create.Any);

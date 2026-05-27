@@ -23,6 +23,7 @@ type Host struct {
 	Password string   `json:"password,omitempty"`
 	KeyID      string   `json:"keyId,omitempty"`
 	IdentityID string   `json:"identityId,omitempty"`
+	UserpassIdentityIDs []string `json:"userpassIdentityIds,omitempty"`
 	GroupID    string   `json:"groupId,omitempty"`
 	Icon       string   `json:"icon,omitempty"`
 	Color      string   `json:"color,omitempty"`

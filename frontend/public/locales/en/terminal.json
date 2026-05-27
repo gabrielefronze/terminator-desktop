@@ -1,3 +1,5 @@
 {
-  "error_message": "Error: {{message}}\r\n{{error}}"
+  "error_message": "Error: {{message}}\r\n{{error}}",
+  "choose_password_identity": "Choose an identity password for this prompt",
+  "dismiss_password_menu": "Dismiss"
 }

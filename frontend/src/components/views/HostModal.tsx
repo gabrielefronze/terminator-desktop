@@ -47,6 +47,7 @@ const DEFAULT_HOST: Partial<Host> = {
     password: "",
     keyId: undefined,
     identityId: undefined,
+    userpassIdentityIds: [],
     icon: DEFAULT_HOST_ICON,
     color: DEFAULT_HOST_COLOR,
 };
@@ -71,6 +72,10 @@ export function HostModal({
     const [authMode, setAuthMode] = useState<AuthMode>("password");
     const { data: keys } = useKeys();
     const { data: identities } = useIdentities();
+    const userpassIdentities = useMemo(
+        () => (identities ?? []).filter((identity) => Boolean(identity.password)),
+        [identities],
+    );
 
     const groupOptions = useMemo(
         () => flattenGroupsForSelect(groups),
@@ -123,6 +128,19 @@ export function HostModal({
         }));
     };
 
+    const toggleAutoIdentity = (identityId: string) => {
+        setFormData((prev) => {
+            const current = prev.userpassIdentityIds ?? [];
+            const exists = current.includes(identityId);
+            return {
+                ...prev,
+                userpassIdentityIds: exists
+                    ? current.filter((id) => id !== identityId)
+                    : [...current, identityId],
+            };
+        });
+    };
+
     const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -153,6 +171,9 @@ export function HostModal({
             username: localShellOnly ? "" : formData.username || "",
             keyId: localShellOnly ? undefined : keyId,
             identityId: localShellOnly ? undefined : identityId,
+            userpassIdentityIds: localShellOnly
+                ? []
+                : (formData.userpassIdentityIds ?? []),
             password: localShellOnly ? undefined : password || undefined,
             groupId:
                 formData.groupId === "none" || !formData.groupId
@@ -386,6 +407,34 @@ export function HostModal({
                             </div>
                         </>
                     )}
+
+                    <div className="grid gap-2">
+                        <Label>{t("auto_password_identities_label")}</Label>
+                        <p className="text-xs text-muted-foreground">
+                            {t("auto_password_identities_hint")}
+                        </p>
+                        <div className="flex flex-wrap gap-2 rounded-lg border border-border p-2">
+                            {userpassIdentities.length === 0 && (
+                                <span className="text-xs text-muted-foreground">
+                                    {t("auto_password_identities_empty")}
+                                </span>
+                            )}
+                            {userpassIdentities.map((identity) => {
+                                const selected = (formData.userpassIdentityIds ?? []).includes(identity.id);
+                                return (
+                                    <Button
+                                        key={identity.id}
+                                        type="button"
+                                        size="sm"
+                                        variant={selected ? "default" : "outline"}
+                                        onClick={() => toggleAutoIdentity(identity.id)}
+                                    >
+                                        {identity.name}
+                                    </Button>
+                                );
+                            })}
+                        </div>
+                    </div>
 
                     <div className="grid gap-2">
                         <Label>{t("host_group_label")}</Label>

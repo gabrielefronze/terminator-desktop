@@ -36,10 +36,19 @@ func (s *IdentityService) Delete(ctx context.Context, id string) error {
 		return err
 	}
 	for _, h := range hosts {
-		if h.IdentityID == id {
+		if h.IdentityID == id || containsString(h.UserpassIdentityIDs, id) {
 			return apperror.Validation("cannot delete identity that is used by hosts")
 		}
 	}
 
 	return deleteItem(ctx, s.q, id)
+}
+
+func containsString(values []string, target string) bool {
+	for _, value := range values {
+		if value == target {
+			return true
+		}
+	}
+	return false
 }
