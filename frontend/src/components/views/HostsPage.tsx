@@ -15,7 +15,7 @@ import { HostModal } from "@/components/views/HostModal";
 import { HostGroupModal } from "@/components/views/HostGroupModal";
 import {
     HostGroupSection,
-    HostGroupCardGrid,
+    HostGroupsList,
     UncategorizedHostSection,
 } from "@/components/views/HostGroupSection";
 import { DraggableHostCard } from "@/components/views/DraggableHostCard";
@@ -280,7 +280,7 @@ export function HostsPage() {
                 <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
                     <div className="flex w-full flex-col gap-8">
                         {hostTree.roots.length > 0 && (
-                            <HostGroupCardGrid>
+                            <HostGroupsList>
                                 {hostTree.roots.map((node) => (
                                     <HostGroupSection
                                         key={node.group.id}
@@ -293,7 +293,7 @@ export function HostsPage() {
                                         renderHostCard={renderHostCard}
                                     />
                                 ))}
-                            </HostGroupCardGrid>
+                            </HostGroupsList>
                         )}
 
                         <UncategorizedHostSection

@@ -1,9 +1,17 @@
-import { useState } from "react";
-import { ChevronDown, ChevronRight, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import {
+    ChevronDown,
+    ChevronRight,
+    MoreHorizontal,
+    Edit,
+    Trash2,
+    FolderOpen,
+} from "lucide-react";
 import { HostIconBadge } from "@/components/views/HostIconBadge";
 import {
     GROUP_CARD_SURFACE_CLASS,
-    groupCardBorderColor,
+    groupIconBadgeStyle,
+    normalizeGroupColor,
 } from "@/lib/hostAppearance";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,19 +34,8 @@ import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
 
-/** Host cards use max-w-80 (20rem); groups span two cards plus gap-3. */
-const HOST_CARD_MAX = "20rem";
-const GROUP_CARD_WIDTH = `calc(2 * ${HOST_CARD_MAX} + 0.75rem)`;
-
-const GROUP_HOST_GRID_CLASS = "grid grid-cols-2 gap-3 justify-items-start";
-
-const UNCATEGORIZED_HOST_GRID_CLASS =
-    "grid gap-3 grid-cols-[repeat(auto-fill,minmax(17rem,20rem))] justify-items-start";
-
-const GROUP_CARD_CLASS = cn(
-    "flex w-full max-w-[var(--group-card-width)] flex-col rounded-xl",
-    GROUP_CARD_SURFACE_CLASS,
-);
+const HOST_GRID_CLASS =
+    "grid gap-3 grid-cols-[repeat(auto-fill,minmax(17rem,20rem))]";
 
 function GroupMenuItems({
     group,
@@ -78,6 +75,93 @@ function countHostsInNode(node: HostTreeNode): number {
     return (
         node.hosts.length +
         node.children.reduce((sum, child) => sum + countHostsInNode(child), 0)
+    );
+}
+
+function HostCountBadge({ count }: { count: number }) {
+    const { t } = useTranslation("hosts");
+    const label =
+        count === 1
+            ? t("host_count_one", { defaultValue: "1 host" })
+            : t("host_count", { count });
+
+    return (
+        <span
+            className="shrink-0 rounded-full border border-border/60 bg-muted/40 px-2 py-0.5
+                       text-2xs font-medium text-muted-foreground"
+        >
+            {label}
+        </span>
+    );
+}
+
+interface SectionHeaderProps {
+    accentColor: string;
+    expanded: boolean;
+    onToggle: () => void;
+    icon: ReactNode;
+    title: string;
+    hostCount: number;
+    menu?: ReactNode;
+    contextMenu?: ReactNode;
+}
+
+function SectionHeader({
+    accentColor,
+    expanded,
+    onToggle,
+    icon,
+    title,
+    hostCount,
+    menu,
+    contextMenu,
+}: SectionHeaderProps) {
+    const header = (
+        <div
+            className={cn(
+                "flex items-center gap-2 rounded-xl border border-border/60 px-2 py-2",
+                GROUP_CARD_SURFACE_CLASS,
+                "shadow-sm",
+            )}
+        >
+            <div
+                className="w-1 shrink-0 self-stretch rounded-full"
+                style={{ backgroundColor: accentColor }}
+                aria-hidden
+            />
+            <button
+                type="button"
+                onClick={onToggle}
+                className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-1 py-0.5 text-left
+                           hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2
+                           focus-visible:ring-ring"
+            >
+                {expanded ? (
+                    <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+                ) : (
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                )}
+                {icon}
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                    <span className="truncate font-semibold text-foreground">
+                        {title}
+                    </span>
+                    <HostCountBadge count={hostCount} />
+                </div>
+            </button>
+            {menu}
+        </div>
+    );
+
+    if (!contextMenu) {
+        return header;
+    }
+
+    return (
+        <ContextMenu>
+            <ContextMenuTrigger asChild>{header}</ContextMenuTrigger>
+            {contextMenu}
+        </ContextMenu>
     );
 }
 
@@ -124,94 +208,88 @@ export function HostGroupSection({
     };
 
     const hostCount = countHostsInNode(node);
+    const accentColor = normalizeGroupColor(node.group.color);
 
-    const borderColor = groupCardBorderColor(node.group.color);
+    const groupMenu = (
+        <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="shrink-0"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <MoreHorizontal className="size-4 text-muted-foreground" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="z-50 w-40">
+                <GroupMenuItems
+                    group={node.group}
+                    onEditGroup={onEditGroup}
+                    onDeleteGroup={onDeleteGroup}
+                    Item={DropdownMenuItem}
+                    Separator={DropdownMenuSeparator}
+                />
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+
+    const groupContextMenu = (
+        <ContextMenuContent className="w-40">
+            <GroupMenuItems
+                group={node.group}
+                onEditGroup={onEditGroup}
+                onDeleteGroup={onDeleteGroup}
+                Item={ContextMenuItem}
+                Separator={ContextMenuSeparator}
+            />
+        </ContextMenuContent>
+    );
 
     return (
         <article
-            style={{
-                ["--group-card-width" as string]: GROUP_CARD_WIDTH,
-                borderColor,
-            }}
-            className={cn(GROUP_CARD_CLASS, nested && "max-w-none")}
+            className={cn(
+                "flex w-full min-w-0 flex-col gap-3",
+                nested && "border-l-2 border-border/50 pl-4 sm:pl-5",
+            )}
+            style={
+                nested
+                    ? { borderLeftColor: `color-mix(in srgb, ${accentColor} 35%, transparent)` }
+                    : undefined
+            }
         >
-            <ContextMenu>
-                <ContextMenuTrigger asChild>
-                    <div className="flex items-center gap-2 border-b border-border px-1 py-3">
-                        <button
-                            type="button"
-                            onClick={() => setExpanded((e) => !e)}
-                            className="flex min-w-0 flex-1 items-center gap-2 rounded-lg text-left
-                                       hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        >
-                            {expanded ? (
-                                <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
-                            ) : (
-                                <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-                            )}
-                            <HostIconBadge
-                                kind="group"
-                                icon={node.group.icon}
-                                color={node.group.color}
-                                className="size-9 rounded-lg"
-                                iconClassName="size-5"
-                            />
-                            <div className="flex min-w-0 flex-col">
-                                <span className="truncate font-semibold text-foreground">
-                                    {node.group.name}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                    {t("host_count", { count: hostCount })}
-                                </span>
-                            </div>
-                        </button>
-
-                        <DropdownMenu modal={false}>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon-sm"
-                                    onClick={(e) => e.stopPropagation()}
-                                >
-                                    <MoreHorizontal className="size-4 text-muted-foreground" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="z-50 w-40">
-                                <GroupMenuItems
-                                    group={node.group}
-                                    onEditGroup={onEditGroup}
-                                    onDeleteGroup={onDeleteGroup}
-                                    Item={DropdownMenuItem}
-                                    Separator={DropdownMenuSeparator}
-                                />
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                </ContextMenuTrigger>
-
-                <ContextMenuContent className="w-40">
-                    <GroupMenuItems
-                        group={node.group}
-                        onEditGroup={onEditGroup}
-                        onDeleteGroup={onDeleteGroup}
-                        Item={ContextMenuItem}
-                        Separator={ContextMenuSeparator}
+            <SectionHeader
+                accentColor={accentColor}
+                expanded={expanded}
+                onToggle={() => setExpanded((e) => !e)}
+                icon={
+                    <HostIconBadge
+                        kind="group"
+                        icon={node.group.icon}
+                        color={node.group.color}
+                        className="size-9 shrink-0 rounded-lg"
+                        iconClassName="size-5"
                     />
-                </ContextMenuContent>
-            </ContextMenu>
+                }
+                title={node.group.name}
+                hostCount={hostCount}
+                menu={groupMenu}
+                contextMenu={groupContextMenu}
+            />
 
             {expanded && (
                 <div
                     ref={setNodeRef}
                     className={cn(
-                        "flex min-h-12 flex-col gap-4 px-1 pb-1 pt-3 transition-colors",
-                        isOver && "rounded-lg bg-primary/5 ring-1 ring-inset ring-primary/30",
+                        "min-h-12 rounded-xl transition-colors",
+                        isOver &&
+                            "bg-primary/5 ring-1 ring-inset ring-primary/25",
                     )}
                 >
                     {node.hosts.length > 0 && (
-                        <div className={GROUP_HOST_GRID_CLASS}>
+                        <div className={HOST_GRID_CLASS}>
                             {node.hosts.map((host) => (
-                                <div key={host.id} className="w-full max-w-80">
+                                <div key={host.id} className="min-w-0 max-w-80">
                                     {renderHostCard(host, handlers)}
                                 </div>
                             ))}
@@ -219,7 +297,12 @@ export function HostGroupSection({
                     )}
 
                     {node.children.length > 0 && (
-                        <div className="flex flex-col gap-4">
+                        <div
+                            className={cn(
+                                "flex flex-col gap-5",
+                                node.hosts.length > 0 && "mt-5",
+                            )}
+                        >
                             {node.children.map((child) => (
                                 <HostGroupSection
                                     key={child.group.id}
@@ -237,11 +320,17 @@ export function HostGroupSection({
                     )}
 
                     {node.hosts.length === 0 && node.children.length === 0 && (
-                        <p className="text-center text-xs text-muted-foreground py-2">
-                            {t("group_empty_hint", {
-                                defaultValue: "Drop hosts here or add one to this group.",
-                            })}
-                        </p>
+                        <div
+                            className="flex min-h-20 items-center justify-center rounded-xl border border-dashed
+                                       border-border/70 bg-muted/10 px-4 py-6 text-center"
+                        >
+                            <p className="max-w-xs text-xs text-muted-foreground">
+                                {t("group_empty_hint", {
+                                    defaultValue:
+                                        "Drop hosts here or add one to this group.",
+                                })}
+                            </p>
+                        </div>
                     )}
                 </div>
             )}
@@ -256,6 +345,8 @@ interface UncategorizedSectionProps {
     onDeleteHost: (host: Host) => void;
     renderHostCard: HostGroupSectionProps["renderHostCard"];
 }
+
+const UNCATEGORIZED_ACCENT = "#64748b";
 
 export function UncategorizedHostSection({
     hosts,
@@ -280,38 +371,37 @@ export function UncategorizedHostSection({
         onDelete: onDeleteHost,
     };
 
+    const uncategorizedIconStyle = groupIconBadgeStyle(UNCATEGORIZED_ACCENT);
+
     return (
-        <section className="w-full">
-            <button
-                type="button"
-                onClick={() => setExpanded((e) => !e)}
-                className="mb-3 flex w-full items-center gap-2 rounded-lg px-1 py-1 text-left
-                           hover:bg-foreground/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-                {expanded ? (
-                    <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
-                ) : (
-                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-                )}
-                <span className="font-semibold text-muted-foreground">
-                    {t("uncategorized")}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                    {t("host_count", { count: hosts.length })}
-                </span>
-            </button>
+        <section className="flex w-full min-w-0 flex-col gap-3">
+            <SectionHeader
+                accentColor={UNCATEGORIZED_ACCENT}
+                expanded={expanded}
+                onToggle={() => setExpanded((e) => !e)}
+                icon={
+                    <div
+                        className="flex size-9 shrink-0 items-center justify-center rounded-lg"
+                        style={uncategorizedIconStyle}
+                    >
+                        <FolderOpen className="size-5" />
+                    </div>
+                }
+                title={t("uncategorized")}
+                hostCount={hosts.length}
+            />
 
             {expanded && (
                 <div
                     ref={setNodeRef}
                     className={cn(
-                        "min-h-8 rounded-lg transition-colors",
-                        isOver && "bg-primary/5 ring-1 ring-primary/30",
+                        "min-h-8 rounded-xl transition-colors",
+                        isOver && "bg-primary/5 ring-1 ring-inset ring-primary/25",
                     )}
                 >
-                    <div className={UNCATEGORIZED_HOST_GRID_CLASS}>
+                    <div className={HOST_GRID_CLASS}>
                         {hosts.map((host) => (
-                            <div key={host.id} className="w-full max-w-80">
+                            <div key={host.id} className="min-w-0 max-w-80">
                                 {renderHostCard(host, handlers)}
                             </div>
                         ))}
@@ -322,15 +412,9 @@ export function UncategorizedHostSection({
     );
 }
 
-export function HostGroupCardGrid({ children }: { children: React.ReactNode }) {
-    return (
-        <div
-            style={{ ["--group-card-width" as string]: GROUP_CARD_WIDTH }}
-            className="grid w-full gap-6
-                       grid-cols-[repeat(auto-fill,var(--group-card-width))]
-                       justify-items-start"
-        >
-            {children}
-        </div>
-    );
+export function HostGroupsList({ children }: { children: React.ReactNode }) {
+    return <div className="flex w-full flex-col gap-6">{children}</div>;
 }
+
+/** @deprecated Use HostGroupsList */
+export const HostGroupCardGrid = HostGroupsList;

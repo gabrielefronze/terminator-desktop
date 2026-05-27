@@ -110,10 +110,6 @@ export function normalizeGroupColor(color?: string | null): string {
     return DEFAULT_GROUP_COLOR;
 }
 
-export function groupCardBorderColor(color?: string | null): string {
-    return normalizeGroupColor(color);
-}
-
 /** Shared host card chrome (hue follows app background theme). */
 export const HOST_CARD_SURFACE_CLASS =
     "bg-host-card text-card-foreground border border-border shadow-sm";
