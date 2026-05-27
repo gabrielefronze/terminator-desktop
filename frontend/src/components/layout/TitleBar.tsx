@@ -6,7 +6,16 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore.ts";
 import { MAC_TITLE_BAR_HEIGHT_PX } from "@/lib/platform";
 import { usePlatform } from "@/hooks/usePlatform";
+import { Window } from "@wailsio/runtime";
 import React, { useRef } from "react";
+
+function handleTitleBarDoubleClick(e: React.MouseEvent<HTMLElement>) {
+    const target = e.target as HTMLElement;
+    if (target.closest(".wails-no-drag") || target.closest("button")) {
+        return;
+    }
+    void Window.ToggleMaximise();
+}
 
 export function TitleBar() {
     const { sessions, activeSessionId, setActiveSession, removeSession } =
@@ -37,6 +46,7 @@ export function TitleBar() {
 
     return (
         <header
+            onDoubleClick={handleTitleBarDoubleClick}
             className={cn(
                 "wails-drag flex shrink-0 items-center bg-transparent",
                 isMac ? "h-9" : "h-8 pr-0",

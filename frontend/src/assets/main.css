@@ -144,3 +144,14 @@
 .wails-resizeable {
     --wails-resize: all;
 }
+
+html,
+body,
+#root {
+    height: 100%;
+}
+
+.terminal-host .xterm {
+    height: 100%;
+    width: 100%;
+}

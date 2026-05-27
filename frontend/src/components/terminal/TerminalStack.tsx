@@ -10,7 +10,12 @@ export function TerminalStack({isVisible}: TerminalStackProps) {
     const {sessions, activeSessionId} = useSessionStore();
 
     return (
-        <div className={cn("absolute inset-0", isVisible ? "block" : "hidden")}>
+        <div
+            className={cn(
+                "relative h-full min-h-0 w-full",
+                !isVisible && "hidden",
+            )}
+        >
             {sessions.map((session) => (
                 <TerminalInstance
                     key={session.id}

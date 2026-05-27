@@ -294,6 +294,27 @@ export function TerminalInstance({sessionId, isActive, config, sudoCredentials =
     }, [sessionId, sudoCredentials]);
 
     useEffect(() => {
+        if (!isActive || !isReadyRef.current) return;
+
+        const fit = fitAddonRef.current;
+        const term = terminalRef.current;
+        if (!fit || !term) return;
+
+        const frame = requestAnimationFrame(() => {
+            try {
+                fit.fit();
+                void SshService.Resize(sessionId, term.rows, term.cols).catch(
+                    printErrorToTerminal,
+                );
+            } catch (e) {
+                console.warn("xterm fit failed:", e);
+            }
+        });
+
+        return () => cancelAnimationFrame(frame);
+    }, [isActive, sessionId]);
+
+    useEffect(() => {
         if (!containerRef.current) return;
 
         const resizeObserver = new ResizeObserver(() => {
@@ -321,11 +342,14 @@ export function TerminalInstance({sessionId, isActive, config, sudoCredentials =
     return (
         <div
             className={cn(
-                "absolute inset-0 overflow-hidden rounded-tl-xl bg-background",
+                "absolute inset-0 overflow-hidden rounded-tl-sm bg-background",
                 isActive ? "block" : "hidden",
             )}
         >
-            <div ref={containerRef} className="h-full w-full" />
+            <div
+                ref={containerRef}
+                className="terminal-host h-full min-h-0 w-full"
+            />
             {showPasswordMenu && sudoCredentials.length > 0 && (
                 <div
                     className="absolute z-20 w-72 rounded-lg border border-border bg-card p-3 shadow-xl"
