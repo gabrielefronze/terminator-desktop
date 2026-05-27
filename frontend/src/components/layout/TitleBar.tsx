@@ -4,10 +4,7 @@ import { WindowControls } from "@/components/layout/WindowControls";
 import { TerminalTab } from "@/components/layout/TerminalTab";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore.ts";
-import {
-    MAC_TITLE_BAR_HEIGHT_PX,
-    MAC_TRAFFIC_LIGHT_GUTTER_PX,
-} from "@/lib/platform";
+import { MAC_TITLE_BAR_HEIGHT_PX } from "@/lib/platform";
 import { usePlatform } from "@/hooks/usePlatform";
 import React, { useRef } from "react";
 
@@ -15,11 +12,9 @@ export function TitleBar() {
     const { sessions, activeSessionId, setActiveSession, removeSession } =
         useSessionStore();
     const { activeView } = useUIStore();
-    const { isMac, usesCustomWindowControls } = usePlatform();
+    const { isMac } = usePlatform();
 
     const isTerminalView = activeView === ViewType.Terminal;
-    const showSidebarColumn = !isMac && !isTerminalView;
-
     const { isUnlocked } = useAuthStore();
 
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -30,12 +25,21 @@ export function TitleBar() {
         }
     };
 
+    const closeOthers = (sessionId: string) => {
+        sessions
+            .filter((session) => session.id !== sessionId)
+            .forEach((session) => removeSession(session.id));
+    };
+
+    const closeAll = () => {
+        sessions.forEach((session) => removeSession(session.id));
+    };
+
     return (
         <header
             className={cn(
-                "wails-drag flex shrink-0 items-center justify-between bg-transparent",
-                !isMac && "h-8",
-                usesCustomWindowControls ? "pr-0" : "pr-2",
+                "wails-drag flex shrink-0 items-center bg-transparent",
+                isMac ? "h-9" : "h-8 pr-0",
             )}
             style={
                 isMac
@@ -43,45 +47,31 @@ export function TitleBar() {
                     : undefined
             }
         >
-            {isMac && (
-                <div
-                    className="wails-drag shrink-0 self-stretch"
-                    style={{ width: `${MAC_TRAFFIC_LIGHT_GUTTER_PX}px` }}
-                    aria-hidden
-                />
-            )}
-
-            {isUnlocked && showSidebarColumn && (
-                <div className="relative flex h-full w-14 shrink-0 flex-col items-center justify-center">
-                    <img
-                        src="/appicon.png"
-                        alt="Terminator"
-                        className="size-5"
-                    />
-                </div>
-            )}
+            {isMac && <WindowControls className="shrink-0" />}
 
             <div
                 ref={scrollRef}
                 onWheel={handleWheel}
-                className="flex h-full flex-1 items-center gap-1 overflow-x-auto overflow-y-hidden pl-2 [&::-webkit-scrollbar]:hidden"
+                className="flex h-full min-w-0 flex-1 items-center gap-1 overflow-x-auto overflow-y-hidden px-2 [&::-webkit-scrollbar]:hidden"
             >
-                {sessions.map((session) => (
-                    <TerminalTab
-                        key={session.id}
-                        session={session}
-                        isActive={
-                            isTerminalView && session.id === activeSessionId
-                        }
-                        onClick={() => setActiveSession(session.id)}
-                        onClose={() => removeSession(session.id)}
-                    />
-                ))}
+                {isUnlocked &&
+                    sessions.map((session) => (
+                        <TerminalTab
+                            key={session.id}
+                            session={session}
+                            isActive={
+                                isTerminalView &&
+                                session.id === activeSessionId
+                            }
+                            onClick={() => setActiveSession(session.id)}
+                            onClose={() => removeSession(session.id)}
+                            onCloseOthers={() => closeOthers(session.id)}
+                            onCloseAll={closeAll}
+                        />
+                    ))}
             </div>
 
-            {usesCustomWindowControls && (
-                <WindowControls className="ml-2 shrink-0" />
-            )}
+            {!isMac && <WindowControls className="ml-2 shrink-0" />}
         </header>
     );
 }

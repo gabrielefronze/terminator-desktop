@@ -8,7 +8,6 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
-	"runtime"
 	"runtime/debug"
 	"terminator-desktop/backend/cmd/terminator-desktop/emitters"
 	"terminator-desktop/backend/cmd/terminator-desktop/env"
@@ -188,27 +187,13 @@ func main() {
 	app.RegisterService(application.NewService(settingsService))
 	app.RegisterService(application.NewService(reachabilityService))
 	app.RegisterService(application.NewService(updaterService))
-	app.RegisterService(application.NewService(&WindowControls{mainWindow}))
-
-	// Create a new window with the necessary options.
-	// 'Title' is the title of the window.
-	// 'Mac' options tailor the window when running on macOS.
-	// 'BackgroundColour' is the background colour of the window.
-	// 'URL' is the URL that will be loaded into the webview.
-	// Frameless on Windows/Linux enables custom title-bar controls. On macOS,
-	// Frameless hides native traffic lights in Wails v3; use the inset title bar instead.
-	frameless := runtime.GOOS != "darwin"
 
 	savedLayout, hasSavedLayout := loadWindowLayout(appDir)
 	windowOpts := applyLayoutToOptions(savedLayout, hasSavedLayout)
 	windowOpts.Title = AppName
 	windowOpts.EnableFileDrop = true
-	windowOpts.Frameless = frameless
-	windowOpts.Mac = application.MacWindow{
-		InvisibleTitleBarHeight: 38,
-		Backdrop:                application.MacBackdropTranslucent,
-		TitleBar:                application.MacTitleBarHiddenInset,
-	}
+	// Fully frameless; macOS uses emulated traffic lights in the web title bar.
+	windowOpts.Frameless = true
 	windowOpts.BackgroundColour = application.NewRGB(9, 9, 11)
 	windowOpts.URL = "/"
 	windowOpts.MinWidth = windowstate.MinWidth

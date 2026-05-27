@@ -28,6 +28,7 @@ export function usePlatform() {
     return {
         os,
         isMac: os === "darwin",
-        usesCustomWindowControls: os !== "darwin",
+        /** Emulated controls on all platforms (frameless; native mac lights block right-click). */
+        usesCustomWindowControls: os !== "unknown",
     };
 }

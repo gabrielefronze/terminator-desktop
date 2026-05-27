@@ -1,9 +1,6 @@
 export type PlatformOS = "darwin" | "windows" | "linux" | "unknown";
 
-/** Left inset for native macOS traffic lights (hidden inset title bar). */
-export const MAC_TRAFFIC_LIGHT_GUTTER_PX = 78;
-
-/** Matches `InvisibleTitleBarHeight` in main.go on macOS. */
+/** In-app title bar height on macOS (emulated traffic lights). */
 export const MAC_TITLE_BAR_HEIGHT_PX = 38;
 
 function osFromWails(): PlatformOS | null {
@@ -63,7 +60,7 @@ export function isLinux(): boolean {
     return detectPlatformOS() === "linux";
 }
 
-/** Custom in-app window controls (min/max/close) for frameless non-macOS windows. */
+/** Emulated window controls (frameless on all desktop platforms). */
 export function usesCustomWindowControls(): boolean {
-    return !isMac();
+    return detectPlatformOS() !== "unknown";
 }
