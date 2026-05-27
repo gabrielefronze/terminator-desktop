@@ -4,6 +4,8 @@ export enum ViewType {
     Hosts = "hosts",
     Keys = "keys",
     Identities = "identities",
+    Snippets = "snippets",
+    Sftp = "sftp",
     Settings = "settings",
     Terminal = "terminal",
 }

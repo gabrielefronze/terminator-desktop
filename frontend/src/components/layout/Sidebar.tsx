@@ -1,4 +1,13 @@
-import { Server, Key, User, Settings, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+    Server,
+    Key,
+    User,
+    Settings,
+    ChevronLeft,
+    ChevronRight,
+    FileCode2,
+    FolderOpen,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUIStore, ViewType } from "@/store/uiStore";
 import { cn } from "@/lib/utils";
@@ -6,7 +15,6 @@ import { SyncStatus } from "../../../bindings/terminator-desktop/backend/interna
 import { useSyncStore } from "@/store/syncStore.ts";
 import { useTranslation } from "react-i18next";
 import { UpdatePopover } from "@/components/layout/UpdatePopover.tsx";
-import { LocalhostSidebarButton } from "@/components/layout/LocalhostSidebarButton";
 import { sidebarNavButtonClass } from "@/lib/sidebarNav";
 
 export function Sidebar() {
@@ -46,8 +54,6 @@ export function Sidebar() {
                 )}
             >
                 <nav className="flex flex-col gap-2">
-                    <LocalhostSidebarButton />
-
                     <Button
                         variant="ghost"
                         size="icon"
@@ -80,6 +86,28 @@ export function Sidebar() {
                         title={t("page_title", { ns: "identities" })}
                     >
                         <User className="size-5" />
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setActiveView(ViewType.Snippets)}
+                        className={sidebarNavButtonClass(
+                            activeView === ViewType.Snippets,
+                        )}
+                        title={t("page_title", { ns: "snippets" })}
+                    >
+                        <FileCode2 className="size-5" />
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setActiveView(ViewType.Sftp)}
+                        className={sidebarNavButtonClass(activeView === ViewType.Sftp)}
+                        title={t("page_title", { ns: "sftp" })}
+                    >
+                        <FolderOpen className="size-5" />
                     </Button>
                 </nav>
 

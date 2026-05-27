@@ -4,6 +4,8 @@ import { HostsPage } from "@/components/views/HostsPage.tsx";
 import { KeysPage } from "@/components/views/KeysPage.tsx";
 import { IdentitiesPage } from "@/components/views/IdentitiesPage.tsx";
 import { SettingsPage } from "@/components/views/SettingsPage.tsx";
+import { SnippetsPage } from "@/components/views/SnippetsPage.tsx";
+import { SftpPage } from "@/components/views/SftpPage.tsx";
 
 export function ContentView() {
     const {activeView} = useUIStore();
@@ -14,6 +16,8 @@ export function ContentView() {
             {activeView === ViewType.Hosts && <HostsPage/>}
             {activeView === ViewType.Keys && <KeysPage/>}
             {activeView === ViewType.Identities && <IdentitiesPage/>}
+            {activeView === ViewType.Snippets && <SnippetsPage/>}
+            {activeView === ViewType.Sftp && <SftpPage/>}
             {activeView === ViewType.Settings && <SettingsPage/>}
 
             <TerminalStack isVisible={activeView === ViewType.Terminal}/>
