@@ -23,6 +23,7 @@ import (
 	"terminator-desktop/backend/internal/services/sync"
 	"terminator-desktop/backend/internal/services/updater"
 	"terminator-desktop/backend/internal/vault"
+	"terminator-desktop/backend/internal/windowstate"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/quaadgras/velopack-go/velopack"
@@ -198,18 +199,23 @@ func main() {
 	// Frameless hides native traffic lights in Wails v3; use the inset title bar instead.
 	frameless := runtime.GOOS != "darwin"
 
-	mainWindow = app.Window.NewWithOptions(application.WebviewWindowOptions{
-		Title:          AppName,
-		EnableFileDrop: true,
-		Frameless:      frameless,
-		Mac: application.MacWindow{
-			InvisibleTitleBarHeight: 50,
-			Backdrop:                application.MacBackdropTranslucent,
-			TitleBar:                application.MacTitleBarHiddenInset,
-		},
-		BackgroundColour: application.NewRGB(9, 9, 11),
-		URL:              "/",
-	})
+	savedLayout, hasSavedLayout := loadWindowLayout(appDir)
+	windowOpts := applyLayoutToOptions(savedLayout, hasSavedLayout)
+	windowOpts.Title = AppName
+	windowOpts.EnableFileDrop = true
+	windowOpts.Frameless = frameless
+	windowOpts.Mac = application.MacWindow{
+		InvisibleTitleBarHeight: 38,
+		Backdrop:                application.MacBackdropTranslucent,
+		TitleBar:                application.MacTitleBarHiddenInset,
+	}
+	windowOpts.BackgroundColour = application.NewRGB(9, 9, 11)
+	windowOpts.URL = "/"
+	windowOpts.MinWidth = windowstate.MinWidth
+	windowOpts.MinHeight = windowstate.MinHeight
+
+	mainWindow = app.Window.NewWithOptions(windowOpts)
+	newWindowLayoutStore(appDir, mainWindow).attach()
 
 	defer v.Lock() // eh why not
 	defer syncService.StopAutoSync()

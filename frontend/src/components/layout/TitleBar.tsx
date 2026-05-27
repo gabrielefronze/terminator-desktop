@@ -33,8 +33,8 @@ export function TitleBar() {
     return (
         <header
             className={cn(
-                "wails-drag flex shrink-0 items-end justify-between bg-transparent",
-                !isMac && "h-10",
+                "wails-drag flex shrink-0 items-center justify-between bg-transparent",
+                !isMac && "h-8",
                 usesCustomWindowControls ? "pr-0" : "pr-2",
             )}
             style={

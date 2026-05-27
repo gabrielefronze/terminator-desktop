@@ -5,7 +5,7 @@ import { TerminalSession } from "@/store/sessionStore";
 import { HostIconBadge } from "@/components/views/HostIconBadge";
 
 const tabStyles = cva(
-    "wails-no-drag group my-1 mt-2 flex h-8 min-w-30 max-w-50 cursor-pointer items-center gap-2 " +
+    "wails-no-drag group flex h-7 min-w-30 max-w-50 cursor-pointer items-center gap-2 " +
     "rounded-md border px-2 text-xs font-medium transition-colors",
     {
         variants: {

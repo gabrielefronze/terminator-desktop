@@ -226,8 +226,13 @@ export function TerminalInstance({sessionId, isActive, config}: TerminalInstance
     }, [isActive, sessionId]);
 
     return (
-        <div className={cn("h-full w-full bg-background p-2", isActive ? "block" : "hidden")}>
-            <div ref={containerRef} className="h-full w-full"/>
+        <div
+            className={cn(
+                "absolute inset-0 overflow-hidden rounded-tl-m bg-background",
+                isActive ? "block" : "hidden",
+            )}
+        >
+            <div ref={containerRef} className="h-full w-full" />
         </div>
     );
 }

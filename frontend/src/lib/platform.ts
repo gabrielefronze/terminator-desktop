@@ -4,7 +4,7 @@ export type PlatformOS = "darwin" | "windows" | "linux" | "unknown";
 export const MAC_TRAFFIC_LIGHT_GUTTER_PX = 78;
 
 /** Matches `InvisibleTitleBarHeight` in main.go on macOS. */
-export const MAC_TITLE_BAR_HEIGHT_PX = 50;
+export const MAC_TITLE_BAR_HEIGHT_PX = 38;
 
 function osFromWails(): PlatformOS | null {
     const os = window._wails?.environment?.OS?.toLowerCase();
