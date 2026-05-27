@@ -14,6 +14,15 @@ export class SSHConnectionConfig {
     "password"?: string;
     "privateKey"?: string;
 
+    /**
+     * Optional jump host / relay (bastion) — one hop only.
+     */
+    "relayHost"?: string;
+    "relayPort"?: number;
+    "relayUsername"?: string;
+    "relayPassword"?: string;
+    "relayPrivateKey"?: string;
+
     /** Creates a new SSHConnectionConfig instance. */
     constructor($$source: Partial<SSHConnectionConfig> = {}) {
         if (!("id" in $$source)) {

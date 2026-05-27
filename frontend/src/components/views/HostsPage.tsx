@@ -21,6 +21,7 @@ import {
 import { DraggableHostCard } from "@/components/views/DraggableHostCard";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useSaveHost, useDeleteHost } from "@/hooks/useHosts";
+import { useHosts } from "@/hooks/useHosts";
 import { useHostsWithoutBuiltin } from "@/hooks/useResolvedLocalhostHost";
 import { buildSessionFromHost } from "@/lib/connectHost";
 import {
@@ -37,6 +38,7 @@ import { useHostReachability } from "@/hooks/useHostReachability";
 
 export function HostsPage() {
     const { t } = useTranslation(["hosts", "common"]);
+    const { data: allHosts } = useHosts();
     const { data: hosts, isLoading } = useHostsWithoutBuiltin();
     const { byId: reachabilityById, isChecking: reachabilityChecking } =
         useHostReachability(hosts);
@@ -168,7 +170,7 @@ export function HostsPage() {
     };
 
     const handleConnect = (host: Host) => {
-        addSession(buildSessionFromHost(host, keys, identities));
+        addSession(buildSessionFromHost(host, keys, identities, allHosts));
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -316,6 +318,7 @@ export function HostsPage() {
                 onClose={() => setIsHostModalOpen(false)}
                 onSave={handleSaveHost}
                 initialData={editingHost}
+                allHosts={allHosts ?? []}
                 groups={groups ?? []}
                 isSaving={saveHostMutation.isPending}
             />

@@ -25,6 +25,9 @@ import {
     normalizeHostIcon,
     type HostIconId,
 } from "@/lib/hostAppearance";
+import { BUILTIN_LOCALHOST_HOST_ID } from "@/lib/defaultLocalhost";
+import { validateRelayHostId } from "@/lib/relayHost";
+import { toast } from "sonner";
 
 type AuthMode = "password" | "identity" | "key";
 
@@ -33,6 +36,7 @@ interface HostModalProps {
     onClose: () => void;
     onSave: (host: Host) => void;
     initialData?: Host | null;
+    allHosts?: Host[];
     groups: HostGroup[];
     isSaving: boolean;
     /** Local sidebar shell: only label and appearance, no SSH fields. */
@@ -63,6 +67,7 @@ export function HostModal({
     onClose,
     onSave,
     initialData,
+    allHosts = [],
     groups,
     isSaving,
     localShellOnly = false,
@@ -80,6 +85,16 @@ export function HostModal({
     const groupOptions = useMemo(
         () => flattenGroupsForSelect(groups),
         [groups],
+    );
+
+    const relayHostOptions = useMemo(
+        () =>
+            allHosts.filter(
+                (candidate) =>
+                    candidate.id !== formData.id &&
+                    candidate.id !== BUILTIN_LOCALHOST_HOST_ID,
+            ),
+        [allHosts, formData.id],
     );
 
     useEffect(() => {
@@ -162,6 +177,23 @@ export function HostModal({
             identityId = undefined;
         }
 
+        const relayHostId =
+            !localShellOnly &&
+            formData.relayHostId &&
+            formData.relayHostId !== "none"
+                ? formData.relayHostId
+                : undefined;
+
+        const relayError = validateRelayHostId(
+            formData.id,
+            relayHostId,
+            allHosts,
+        );
+        if (relayError) {
+            toast.error(t(`relay_error_${relayError}`));
+            return;
+        }
+
         const finalHost = new Host({
             ...formData,
             id: formData.id || "",
@@ -179,6 +211,7 @@ export function HostModal({
                 formData.groupId === "none" || !formData.groupId
                     ? undefined
                     : formData.groupId,
+            relayHostId: localShellOnly ? undefined : relayHostId,
             icon: normalizeHostIcon(formData.icon),
             color: normalizeHostColor(formData.color),
         });
@@ -233,6 +266,7 @@ export function HostModal({
                     </div>
 
                     {!localShellOnly && (
+                    <>
                     <div className="grid grid-cols-4 gap-4">
                         <div className="col-span-3 grid gap-2">
                             <Label htmlFor="host">
@@ -264,10 +298,44 @@ export function HostModal({
                             />
                         </div>
                     </div>
-                    )}
 
-                    {!localShellOnly && (
-                    <>
+                    <div className="grid gap-2">
+                        <Label>{t("relay_host_label")}</Label>
+                        <p className="text-xs text-muted-foreground">
+                            {t("relay_host_hint")}
+                        </p>
+                        <Select
+                            value={formData.relayHostId || "none"}
+                            onValueChange={(val) =>
+                                setFormData({
+                                    ...formData,
+                                    relayHostId: val === "none" ? undefined : val,
+                                })}
+                        >
+                            <SelectTrigger>
+                                <SelectValue
+                                    placeholder={t("relay_host_placeholder")}
+                                />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">
+                                    {t("relay_host_none")}
+                                </SelectItem>
+                                {relayHostOptions.map((relayHost) => (
+                                    <SelectItem
+                                        key={relayHost.id}
+                                        value={relayHost.id}
+                                    >
+                                        {relayHost.name || relayHost.host}
+                                        {relayHost.host
+                                            ? ` (${relayHost.host})`
+                                            : ""}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     <div className="grid gap-2">
                         <Label>{t("auth_method_label")}</Label>
                         <Select

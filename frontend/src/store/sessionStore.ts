@@ -36,6 +36,11 @@ export interface CreateSessionParams {
     icon?: string;
     color?: string;
     sudoCredentials?: SudoCredential[];
+    relayHost?: string;
+    relayPort?: number;
+    relayUsername?: string;
+    relayPassword?: string;
+    relayPrivateKey?: string;
 }
 
 interface SessionState {
@@ -63,6 +68,11 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             username: params.username,
             password: params.password,
             privateKey: params.privateKey,
+            relayHost: params.relayHost,
+            relayPort: params.relayPort,
+            relayUsername: params.relayUsername,
+            relayPassword: params.relayPassword,
+            relayPrivateKey: params.relayPrivateKey,
         });
 
         const newSession: TerminalSession = {

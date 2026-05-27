@@ -24,9 +24,10 @@ type Host struct {
 	KeyID      string   `json:"keyId,omitempty"`
 	IdentityID string   `json:"identityId,omitempty"`
 	UserpassIdentityIDs []string `json:"userpassIdentityIds,omitempty"`
-	GroupID    string   `json:"groupId,omitempty"`
-	Icon       string   `json:"icon,omitempty"`
-	Color      string   `json:"color,omitempty"`
+	GroupID     string   `json:"groupId,omitempty"`
+	RelayHostID string   `json:"relayHostId,omitempty"`
+	Icon        string   `json:"icon,omitempty"`
+	Color       string   `json:"color,omitempty"`
 }
 
 type SavedIdentity struct {

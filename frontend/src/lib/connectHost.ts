@@ -6,6 +6,7 @@ import {
     BUILTIN_LOCALHOST_HOST_ID,
     isBuiltinLocalhostHost,
 } from "@/lib/defaultLocalhost";
+import { resolveRelaySessionFields } from "@/lib/relayHost";
 import type { CreateSessionParams, SudoCredential } from "@/store/sessionStore";
 
 export function buildLocalShellSession(
@@ -29,6 +30,7 @@ export function buildSessionFromHost(
     host: Host,
     keys: SavedKey[] | undefined,
     identities: SavedIdentity[] | undefined,
+    allHosts?: Host[],
 ): CreateSessionParams {
     if (isBuiltinLocalhostHost(host)) {
         return buildLocalShellSession(host.name, host.icon, host.color);
@@ -71,6 +73,13 @@ export function buildSessionFromHost(
         );
     }
 
+    const relay = resolveRelaySessionFields(
+        host.relayHostId,
+        allHosts,
+        keys,
+        identities,
+    );
+
     return {
         host: host.host,
         port: host.port,
@@ -82,5 +91,6 @@ export function buildSessionFromHost(
         icon: host.icon,
         color: host.color,
         sudoCredentials,
+        ...relay,
     };
 }

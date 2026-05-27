@@ -25,16 +25,23 @@ type SSHConnectionConfig struct {
 	Username   string `json:"username"`
 	Password   string `json:"password,omitempty"`
 	PrivateKey string `json:"privateKey,omitempty"`
+	// Optional jump host / relay (bastion) — one hop only.
+	RelayHost       string `json:"relayHost,omitempty"`
+	RelayPort       int    `json:"relayPort,omitempty"`
+	RelayUsername   string `json:"relayUsername,omitempty"`
+	RelayPassword   string `json:"relayPassword,omitempty"`
+	RelayPrivateKey string `json:"relayPrivateKey,omitempty"`
 }
 
 type activeSession struct {
-	local    bool
-	stdin    io.WriteCloser
-	stdout   io.Reader
-	client   *ssh.Client
-	session  *ssh.Session
-	localCmd *exec.Cmd
-	ptyFile  *os.File
+	local      bool
+	stdin      io.WriteCloser
+	stdout     io.Reader
+	client     *ssh.Client
+	jumpClient *ssh.Client
+	session    *ssh.Session
+	localCmd   *exec.Cmd
+	ptyFile    *os.File
 }
 
 type SshService struct {
@@ -60,30 +67,39 @@ func (s *SshService) Connect(config *SSHConnectionConfig) error {
 		return s.connectLocal(config)
 	}
 
-	var authMethods []ssh.AuthMethod
-
-	if config.PrivateKey != "" {
-		signer, err := ssh.ParsePrivateKey([]byte(config.PrivateKey))
-		if err != nil {
-			return apperror.DecryptionFailed(err)
-		}
-		authMethods = append(authMethods, ssh.PublicKeys(signer))
-	} else if config.Password != "" {
-		authMethods = append(authMethods, ssh.Password(config.Password))
-	}
-
-	clientConfig := &ssh.ClientConfig{
-		User: config.Username,
-		Auth: authMethods,
-		// TODO proper host key handling
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		Timeout:         timeout,
-	}
-
-	addr := fmt.Sprintf("%s:%d", config.Host, config.Port)
-	client, err := ssh.Dial("tcp", addr, clientConfig)
+	targetConfig, err := clientConfig(config.Username, config.Password, config.PrivateKey)
 	if err != nil {
-		return apperror.SSHConnectionFailed(fmt.Sprintf("failed to connect to %s", addr), err)
+		return err
+	}
+
+	targetAddr := fmt.Sprintf("%s:%d", config.Host, config.Port)
+
+	var client *ssh.Client
+	var jumpClient *ssh.Client
+
+	if config.RelayHost != "" {
+		relayPort := config.RelayPort
+		if relayPort <= 0 {
+			relayPort = 22
+		}
+		jumpConfig, err := clientConfig(
+			config.RelayUsername,
+			config.RelayPassword,
+			config.RelayPrivateKey,
+		)
+		if err != nil {
+			return apperror.SSHConnectionFailed("relay host has no authentication configured", err)
+		}
+		jumpAddr := fmt.Sprintf("%s:%d", config.RelayHost, relayPort)
+		client, jumpClient, err = dialViaJump(jumpConfig, jumpAddr, targetConfig, targetAddr)
+		if err != nil {
+			return err
+		}
+	} else {
+		client, err = ssh.Dial("tcp", targetAddr, targetConfig)
+		if err != nil {
+			return apperror.SSHConnectionFailed(fmt.Sprintf("failed to connect to %s", targetAddr), err)
+		}
 	}
 
 	session, err := client.NewSession()
@@ -129,11 +145,12 @@ func (s *SshService) Connect(config *SSHConnectionConfig) error {
 
 	s.mu.Lock()
 	currentSession := &activeSession{
-		local:   false,
-		client:  client,
-		session: session,
-		stdin:   stdin,
-		stdout:  stdout,
+		local:      false,
+		client:     client,
+		jumpClient: jumpClient,
+		session:    session,
+		stdin:      stdin,
+		stdout:     stdout,
 	}
 	s.sessions[config.ID] = currentSession
 	s.mu.Unlock()
@@ -187,6 +204,9 @@ func (s *SshService) Disconnect(sessionID string) {
 		} else {
 			_ = active.session.Close()
 			_ = active.client.Close()
+			if active.jumpClient != nil {
+				_ = active.jumpClient.Close()
+			}
 		}
 		s.emitter.EmitClosed(sessionID)
 	}
@@ -262,6 +282,9 @@ func (s *SshService) cleanupSession(sessionID string, current *activeSession) {
 			}
 			if current.client != nil {
 				_ = current.client.Close()
+			}
+			if current.jumpClient != nil {
+				_ = current.jumpClient.Close()
 			}
 		}
 		s.emitter.EmitClosed(sessionID)

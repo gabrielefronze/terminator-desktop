@@ -17,6 +17,7 @@ export class Host {
     "identityId"?: string;
     "userpassIdentityIds"?: string[];
     "groupId"?: string;
+    "relayHostId"?: string;
     "icon"?: string;
     "color"?: string;
 
