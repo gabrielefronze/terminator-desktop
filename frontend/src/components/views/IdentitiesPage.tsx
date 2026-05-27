@@ -14,6 +14,10 @@ import {
 import { useHosts } from "@/hooks/useHosts";
 import { SavedIdentity } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import { handleAppError } from "@/lib/error";
+import {
+    getHostsForIdentity,
+    isIdentityUsedByHosts,
+} from "@/lib/hostLinks";
 
 export function IdentitiesPage() {
     const { t } = useTranslation(["identities", "common"]);
@@ -41,7 +45,8 @@ export function IdentitiesPage() {
     };
 
     const handleDeletePrompt = (identity: SavedIdentity) => {
-        const inUse = hosts?.some((h) => h.identityId === identity.id);
+        const inUse =
+            hosts != null && isIdentityUsedByHosts(hosts, identity.id);
         if (inUse) {
             handleAppError(new Error(t("delete_in_use")));
             return;
@@ -121,6 +126,7 @@ export function IdentitiesPage() {
                     <IdentityCard
                         key={identity.id}
                         identity={identity}
+                        linkedHosts={getHostsForIdentity(hosts ?? [], identity.id)}
                         onEdit={handleEdit}
                         onDelete={handleDeletePrompt}
                     />

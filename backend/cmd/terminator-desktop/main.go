@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"runtime"
 	"runtime/debug"
 	"terminator-desktop/backend/cmd/terminator-desktop/emitters"
 	"terminator-desktop/backend/cmd/terminator-desktop/env"
@@ -192,9 +193,18 @@ func main() {
 	windowOpts := applyLayoutToOptions(savedLayout, hasSavedLayout)
 	windowOpts.Title = AppName
 	windowOpts.EnableFileDrop = true
-	// Fully frameless; macOS uses emulated traffic lights in the web title bar.
+	// Frameless with rounded corners: transparent window chrome + in-app shell radius.
 	windowOpts.Frameless = true
-	windowOpts.BackgroundColour = application.NewRGB(9, 9, 11)
+	windowOpts.BackgroundColour = application.NewRGBA(9, 9, 11, 0)
+	switch runtime.GOOS {
+	case "darwin":
+		windowOpts.BackgroundType = application.BackgroundTypeTranslucent
+		windowOpts.Mac = application.MacWindow{
+			Backdrop: application.MacBackdropTranslucent,
+		}
+	case "windows":
+		windowOpts.BackgroundType = application.BackgroundTypeTranslucent
+	}
 	windowOpts.URL = "/"
 	windowOpts.MinWidth = windowstate.MinWidth
 	windowOpts.MinHeight = windowstate.MinHeight

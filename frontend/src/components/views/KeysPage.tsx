@@ -7,11 +7,15 @@ import { KeyCard } from "@/components/views/KeyCard";
 import { KeyModal } from "@/components/views/KeyModal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useKeys, useSaveKey, useDeleteKey } from "@/hooks/useKeys";
+import { useHosts } from "@/hooks/useHosts";
 import { SavedKey } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
+import { getHostsForKey, isKeyUsedByHosts } from "@/lib/hostLinks";
+import { handleAppError } from "@/lib/error";
 
 export function KeysPage() {
     const {t} = useTranslation(["keys", "common"]);
-    const {data: keys, isLoading} = useKeys();
+    const { data: keys, isLoading } = useKeys();
+    const { data: hosts } = useHosts();
     const saveMutation = useSaveKey();
     const deleteMutation = useDeleteKey();
 
@@ -31,6 +35,11 @@ export function KeysPage() {
     };
 
     const handleDeletePrompt = (key: SavedKey) => {
+        const inUse = hosts != null && isKeyUsedByHosts(hosts, key.id);
+        if (inUse) {
+            handleAppError(new Error(t("delete_in_use")));
+            return;
+        }
         setKeyToDelete(key);
     };
 
@@ -89,6 +98,7 @@ export function KeysPage() {
                     <KeyCard
                         key={key.id}
                         savedKey={key}
+                        linkedHosts={getHostsForKey(hosts ?? [], key.id)}
                         onEdit={handleEdit}
                         onDelete={handleDeletePrompt}
                     />

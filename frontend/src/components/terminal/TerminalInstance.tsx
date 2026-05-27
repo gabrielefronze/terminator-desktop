@@ -342,7 +342,7 @@ export function TerminalInstance({sessionId, isActive, config, sudoCredentials =
     return (
         <div
             className={cn(
-                "absolute inset-0 overflow-hidden rounded-tl-sm bg-background",
+                "absolute inset-0 overflow-hidden bg-background",
                 isActive ? "block" : "hidden",
             )}
         >

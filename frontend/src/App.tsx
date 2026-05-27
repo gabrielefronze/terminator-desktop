@@ -97,7 +97,9 @@ export default function App() {
     }, [isUnlocked, setUpdateVersionReady]);
 
     return (
-        <div className="box-border flex h-dvh w-dvw flex-col overflow-hidden border border-border bg-background text-foreground">
+        <div
+            className="box-border flex h-dvh w-dvw flex-col overflow-hidden rounded-[var(--window-radius)] border border-border bg-background text-foreground"
+        >
             <TitleBar/>
             <div className="relative flex min-h-0 flex-1 overflow-hidden">
 

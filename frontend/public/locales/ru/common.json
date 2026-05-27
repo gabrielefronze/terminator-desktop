@@ -17,5 +17,10 @@
   "unlocking": "Разблокировка...",
   "creating": "Создание...",
   "continue": "Продолжить",
-  "none": "Нет"
+  "none": "Нет",
+  "linked_hosts_label": "Хосты",
+  "linked_hosts_none": "Не используется ни одним хостом",
+  "host_link_role_auth": "SSH вход",
+  "host_link_role_auto_password": "Автопароль",
+  "host_link_role_key": "SSH ключ"
 }
