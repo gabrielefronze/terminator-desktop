@@ -1,4 +1,9 @@
 import {
+    AppleIcon,
+    LinuxIcon,
+    WindowsIcon,
+} from "@/components/icons/OsIcons";
+import {
     Server,
     Database,
     Cloud,
@@ -16,8 +21,15 @@ import {
     Monitor,
     Router,
     Folder,
+    Laptop,
+    Smartphone,
+    Home,
+    Building2,
     type LucideIcon,
 } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
+
+export type HostIconComponent = LucideIcon | ComponentType<SVGProps<SVGSVGElement>>;
 
 export const DEFAULT_HOST_ICON = "server";
 export const DEFAULT_HOST_COLOR = "#3b82f6";
@@ -42,7 +54,14 @@ export const HOST_ICONS = {
     monitor: Monitor,
     router: Router,
     folder: Folder,
-} as const;
+    apple: AppleIcon,
+    windows: WindowsIcon,
+    linux: LinuxIcon,
+    laptop: Laptop,
+    smartphone: Smartphone,
+    home: Home,
+    building: Building2,
+} as const satisfies Record<string, HostIconComponent>;
 
 export type HostIconId = keyof typeof HOST_ICONS;
 
@@ -64,6 +83,13 @@ export const HOST_ICON_OPTIONS: { id: HostIconId; label: string }[] = [
     { id: "monitor", label: "Monitor" },
     { id: "router", label: "Router" },
     { id: "folder", label: "Folder" },
+    { id: "apple", label: "macOS" },
+    { id: "windows", label: "Windows" },
+    { id: "linux", label: "Linux" },
+    { id: "laptop", label: "Laptop" },
+    { id: "smartphone", label: "Phone" },
+    { id: "home", label: "Home" },
+    { id: "building", label: "Building" },
 ];
 
 export const HOST_COLOR_OPTIONS: { value: string; label: string }[] = [
@@ -117,7 +143,7 @@ export const HOST_CARD_SURFACE_CLASS =
 /** Shared group card chrome (slightly elevated vs host cards). Border color set per group. */
 export const GROUP_CARD_SURFACE_CLASS = "bg-group-card border";
 
-export function resolveHostIcon(icon?: string | null): LucideIcon {
+export function resolveHostIcon(icon?: string | null): HostIconComponent {
     return HOST_ICONS[normalizeHostIcon(icon)];
 }
 

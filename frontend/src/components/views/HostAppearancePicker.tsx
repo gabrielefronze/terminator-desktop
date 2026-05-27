@@ -32,14 +32,14 @@ export function HostAppearancePicker({
             <div className="grid gap-2">
                 <Label>{t("host_icon_label")}</Label>
                 <div className="grid grid-cols-8 gap-1.5">
-                    {HOST_ICON_OPTIONS.map(({ id }) => {
+                    {HOST_ICON_OPTIONS.map(({ id, label }) => {
                         const Icon = HOST_ICONS[id];
                         const active = selectedIcon === id;
                         return (
                             <button
                                 key={id}
                                 type="button"
-                                title={id}
+                                title={label}
                                 onClick={() => onIconChange(id)}
                                 className={cn(
                                     "flex size-9 items-center justify-center rounded-md border transition-colors",
