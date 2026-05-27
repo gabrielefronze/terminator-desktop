@@ -11,6 +11,7 @@ import {
     Monitor,
     Paintbrush,
     Fingerprint,
+    Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SwitchServerModal } from "@/components/views/SwitchServerModal";
@@ -43,11 +44,16 @@ import { Switch } from "@/components/ui/switch";
 import { useLocalhostHostSetting } from "@/hooks/useLocalhostHostSetting";
 import { useBiometric } from "@/hooks/useBiometric";
 import { AppBackgroundPicker } from "@/components/views/AppBackgroundPicker";
+import { AccentColorPicker } from "@/components/views/AccentColorPicker";
 import {
     DEFAULT_APP_BACKGROUND_COLOR,
-    applyAppBackgroundColor,
     normalizeAppBackgroundColor,
 } from "@/lib/appTheme";
+import { applyAppTheme } from "@/lib/appThemeApply";
+import {
+    DEFAULT_ACCENT_COLOR,
+    normalizeAccentColor,
+} from "@/lib/accentTheme";
 
 export function SettingsPage() {
     const {t, i18n} = useTranslation(["settings", "common", "errors"]);
@@ -75,6 +81,7 @@ export function SettingsPage() {
     const [appBackgroundColor, setAppBackgroundColor] = useState(
         DEFAULT_APP_BACKGROUND_COLOR,
     );
+    const [accentColor, setAccentColor] = useState(DEFAULT_ACCENT_COLOR);
     const biometric = useBiometric();
     const [touchIdPassword, setTouchIdPassword] = useState("");
     const [touchIdEnabling, setTouchIdEnabling] = useState(false);
@@ -93,6 +100,7 @@ export function SettingsPage() {
         setAppBackgroundColor(
             normalizeAppBackgroundColor(settings.appBackgroundColor),
         );
+        setAccentColor(normalizeAccentColor(settings.accentColor));
     }, [settings]);
 
     const handleTouchIdToggle = async (checked: boolean) => {
@@ -187,7 +195,7 @@ export function SettingsPage() {
     const changeAppBackgroundColor = async (color: string) => {
         const normalized = normalizeAppBackgroundColor(color);
         setAppBackgroundColor(normalized);
-        applyAppBackgroundColor(normalized);
+        applyAppTheme(normalized, accentColor);
         try {
             await persistSettings({ appBackgroundColor: normalized });
         } catch (error) {
@@ -197,11 +205,32 @@ export function SettingsPage() {
 
     const resetAppBackgroundColor = async () => {
         setAppBackgroundColor(DEFAULT_APP_BACKGROUND_COLOR);
-        applyAppBackgroundColor(DEFAULT_APP_BACKGROUND_COLOR);
+        applyAppTheme(DEFAULT_APP_BACKGROUND_COLOR, accentColor);
         try {
             await persistSettings({
                 appBackgroundColor: DEFAULT_APP_BACKGROUND_COLOR,
             });
+        } catch (error) {
+            handleAppError(error);
+        }
+    };
+
+    const changeAccentColor = async (color: string) => {
+        const normalized = normalizeAccentColor(color);
+        setAccentColor(normalized);
+        applyAppTheme(appBackgroundColor, normalized);
+        try {
+            await persistSettings({ accentColor: normalized });
+        } catch (error) {
+            handleAppError(error);
+        }
+    };
+
+    const resetAccentColor = async () => {
+        setAccentColor(DEFAULT_ACCENT_COLOR);
+        applyAppTheme(appBackgroundColor, DEFAULT_ACCENT_COLOR);
+        try {
+            await persistSettings({ accentColor: DEFAULT_ACCENT_COLOR });
         } catch (error) {
             handleAppError(error);
         }
@@ -328,6 +357,31 @@ export function SettingsPage() {
                             value={appBackgroundColor}
                             onChange={(color) => void changeAppBackgroundColor(color)}
                             onReset={() => void resetAppBackgroundColor()}
+                        />
+                    </div>
+
+                    <div className="h-px w-full bg-border" />
+
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-start gap-4">
+                            <div
+                                className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+                            >
+                                <Sparkles className="size-5" />
+                            </div>
+                            <div className="flex min-w-0 flex-1 flex-col gap-1">
+                                <span className="text-sm font-medium text-foreground">
+                                    {t("accent_color_label")}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("accent_color_desc")}
+                                </span>
+                            </div>
+                        </div>
+                        <AccentColorPicker
+                            value={accentColor}
+                            onChange={(color) => void changeAccentColor(color)}
+                            onReset={() => void resetAccentColor()}
                         />
                     </div>
 

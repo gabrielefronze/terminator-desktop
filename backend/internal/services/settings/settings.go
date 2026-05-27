@@ -18,6 +18,7 @@ type AppSettings struct {
 	TerminalFontSize    int    `json:"terminalFontSize"`
 	ShowLocalhostHost   bool   `json:"showLocalhostHost"`
 	AppBackgroundColor  string `json:"appBackgroundColor"`
+	AccentColor         string `json:"accentColor"`
 }
 
 func normalizeSettings(settings AppSettings) AppSettings {
@@ -31,6 +32,7 @@ func normalizeSettings(settings AppSettings) AppSettings {
 		settings.TerminalFontSize = DefaultTerminalFontSize
 	}
 	settings.AppBackgroundColor = normalizeAppBackgroundColor(settings.AppBackgroundColor)
+	settings.AccentColor = normalizeAccentColor(settings.AccentColor)
 	return settings
 }
 
@@ -55,6 +57,7 @@ func (s *SettingsService) GetSettings() (AppSettings, error) {
 		TerminalFontSize:    DefaultTerminalFontSize,
 		ShowLocalhostHost:   true,
 		AppBackgroundColor:  DefaultAppBackgroundColor,
+		AccentColor:         DefaultAccentColor,
 	}
 
 	data, err := os.ReadFile(s.configPath)

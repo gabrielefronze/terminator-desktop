@@ -9,8 +9,6 @@ const SURFACE_LIFT = 0.069;
 const MUTED_LIFT = 0.133;
 const RING_LIGHTNESS = 0.552;
 const MUTED_FG_LIGHTNESS = 0.705;
-const PRIMARY_LIGHTNESS = 0.92;
-
 export const APP_BACKGROUND_OPTIONS: { value: string; label: string }[] = [
     { value: "#09090b", label: "Zinc" },
     { value: "#0a0a0a", label: "Neutral" },
@@ -28,7 +26,7 @@ const presetValues = new Set(APP_BACKGROUND_OPTIONS.map((c) => c.value.toLowerCa
 
 const HEX_COLOR = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
-/** CSS variables overridden when a custom app background is applied. */
+/** CSS variables derived from the app background color. */
 export const APP_THEME_CSS_VARS = [
     "background",
     "card",
@@ -36,14 +34,13 @@ export const APP_THEME_CSS_VARS = [
     "secondary",
     "muted",
     "accent",
-    "primary",
-    "primary-foreground",
+    "accent-foreground",
     "muted-foreground",
-    "ring",
     "border",
     "input",
     "sidebar",
     "sidebar-accent",
+    "sidebar-accent-foreground",
     "sidebar-border",
     "sidebar-ring",
     "host-card",
@@ -61,18 +58,26 @@ export interface DerivedAppTheme {
     vars: Record<(typeof APP_THEME_CSS_VARS)[number], string>;
 }
 
-export function normalizeAppBackgroundColor(color?: string | null): string {
+export function normalizeHexColor(
+    color: string | null | undefined,
+    fallback: string,
+    presets?: Set<string>,
+): string {
     const trimmed = color?.trim();
     if (!trimmed) {
-        return DEFAULT_APP_BACKGROUND_COLOR;
+        return fallback;
     }
     if (HEX_COLOR.test(trimmed)) {
         return trimmed.length === 4 ? expandShortHex(trimmed) : trimmed;
     }
-    if (presetValues.has(trimmed.toLowerCase())) {
+    if (presets?.has(trimmed.toLowerCase())) {
         return trimmed;
     }
-    return DEFAULT_APP_BACKGROUND_COLOR;
+    return fallback;
+}
+
+export function normalizeAppBackgroundColor(color?: string | null): string {
+    return normalizeHexColor(color, DEFAULT_APP_BACKGROUND_COLOR, presetValues);
 }
 
 function expandShortHex(hex: string): string {
@@ -82,11 +87,11 @@ function expandShortHex(hex: string): string {
     return `#${r}${r}${g}${g}${b}${b}`;
 }
 
-function clamp01(value: number): number {
+export function clamp01(value: number): number {
     return Math.min(1, Math.max(0, value));
 }
 
-function formatOklch({ l, c, h }: OklchColor, alpha?: number): string {
+export function formatOklch({ l, c, h }: OklchColor, alpha?: number): string {
     const L = round(l, 3);
     const C = round(c, 4);
     const H = round(h, 3);
@@ -102,8 +107,8 @@ function round(value: number, digits: number): number {
     return Math.round(value * factor) / factor;
 }
 
-export function hexToOklch(hex: string): OklchColor {
-    const normalized = normalizeAppBackgroundColor(hex);
+export function hexToOklch(hex: string, fallback = DEFAULT_APP_BACKGROUND_COLOR): OklchColor {
+    const normalized = normalizeHexColor(hex, fallback);
     const [r, g, b] = hexToRgb(normalized);
     const lr = srgbToLinear(r);
     const lg = srgbToLinear(g);
@@ -170,19 +175,9 @@ export function buildDerivedAppTheme(hex: string): DerivedAppTheme {
         c: chroma * 1.2,
         h,
     });
-    const primary = formatOklch({
-        l: PRIMARY_LIGHTNESS,
-        c: chroma * 0.8,
-        h,
-    });
     const mutedForeground = formatOklch({
         l: MUTED_FG_LIGHTNESS,
         c: Math.max(chroma * 3, 0.015),
-        h,
-    });
-    const ring = formatOklch({
-        l: RING_LIGHTNESS,
-        c: Math.max(chroma * 3.2, 0.016),
         h,
     });
     const border = formatOklch(
@@ -201,16 +196,19 @@ export function buildDerivedAppTheme(hex: string): DerivedAppTheme {
         secondary: muted,
         muted,
         accent: muted,
-        primary,
-        "primary-foreground": surface,
+        "accent-foreground": formatOklch({ l: 0.985, c: 0, h: 0 }),
         "muted-foreground": mutedForeground,
-        ring,
         border,
         input,
         sidebar: surface,
         "sidebar-accent": muted,
+        "sidebar-accent-foreground": formatOklch({ l: 0.985, c: 0, h: 0 }),
         "sidebar-border": border,
-        "sidebar-ring": ring,
+        "sidebar-ring": formatOklch({
+            l: RING_LIGHTNESS,
+            c: Math.max(chroma * 3.2, 0.016),
+            h,
+        }),
         "host-card": surface,
         "group-card": background,
     };

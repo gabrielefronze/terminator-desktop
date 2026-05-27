@@ -7,6 +7,7 @@ import { useSyncStore } from "@/store/syncStore.ts";
 import { useTranslation } from "react-i18next";
 import { UpdatePopover } from "@/components/layout/UpdatePopover.tsx";
 import { LocalhostSidebarButton } from "@/components/layout/LocalhostSidebarButton";
+import { sidebarNavButtonClass } from "@/lib/sidebarNav";
 
 export function Sidebar() {
     const { t } = useTranslation(["hosts", "update"]);
@@ -48,40 +49,34 @@ export function Sidebar() {
                     <LocalhostSidebarButton />
 
                     <Button
-                        variant={
-                            activeView === ViewType.Hosts
-                                ? "secondary"
-                                : "ghost"
-                        }
+                        variant="ghost"
                         size="icon"
                         onClick={() => setActiveView(ViewType.Hosts)}
-                        className="wails-no-drag"
+                        className={sidebarNavButtonClass(
+                            activeView === ViewType.Hosts,
+                        )}
                         title={t("page_title", { ns: "hosts" })}
                     >
                         <Server className="size-5" />
                     </Button>
 
                     <Button
-                        variant={
-                            activeView === ViewType.Keys ? "secondary" : "ghost"
-                        }
+                        variant="ghost"
                         size="icon"
                         onClick={() => setActiveView(ViewType.Keys)}
-                        className="wails-no-drag"
+                        className={sidebarNavButtonClass(activeView === ViewType.Keys)}
                         title={t("page_title", { ns: "keys" })}
                     >
                         <Key className="size-5" />
                     </Button>
 
                     <Button
-                        variant={
-                            activeView === ViewType.Identities
-                                ? "secondary"
-                                : "ghost"
-                        }
+                        variant="ghost"
                         size="icon"
                         onClick={() => setActiveView(ViewType.Identities)}
-                        className="wails-no-drag"
+                        className={sidebarNavButtonClass(
+                            activeView === ViewType.Identities,
+                        )}
                         title={t("page_title", { ns: "identities" })}
                     >
                         <User className="size-5" />
@@ -93,14 +88,12 @@ export function Sidebar() {
 
                     <div className="relative">
                         <Button
-                            variant={
-                                activeView === ViewType.Settings
-                                    ? "secondary"
-                                    : "ghost"
-                            }
+                            variant="ghost"
                             size="icon"
                             onClick={() => setActiveView(ViewType.Settings)}
-                            className="wails-no-drag text-muted-foreground hover:text-foreground"
+                            className={sidebarNavButtonClass(
+                                activeView === ViewType.Settings,
+                            )}
                             title={t("page_title", { ns: "settings" })}
                         >
                             <Settings className="size-5" />
