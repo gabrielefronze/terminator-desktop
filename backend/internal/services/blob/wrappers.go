@@ -53,11 +53,34 @@ func (s *KeyService) Save(ctx context.Context, key SavedKey) (string, error) {
 		key.ID = uuid.New().String()
 	}
 	key.Type = TypeKey // just in case
+	fillSavedKeyPublicKey(&key)
 	return saveItem(ctx, s.q, s.v, key.ID, key)
 }
 
 func (s *KeyService) GetAll(ctx context.Context) ([]SavedKey, error) {
-	return getAllItems[SavedKey](ctx, s.q, s.v, TypeKey)
+	keys, err := getAllItems[SavedKey](ctx, s.q, s.v, TypeKey)
+	if err != nil {
+		return nil, err
+	}
+	for i := range keys {
+		fillSavedKeyPublicKey(&keys[i])
+	}
+	return keys, nil
+}
+
+func (s *KeyService) DerivePublicKey(_ context.Context, privateKey string) (string, error) {
+	return publicKeyFromPrivate(privateKey)
+}
+
+func fillSavedKeyPublicKey(key *SavedKey) {
+	if key.PublicKey != "" || key.PrivateKey == "" {
+		return
+	}
+	publicKey, err := publicKeyFromPrivate(key.PrivateKey)
+	if err != nil {
+		return
+	}
+	key.PublicKey = publicKey
 }
 
 func (s *KeyService) Delete(ctx context.Context, id string) error {

@@ -5,6 +5,64 @@
 // @ts-ignore: Unused imports
 import { Create as $Create } from "@wailsio/runtime";
 
+export class GenerateSSHKeyRequest {
+    "algorithm": string;
+    "comment": string;
+
+    /** Creates a new GenerateSSHKeyRequest instance. */
+    constructor($$source: Partial<GenerateSSHKeyRequest> = {}) {
+        if (!("algorithm" in $$source)) {
+            this["algorithm"] = "";
+        }
+        if (!("comment" in $$source)) {
+            this["comment"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new GenerateSSHKeyRequest instance from a string or object.
+     */
+    static createFrom($$source: any = {}): GenerateSSHKeyRequest {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new GenerateSSHKeyRequest($$parsedSource as Partial<GenerateSSHKeyRequest>);
+    }
+}
+
+export class GeneratedSSHKey {
+    "algorithm": string;
+    "privateKey": string;
+    "publicKey": string;
+    "fingerprint": string;
+
+    /** Creates a new GeneratedSSHKey instance. */
+    constructor($$source: Partial<GeneratedSSHKey> = {}) {
+        if (!("algorithm" in $$source)) {
+            this["algorithm"] = "";
+        }
+        if (!("privateKey" in $$source)) {
+            this["privateKey"] = "";
+        }
+        if (!("publicKey" in $$source)) {
+            this["publicKey"] = "";
+        }
+        if (!("fingerprint" in $$source)) {
+            this["fingerprint"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new GeneratedSSHKey instance from a string or object.
+     */
+    static createFrom($$source: any = {}): GeneratedSSHKey {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new GeneratedSSHKey($$parsedSource as Partial<GeneratedSSHKey>);
+    }
+}
+
 export class Host {
     "id": string;
     "type": ItemType;
@@ -145,6 +203,7 @@ export class SavedKey {
     "type": ItemType;
     "name": string;
     "privateKey": string;
+    "publicKey"?: string;
 
     /** Creates a new SavedKey instance. */
     constructor($$source: Partial<SavedKey> = {}) {

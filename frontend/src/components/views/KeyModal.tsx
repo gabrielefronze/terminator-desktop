@@ -7,6 +7,8 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Textarea} from "@/components/ui/textarea";
+import { PublicKeyDisplay } from "@/components/views/PublicKeyDisplay";
+import { useDerivedPublicKey } from "@/hooks/useDerivedPublicKey";
 
 interface KeyModalProps {
     isOpen: boolean;
@@ -20,6 +22,10 @@ export function KeyModal({isOpen, onClose, onSave, initialData, isSaving}: KeyMo
     const {t} = useTranslation(["keys", "common"]);
     const [name, setName] = useState("");
     const [privateKey, setPrivateKey] = useState("");
+    const derivedPublicKey = useDerivedPublicKey(
+        privateKey,
+        initialData?.publicKey,
+    );
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -45,12 +51,13 @@ export function KeyModal({isOpen, onClose, onSave, initialData, isSaving}: KeyMo
             type: ItemType.TypeKey,
             name,
             privateKey,
+            publicKey: derivedPublicKey || undefined,
         }));
     };
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>{initialData ? t("edit_title") : t("new_title")}</DialogTitle>
                 </DialogHeader>
@@ -98,6 +105,10 @@ export function KeyModal({isOpen, onClose, onSave, initialData, isSaving}: KeyMo
                             placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"
                         />
                     </div>
+
+                    {privateKey.trim() ? (
+                        <PublicKeyDisplay publicKey={derivedPublicKey || undefined} />
+                    ) : null}
 
                     <div className="mt-4 flex justify-end gap-2">
                         <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>

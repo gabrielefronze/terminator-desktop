@@ -13,9 +13,19 @@ export function Delete(id: string): $CancellablePromise<void> {
     return $Call.ByID(2018517502, id);
 }
 
+export function DerivePublicKey(privateKey: string): $CancellablePromise<string> {
+    return $Call.ByID(20729994, privateKey);
+}
+
+export function GenerateKeyPair(req: $models.GenerateSSHKeyRequest): $CancellablePromise<$models.GeneratedSSHKey> {
+    return $Call.ByID(3247754137, req).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
 export function GetAll(): $CancellablePromise<$models.SavedKey[]> {
     return $Call.ByID(2217667998).then(($result: any) => {
-        return $$createType1($result);
+        return $$createType2($result);
     });
 }
 
@@ -24,5 +34,6 @@ export function Save(key: $models.SavedKey): $CancellablePromise<string> {
 }
 
 // Private type creation functions
-const $$createType0 = $models.SavedKey.createFrom;
-const $$createType1 = $Create.Array($$createType0);
+const $$createType0 = $models.GeneratedSSHKey.createFrom;
+const $$createType1 = $models.SavedKey.createFrom;
+const $$createType2 = $Create.Array($$createType1);

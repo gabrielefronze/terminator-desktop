@@ -13,6 +13,8 @@ export {
 };
 
 export {
+    GenerateSSHKeyRequest,
+    GeneratedSSHKey,
     Host,
     HostGroup,
     ItemType,

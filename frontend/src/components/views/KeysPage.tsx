@@ -1,10 +1,17 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Search } from "lucide-react";
+import { FileUp, KeyRound, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { KeyCard } from "@/components/views/KeyCard";
 import { KeyModal } from "@/components/views/KeyModal";
+import { GenerateKeyModal } from "@/components/views/GenerateKeyModal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useKeys, useSaveKey, useDeleteKey } from "@/hooks/useKeys";
 import { useHosts } from "@/hooks/useHosts";
@@ -21,12 +28,17 @@ export function KeysPage() {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
     const [editingKey, setEditingKey] = useState<SavedKey | null>(null);
     const [keyToDelete, setKeyToDelete] = useState<SavedKey | null>(null);
 
-    const handleCreateNew = () => {
+    const handleImportKey = () => {
         setEditingKey(null);
         setIsEditModalOpen(true);
+    };
+
+    const handleGenerateKey = () => {
+        setIsGenerateModalOpen(true);
     };
 
     const handleEdit = (key: SavedKey) => {
@@ -73,10 +85,24 @@ export function KeysPage() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                <Button onClick={handleCreateNew} className="shrink-0">
-                    <Plus/>
-                    {t("new_key")}
-                </Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button className="shrink-0">
+                            <Plus />
+                            {t("new_key")}
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem onClick={handleGenerateKey}>
+                            <KeyRound className="size-4" />
+                            {t("generate_key")}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleImportKey}>
+                            <FileUp className="size-4" />
+                            {t("import_key")}
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
 
             {isLoading && <div className="text-sm text-muted-foreground">{t("loading_keys")}</div>}
@@ -86,14 +112,20 @@ export function KeysPage() {
                                 border-2 border-dashed border-border rounded-xl">
                     <h3 className="text-lg font-semibold text-foreground">{t("empty_title")}</h3>
                     <p className="mb-4 mt-2 text-sm text-muted-foreground">{t("empty_desc")}</p>
-                    <Button variant="outline" onClick={handleCreateNew}>{t("import_key")}</Button>
+                    <div className="flex flex-wrap justify-center gap-2">
+                        <Button onClick={handleGenerateKey}>
+                            <KeyRound className="size-4" />
+                            {t("generate_key")}
+                        </Button>
+                        <Button variant="outline" onClick={handleImportKey}>
+                            <FileUp className="size-4" />
+                            {t("import_key")}
+                        </Button>
+                    </div>
                 </div>
             )}
 
-            <div
-                className="grid w-full gap-4"
-                style={{gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))"}}
-            >
+            <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(16rem,20rem))] gap-4">
                 {filteredKeys?.map((key) => (
                     <KeyCard
                         key={key.id}
@@ -110,6 +142,17 @@ export function KeysPage() {
                 onClose={() => setIsEditModalOpen(false)}
                 onSave={handleSave}
                 initialData={editingKey}
+                isSaving={saveMutation.isPending}
+            />
+
+            <GenerateKeyModal
+                isOpen={isGenerateModalOpen}
+                onClose={() => setIsGenerateModalOpen(false)}
+                onSave={(key) =>
+                    saveMutation.mutate(key, {
+                        onSuccess: () => setIsGenerateModalOpen(false),
+                    })
+                }
                 isSaving={saveMutation.isPending}
             />
 

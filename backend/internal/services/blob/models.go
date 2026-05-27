@@ -53,4 +53,5 @@ type SavedKey struct {
 	Type       ItemType `json:"type"`
 	Name       string   `json:"name"`
 	PrivateKey string   `json:"privateKey"`
+	PublicKey  string   `json:"publicKey,omitempty"`
 }
