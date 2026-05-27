@@ -1,4 +1,5 @@
 import type { Host } from "../../bindings/terminator-desktop/backend/internal/services/blob";
+import { RelayHopConfig } from "../../bindings/terminator-desktop/backend/internal/services/ssh/models";
 import {
     BUILTIN_LOCALHOST_HOST_ID,
     isBuiltinLocalhostHost,
@@ -8,11 +9,7 @@ import type { SavedIdentity } from "../../bindings/terminator-desktop/backend/in
 import type { SavedKey } from "../../bindings/terminator-desktop/backend/internal/services/blob/models";
 
 export type RelaySessionFields = {
-    relayHost: string;
-    relayPort: number;
-    relayUsername: string;
-    relayPassword?: string;
-    relayPrivateKey?: string;
+    relayHops: RelayHopConfig[];
 };
 
 export function findRelayHost(
@@ -21,6 +18,26 @@ export function findRelayHost(
 ): Host | undefined {
     if (!relayHostId || !allHosts) return undefined;
     return allHosts.find((host) => host.id === relayHostId);
+}
+
+function hasRelayCycle(
+    hostId: string | undefined,
+    relayHostId: string | undefined,
+    allHosts: Host[] | undefined,
+): boolean {
+    if (!relayHostId || !allHosts) return false;
+    const visited = new Set<string>();
+    if (hostId) visited.add(hostId);
+
+    let currentId: string | undefined = relayHostId;
+    while (currentId) {
+        if (visited.has(currentId)) return true;
+        visited.add(currentId);
+        const relay = findRelayHost(currentId, allHosts);
+        if (!relay) return false;
+        currentId = relay.relayHostId;
+    }
+    return false;
 }
 
 export function validateRelayHostId(
@@ -44,10 +61,25 @@ export function validateRelayHostId(
     if (isBuiltinLocalhostHost(relay)) {
         return "relay_localhost";
     }
-    if (relay.relayHostId) {
-        return "relay_chain";
+    if (hasRelayCycle(hostId, relayHostId, allHosts)) {
+        return "relay_cycle";
     }
     return null;
+}
+
+function hopFromHost(
+    relay: Host,
+    keys: SavedKey[] | undefined,
+    identities: SavedIdentity[] | undefined,
+): RelayHopConfig {
+    const creds = resolveHostCredentials(relay, keys, identities);
+    return new RelayHopConfig({
+        host: relay.host,
+        port: relay.port > 0 ? relay.port : 22,
+        username: creds.username,
+        password: creds.password,
+        privateKey: creds.privateKey,
+    });
 }
 
 export function resolveRelaySessionFields(
@@ -56,17 +88,43 @@ export function resolveRelaySessionFields(
     keys: SavedKey[] | undefined,
     identities: SavedIdentity[] | undefined,
 ): RelaySessionFields | undefined {
-    const relay = findRelayHost(relayHostId, allHosts);
-    if (!relay || isBuiltinLocalhostHost(relay)) {
-        return undefined;
+    if (!relayHostId || !allHosts) return undefined;
+
+    const hops: RelayHopConfig[] = [];
+    const visited = new Set<string>();
+    let currentId: string | undefined = relayHostId;
+
+    while (currentId) {
+        if (visited.has(currentId)) break;
+        visited.add(currentId);
+
+        const relay = findRelayHost(currentId, allHosts);
+        if (!relay || isBuiltinLocalhostHost(relay)) {
+            return undefined;
+        }
+
+        hops.push(hopFromHost(relay, keys, identities));
+        currentId = relay.relayHostId;
     }
 
-    const creds = resolveHostCredentials(relay, keys, identities);
-    return {
-        relayHost: relay.host,
-        relayPort: relay.port > 0 ? relay.port : 22,
-        relayUsername: creds.username,
-        relayPassword: creds.password,
-        relayPrivateKey: creds.privateKey,
-    };
+    return hops.length > 0 ? { relayHops: hops } : undefined;
+}
+
+export function hostsToVerifyForSession(
+    targetHost: string,
+    targetPort: number,
+    relayHops?: RelayHopConfig[],
+): Array<{ host: string; port: number }> {
+    const endpoints: Array<{ host: string; port: number }> = [];
+    for (const hop of relayHops ?? []) {
+        endpoints.push({
+            host: hop.host,
+            port: hop.port > 0 ? hop.port : 22,
+        });
+    }
+    endpoints.push({
+        host: targetHost,
+        port: targetPort > 0 ? targetPort : 22,
+    });
+    return endpoints;
 }

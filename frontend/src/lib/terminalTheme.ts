@@ -30,13 +30,30 @@ export function resolveTerminalFontSize(settings?: AppSettings | null): number {
     return Math.min(32, Math.max(8, size));
 }
 
+export type HostTerminalOverrides = {
+    terminalFontFamily?: string;
+    terminalFontSize?: number;
+};
+
 export function buildTerminalOptions(
     settings?: AppSettings | null,
+    hostOverrides?: HostTerminalOverrides | null,
 ): ITerminalOptions {
+    const hostFontSize = hostOverrides?.terminalFontSize;
+    const fontSize =
+        hostFontSize && hostFontSize > 0
+            ? Math.min(32, Math.max(8, hostFontSize))
+            : resolveTerminalFontSize(settings);
+
+    const hostFont = hostOverrides?.terminalFontFamily?.trim();
+    const fontFamily = hostFont
+        ? formatFontFamilyForTerminal(hostFont)
+        : resolveTerminalFontFamily(settings);
+
     return {
         ...BASE_TERMINAL_OPTIONS,
-        fontFamily: resolveTerminalFontFamily(settings),
-        fontSize: resolveTerminalFontSize(settings),
+        fontFamily,
+        fontSize,
     };
 }
 

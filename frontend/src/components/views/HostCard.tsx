@@ -1,4 +1,4 @@
-import { MoreHorizontal, Edit, Trash2, Terminal } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Terminal, Columns2 } from "lucide-react";
 import { HostIconBadge } from "@/components/views/HostIconBadge";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +27,7 @@ interface HostCardProps {
     reachability?: HostPingResult;
     reachabilityChecking?: boolean;
     onConnect: (host: Host) => void;
+    onSplitWithLocal?: (host: Host) => void;
     onEdit: (host: Host) => void;
     onDelete: (host: Host) => void;
 }
@@ -34,6 +35,7 @@ interface HostCardProps {
 function HostCardMenuItems({
     host,
     onConnect,
+    onSplitWithLocal,
     onEdit,
     onDelete,
     Item,
@@ -41,19 +43,26 @@ function HostCardMenuItems({
 }: {
     host: Host;
     onConnect: (host: Host) => void;
+    onSplitWithLocal?: (host: Host) => void;
     onEdit: (host: Host) => void;
     onDelete: (host: Host) => void;
     Item: typeof ContextMenuItem | typeof DropdownMenuItem;
     Separator: typeof ContextMenuSeparator | typeof DropdownMenuSeparator;
 }) {
-    const { t } = useTranslation("common");
+    const { t } = useTranslation(["common", "hosts"]);
 
     return (
         <>
             <Item onClick={() => onConnect(host)}>
                 <Terminal className="mr-2 size-4" />
-                {t("connect", { defaultValue: "Connect" })}
+                {t("connect", { ns: "common", defaultValue: "Connect" })}
             </Item>
+            {onSplitWithLocal && (
+                <Item onClick={() => onSplitWithLocal(host)}>
+                    <Columns2 className="mr-2 size-4" />
+                    {t("split_with_local", { ns: "hosts" })}
+                </Item>
+            )}
             <Item onClick={() => onEdit(host)}>
                 <Edit className="mr-2 size-4" />
                 {t("edit")}
@@ -76,6 +85,7 @@ export function HostCard({
     reachability,
     reachabilityChecking,
     onConnect,
+    onSplitWithLocal,
     onEdit,
     onDelete,
 }: HostCardProps) {
@@ -141,6 +151,7 @@ export function HostCard({
                                 <HostCardMenuItems
                                     host={host}
                                     onConnect={onConnect}
+                                    onSplitWithLocal={onSplitWithLocal}
                                     onEdit={onEdit}
                                     onDelete={onDelete}
                                     Item={DropdownMenuItem}

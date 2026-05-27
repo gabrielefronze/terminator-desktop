@@ -52,6 +52,13 @@
   "relay_error_relay_localhost": "Локальная оболочка не может быть релеем.",
   "relay_error_relay_missing": "Выбранный релей не найден.",
   "relay_error_relay_chain": "У релея уже задан другой релей. Поддерживается только один переход.",
+  "relay_error_relay_cycle": "Цепочка релеев образует цикл.",
+  "startup_command": "Команда при запуске",
+  "startup_command_hint": "Выполнить после старта shell (напр. tmux attach)",
+  "terminal_font_size": "Размер шрифта терминала",
+  "terminal_font_family": "Шрифт терминала",
+  "split_with_local": "Разделить с локальным",
+  "split_with_local_hint": "Локальный shell слева, этот хост справа"
   "host_group_label": "Группа",
   "select_group_placeholder": "Выберите группу...",
   "ssh_key_label": "SSH ключ (необязательно)",

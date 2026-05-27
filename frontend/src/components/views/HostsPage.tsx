@@ -23,7 +23,8 @@ import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useSaveHost, useDeleteHost } from "@/hooks/useHosts";
 import { useHosts } from "@/hooks/useHosts";
 import { useHostsWithoutBuiltin } from "@/hooks/useResolvedLocalhostHost";
-import { buildSessionFromHost } from "@/lib/connectHost";
+import { useConnectHost } from "@/hooks/useConnectHost";
+import { HostKeyTrustModal } from "@/components/terminal/HostKeyTrustModal";
 import {
     useHostGroups,
     useSaveHostGroup,
@@ -31,7 +32,6 @@ import {
 } from "@/hooks/useHostGroups";
 import { useKeys } from "@/hooks/useKeys";
 import { useIdentities } from "@/hooks/useIdentities";
-import { useSessionStore } from "@/store/sessionStore";
 import { Host, HostGroup } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import { buildHostTree, filterHostTree } from "@/lib/hostTree";
 import { useHostReachability } from "@/hooks/useHostReachability";
@@ -50,7 +50,13 @@ export function HostsPage() {
     const deleteHostMutation = useDeleteHost();
     const saveGroupMutation = useSaveHostGroup();
     const deleteGroupMutation = useDeleteHostGroup();
-    const { addSession } = useSessionStore();
+    const {
+        connect,
+        connectSplitWithLocal,
+        hostKeyCheck,
+        trustHostKey,
+        cancelHostKey,
+    } = useConnectHost(keys, identities, allHosts);
 
     const [isHostModalOpen, setIsHostModalOpen] = useState(false);
     const [isGroupModalOpen, setIsGroupModalOpen] = useState(false);
@@ -170,7 +176,11 @@ export function HostsPage() {
     };
 
     const handleConnect = (host: Host) => {
-        addSession(buildSessionFromHost(host, keys, identities, allHosts));
+        void connect(host);
+    };
+
+    const handleSplitWithLocal = (host: Host) => {
+        void connectSplitWithLocal(host);
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -201,6 +211,7 @@ export function HostsPage() {
         host: Host,
         handlers: {
             onConnect: (host: Host) => void;
+            onSplitWithLocal?: (host: Host) => void;
             onEdit: (host: Host) => void;
             onDelete: (host: Host) => void;
         },
@@ -211,6 +222,7 @@ export function HostsPage() {
                 reachability={reachabilityById.get(host.id)}
                 reachabilityChecking={reachabilityChecking}
                 onConnect={handlers.onConnect}
+                onSplitWithLocal={handlers.onSplitWithLocal}
                 onEdit={handlers.onEdit}
                 onDelete={handlers.onDelete}
             />
@@ -286,6 +298,7 @@ export function HostsPage() {
                                         key={node.group.id}
                                         node={node}
                                         onConnect={handleConnect}
+                                        onSplitWithLocal={handleSplitWithLocal}
                                         onEditHost={handleEditHost}
                                         onDeleteHost={handleDeleteHostPrompt}
                                         onEditGroup={handleEditGroup}
@@ -299,6 +312,7 @@ export function HostsPage() {
                         <UncategorizedHostSection
                             hosts={hostTree.uncategorized}
                             onConnect={handleConnect}
+                            onSplitWithLocal={handleSplitWithLocal}
                             onEditHost={handleEditHost}
                             onDeleteHost={handleDeleteHostPrompt}
                             renderHostCard={renderHostCard}
@@ -342,6 +356,12 @@ export function HostsPage() {
                 })}
                 confirmText={t("delete", { ns: "common" })}
                 isDestructive={true}
+            />
+
+            <HostKeyTrustModal
+                check={hostKeyCheck}
+                onTrust={() => void trustHostKey()}
+                onCancel={cancelHostKey}
             />
 
             <ConfirmModal

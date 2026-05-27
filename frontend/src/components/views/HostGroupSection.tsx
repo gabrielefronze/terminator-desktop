@@ -169,6 +169,7 @@ interface HostGroupSectionProps {
     node: HostTreeNode;
     nested?: boolean;
     onConnect: (host: Host) => void;
+    onSplitWithLocal?: (host: Host) => void;
     onEditHost: (host: Host) => void;
     onDeleteHost: (host: Host) => void;
     onEditGroup: (group: HostGroup) => void;
@@ -177,6 +178,7 @@ interface HostGroupSectionProps {
         host: Host,
         handlers: {
             onConnect: (host: Host) => void;
+            onSplitWithLocal?: (host: Host) => void;
             onEdit: (host: Host) => void;
             onDelete: (host: Host) => void;
         },
@@ -187,6 +189,7 @@ export function HostGroupSection({
     node,
     nested = false,
     onConnect,
+    onSplitWithLocal,
     onEditHost,
     onDeleteHost,
     onEditGroup,
@@ -203,6 +206,7 @@ export function HostGroupSection({
 
     const handlers = {
         onConnect,
+        onSplitWithLocal,
         onEdit: onEditHost,
         onDelete: onDeleteHost,
     };
@@ -309,6 +313,7 @@ export function HostGroupSection({
                                     node={child}
                                     nested
                                     onConnect={onConnect}
+                                    onSplitWithLocal={onSplitWithLocal}
                                     onEditHost={onEditHost}
                                     onDeleteHost={onDeleteHost}
                                     onEditGroup={onEditGroup}
@@ -341,6 +346,7 @@ export function HostGroupSection({
 interface UncategorizedSectionProps {
     hosts: Host[];
     onConnect: (host: Host) => void;
+    onSplitWithLocal?: (host: Host) => void;
     onEditHost: (host: Host) => void;
     onDeleteHost: (host: Host) => void;
     renderHostCard: HostGroupSectionProps["renderHostCard"];
@@ -351,6 +357,7 @@ const UNCATEGORIZED_ACCENT = "#64748b";
 export function UncategorizedHostSection({
     hosts,
     onConnect,
+    onSplitWithLocal,
     onEditHost,
     onDeleteHost,
     renderHostCard,
@@ -367,6 +374,7 @@ export function UncategorizedHostSection({
 
     const handlers = {
         onConnect,
+        onSplitWithLocal,
         onEdit: onEditHost,
         onDelete: onDeleteHost,
     };

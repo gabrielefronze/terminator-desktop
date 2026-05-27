@@ -1,6 +1,7 @@
 import { Host } from "../../bindings/terminator-desktop/backend/internal/services/blob";
 import { SavedIdentity } from "../../bindings/terminator-desktop/backend/internal/services/blob/models";
 import { SavedKey } from "../../bindings/terminator-desktop/backend/internal/services/blob/models";
+import { RelayHopConfig } from "../../bindings/terminator-desktop/backend/internal/services/ssh/models";
 import { resolveHostCredentials } from "@/lib/resolveHostCredentials";
 import {
     BUILTIN_LOCALHOST_HOST_ID,
@@ -74,6 +75,7 @@ export function buildSessionFromHost(
     keys: SavedKey[] | undefined,
     identities: SavedIdentity[] | undefined,
     allHosts?: Host[],
+    overrides?: Partial<CreateSessionParams>,
 ): CreateSessionParams {
     if (isBuiltinLocalhostHost(host)) {
         return buildLocalShellSession(host.name, host.icon, host.color);
@@ -89,6 +91,8 @@ export function buildSessionFromHost(
         identities,
     );
 
+    const legacyRelay = relay?.relayHops?.[0];
+
     return {
         host: host.host,
         port: host.port,
@@ -100,6 +104,28 @@ export function buildSessionFromHost(
         icon: host.icon,
         color: host.color,
         sudoCredentials,
-        ...relay,
+        startupCommand: host.startupCommand,
+        environment: host.environment as Record<string, string> | undefined,
+        terminalFontFamily: host.terminalFontFamily,
+        terminalFontSize: host.terminalFontSize,
+        relayHops: relay?.relayHops,
+        relayHost: legacyRelay?.host,
+        relayPort: legacyRelay?.port,
+        relayUsername: legacyRelay?.username,
+        relayPassword: legacyRelay?.password,
+        relayPrivateKey: legacyRelay?.privateKey,
+        ...overrides,
     };
+}
+
+export function applyRelayPassphrases(
+    hops: RelayHopConfig[] | undefined,
+    relayKeyPassphrase?: string,
+): RelayHopConfig[] | undefined {
+    if (!hops?.length || !relayKeyPassphrase) return hops;
+    return hops.map((hop, index) =>
+        index === 0
+            ? new RelayHopConfig({ ...hop, keyPassphrase: relayKeyPassphrase })
+            : hop,
+    );
 }

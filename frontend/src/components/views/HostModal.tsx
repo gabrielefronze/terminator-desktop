@@ -626,6 +626,62 @@ export function HostModal({
                                             )}
                                         </div>
                                     </FieldGroup>
+
+                                    <FieldGroup
+                                        label={t("startup_command")}
+                                        hint={t("startup_command_hint")}
+                                    >
+                                        <Input
+                                            value={formData.startupCommand ?? ""}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    startupCommand:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            placeholder="tmux attach -t main"
+                                        />
+                                    </FieldGroup>
+
+                                    <FieldGroup label={t("terminal_font_size")}>
+                                        <Input
+                                            type="number"
+                                            min={8}
+                                            max={32}
+                                            value={
+                                                formData.terminalFontSize || ""
+                                            }
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    terminalFontSize: e.target
+                                                        .value
+                                                        ? Number(e.target.value)
+                                                        : undefined,
+                                                })
+                                            }
+                                        />
+                                    </FieldGroup>
+
+                                    <FieldGroup
+                                        label={t("terminal_font_family")}
+                                    >
+                                        <Input
+                                            value={
+                                                formData.terminalFontFamily ??
+                                                ""
+                                            }
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    terminalFontFamily:
+                                                        e.target.value,
+                                                })
+                                            }
+                                            placeholder="JetBrains Mono"
+                                        />
+                                    </FieldGroup>
                                 </HostFormSection>
                             </>
                         )}
