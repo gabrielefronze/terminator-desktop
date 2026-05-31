@@ -1,6 +1,17 @@
 {
   "page_title": "Forwards",
-  "select_session": "SSH session",
-  "select_session_placeholder": "Choose a session…",
-  "empty_state": "Open a remote SSH session to manage port forwards."
+  "page_description": "Save port forward presets and start them with one click when you need them.",
+  "search_placeholder": "Search forwards…",
+  "create_forward": "Create forward",
+  "edit_forward": "Edit forward",
+  "name_label": "Name",
+  "host_label": "Host",
+  "host_placeholder": "Choose a host…",
+  "local_host_label": "Local host",
+  "empty": "No saved forwards yet.",
+  "missing_host": "Missing host",
+  "start_forward": "Start forward",
+  "stop_forward": "Stop forward",
+  "delete_title": "Delete forward",
+  "delete_desc": "Delete \"{{name}}\"? Any running forward will be stopped."
 }

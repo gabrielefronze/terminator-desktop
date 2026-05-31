@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Columns2, Search } from "lucide-react";
+import { Columns2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
     Host,
@@ -12,7 +12,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { HostIconBadge } from "@/components/views/HostIconBadge";
 import { HostKeyTrustModal } from "@/components/terminal/HostKeyTrustModal";
 import { useConnectHost } from "@/hooks/useConnectHost";
@@ -292,18 +292,15 @@ export function NewTabHostPickerModal() {
                     </DialogHeader>
 
                     <div className="border-b border-border px-4 py-3">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                                ref={searchRef}
-                                placeholder={t("new_tab_search_placeholder")}
-                                className="pl-9"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                aria-autocomplete="list"
-                                aria-controls="new-tab-host-list"
-                            />
-                        </div>
+                        <SearchInput
+                            ref={searchRef}
+                            wrapperClassName="w-full"
+                            placeholder={t("new_tab_search_placeholder")}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            aria-autocomplete="list"
+                            aria-controls="new-tab-host-list"
+                        />
                     </div>
 
                     <div

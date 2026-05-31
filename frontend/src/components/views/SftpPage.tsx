@@ -1,8 +1,8 @@
 import { useState, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { FolderOpen, Search } from "lucide-react";
+import { FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { Label } from "@/components/ui/label";
 import {
     Select,
@@ -135,15 +135,13 @@ export function SftpPage() {
 
             <div className="flex min-h-0 flex-1 overflow-hidden">
                 <aside className="w-56 shrink-0 overflow-y-auto border-r border-border p-3">
-                    <div className="relative mb-3">
-                        <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                            className="h-8 pl-8 text-sm"
-                            placeholder={t("search_hosts", { ns: "hosts" })}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
+                    <SearchInput
+                        density="compact"
+                        wrapperClassName="mb-3"
+                        placeholder={t("search_hosts", { ns: "hosts" })}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                     <ul className="space-y-1">
                         {filteredHosts?.map((host) => (
                             <li key={host.id}>

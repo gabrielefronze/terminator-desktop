@@ -168,8 +168,58 @@ export enum ItemType {
     TypeGroup = "group",
     TypeIdentity = "identity",
     TypeSnippet = "snippet",
+    TypeForward = "forward",
     TypeTabGroup = "tabGroup",
 };
+
+export class SavedForward {
+    "id": string;
+    "type": ItemType;
+    "name": string;
+    "hostId": string;
+    "localHost": string;
+    "localPort": number;
+    "remoteHost": string;
+    "remotePort": number;
+
+    /** Creates a new SavedForward instance. */
+    constructor($$source: Partial<SavedForward> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("type" in $$source)) {
+            this["type"] = ItemType.$zero;
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("hostId" in $$source)) {
+            this["hostId"] = "";
+        }
+        if (!("localHost" in $$source)) {
+            this["localHost"] = "";
+        }
+        if (!("localPort" in $$source)) {
+            this["localPort"] = 0;
+        }
+        if (!("remoteHost" in $$source)) {
+            this["remoteHost"] = "";
+        }
+        if (!("remotePort" in $$source)) {
+            this["remotePort"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new SavedForward instance from a string or object.
+     */
+    static createFrom($$source: any = {}): SavedForward {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new SavedForward($$parsedSource as Partial<SavedForward>);
+    }
+}
 
 export class SavedIdentity {
     "id": string;

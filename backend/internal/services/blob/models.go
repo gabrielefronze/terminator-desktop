@@ -8,6 +8,7 @@ const (
 	TypeGroup    ItemType = "group"
 	TypeIdentity ItemType = "identity"
 	TypeSnippet  ItemType = "snippet"
+	TypeForward  ItemType = "forward"
 	TypeTabGroup ItemType = "tabGroup"
 )
 
@@ -41,6 +42,17 @@ type SavedSnippet struct {
 	Type    ItemType `json:"type"`
 	Name    string   `json:"name"`
 	Content string   `json:"content"`
+}
+
+type SavedForward struct {
+	ID         string   `json:"id"`
+	Type       ItemType `json:"type"`
+	Name       string   `json:"name"`
+	HostID     string   `json:"hostId"`
+	LocalHost  string   `json:"localHost"`
+	LocalPort  int      `json:"localPort"`
+	RemoteHost string   `json:"remoteHost"`
+	RemotePort int      `json:"remotePort"`
 }
 
 type SavedIdentity struct {

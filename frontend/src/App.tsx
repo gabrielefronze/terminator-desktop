@@ -16,6 +16,7 @@ import { GROUPS_QUERY_KEY } from "@/hooks/useHostGroups.ts";
 import { TAB_GROUPS_QUERY_KEY } from "@/hooks/useTabGroups.ts";
 import { IDENTITIES_QUERY_KEY } from "@/hooks/useIdentities.ts";
 import { KEYS_QUERY_KEY } from "@/hooks/useKeys.ts";
+import { FORWARDS_QUERY_KEY } from "@/hooks/useForwards.ts";
 import { SETTINGS_QUERY_KEY } from "@/hooks/useSettings";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { useSyncSessionHostAppearance } from "@/hooks/useSyncSessionHostAppearance";
@@ -79,6 +80,7 @@ export default function App() {
             void queryClient.invalidateQueries({queryKey: TAB_GROUPS_QUERY_KEY});
             void queryClient.invalidateQueries({queryKey: IDENTITIES_QUERY_KEY});
             void queryClient.invalidateQueries({queryKey: KEYS_QUERY_KEY});
+            void queryClient.invalidateQueries({queryKey: FORWARDS_QUERY_KEY});
         });
 
         return () => unsubscribe();

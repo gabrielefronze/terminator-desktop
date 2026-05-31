@@ -111,3 +111,28 @@ func (s *SnippetService) GetAll(ctx context.Context) ([]SavedSnippet, error) {
 func (s *SnippetService) Delete(ctx context.Context, id string) error {
 	return deleteItem(ctx, s.q, id)
 }
+
+type ForwardService struct {
+	q *dbgen.Queries
+	v *vault.Vault
+}
+
+func NewForwardService(q *dbgen.Queries, v *vault.Vault) *ForwardService {
+	return &ForwardService{q: q, v: v}
+}
+
+func (s *ForwardService) Save(ctx context.Context, forward SavedForward) (string, error) {
+	if forward.ID == "" {
+		forward.ID = uuid.New().String()
+	}
+	forward.Type = TypeForward
+	return saveItem(ctx, s.q, s.v, forward.ID, forward)
+}
+
+func (s *ForwardService) GetAll(ctx context.Context) ([]SavedForward, error) {
+	return getAllItems[SavedForward](ctx, s.q, s.v, TypeForward)
+}
+
+func (s *ForwardService) Delete(ctx context.Context, id string) error {
+	return deleteItem(ctx, s.q, id)
+}

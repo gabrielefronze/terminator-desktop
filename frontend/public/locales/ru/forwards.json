@@ -1,6 +1,17 @@
 {
   "page_title": "Проброс портов",
-  "select_session": "SSH-сессия",
-  "select_session_placeholder": "Выберите сессию…",
-  "empty_state": "Откройте удалённую SSH-сессию для управления пробросом портов."
+  "page_description": "Сохраняйте пресеты проброса портов и запускайте их одним нажатием.",
+  "search_placeholder": "Поиск пробросов…",
+  "create_forward": "Создать проброс",
+  "edit_forward": "Изменить проброс",
+  "name_label": "Название",
+  "host_label": "Хост",
+  "host_placeholder": "Выберите хост…",
+  "local_host_label": "Локальный хост",
+  "empty": "Сохранённых пробросов пока нет.",
+  "missing_host": "Хост не найден",
+  "start_forward": "Запустить проброс",
+  "stop_forward": "Остановить проброс",
+  "delete_title": "Удалить проброс",
+  "delete_desc": "Удалить «{{name}}»? Активный проброс будет остановлен."
 }

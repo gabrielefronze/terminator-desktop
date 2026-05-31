@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Search, FolderPlus } from "lucide-react";
+import { Plus, FolderPlus } from "lucide-react";
 import {
     DndContext,
     DragEndEvent,
@@ -9,7 +9,7 @@ import {
     useSensors,
 } from "@dnd-kit/core";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { HostCard } from "@/components/views/HostCard";
 import { HostModal } from "@/components/views/HostModal";
 import { HostGroupModal } from "@/components/views/HostGroupModal";
@@ -240,15 +240,11 @@ export function HostsPage() {
                 <h1 className="shrink-0 text-2xl font-bold tracking-tight text-foreground">
                     {t("page_title")}
                 </h1>
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        placeholder={t("search_hosts")}
-                        className="w-full border-border bg-input/50 pl-9"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
+                <SearchInput
+                    placeholder={t("search_hosts")}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
                 <Button
                     variant="outline"
                     onClick={handleCreateGroup}

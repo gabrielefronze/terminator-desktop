@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { FileUp, KeyRound, Plus, Search } from "lucide-react";
+import { FileUp, KeyRound, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -8,7 +8,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { KeyCard } from "@/components/views/KeyCard";
 import { KeyModal } from "@/components/views/KeyModal";
 import { GenerateKeyModal } from "@/components/views/GenerateKeyModal";
@@ -76,15 +76,11 @@ export function KeysPage() {
                 <h1 className="shrink-0 text-2xl font-bold tracking-tight text-foreground">
                     {t("page_title")}
                 </h1>
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"/>
-                    <Input
-                        placeholder={t("search_keys")}
-                        className="w-full border-border bg-input/50 pl-9"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
+                <SearchInput
+                    placeholder={t("search_keys")}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button className="shrink-0">

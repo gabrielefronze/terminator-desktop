@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { IdentityCard } from "@/components/views/IdentityCard";
 import { IdentityModal } from "@/components/views/IdentityModal";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -80,15 +80,11 @@ export function IdentitiesPage() {
                 <h1 className="shrink-0 text-2xl font-bold tracking-tight text-foreground">
                     {t("page_title")}
                 </h1>
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        placeholder={t("search_identities")}
-                        className="w-full border-border bg-input/50 pl-9"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
+                <SearchInput
+                    placeholder={t("search_identities")}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
                 <Button onClick={handleCreateNew} className="shrink-0">
                     <Plus />
                     {t("new_identity")}

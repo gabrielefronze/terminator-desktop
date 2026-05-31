@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Search, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/search-input";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { SnippetModal } from "@/components/views/SnippetModal";
 import { useSnippets, useSaveSnippet, useDeleteSnippet } from "@/hooks/useSnippets";
@@ -43,15 +43,11 @@ export function SnippetsPage() {
                 <h1 className="shrink-0 text-2xl font-bold tracking-tight text-foreground">
                     {t("page_title")}
                 </h1>
-                <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                        className="pl-9"
-                        placeholder={t("search_placeholder")}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                </div>
+                <SearchInput
+                    placeholder={t("search_placeholder")}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
                 <Button
                     onClick={() => {
                         setEditing(null);
