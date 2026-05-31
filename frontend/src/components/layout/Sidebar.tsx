@@ -74,16 +74,16 @@ export function Sidebar() {
         dotColor = "bg-destructive";
 
     return (
-        <div className="relative shrink-0">
+        <div className="relative h-full shrink-0">
             <div
                 className={cn(
-                    "overflow-hidden transition-[width] duration-200 ease-in-out",
+                    "h-full overflow-hidden transition-[width] duration-200 ease-in-out",
                     isCollapsed ? "w-0" : "w-14",
                 )}
             >
                 <aside
                     className={cn(
-                        "wails-drag flex h-full w-14 flex-col items-center justify-between border-r border-border/40 bg-transparent pb-4 pt-2",
+                        "wails-drag flex h-full w-14 flex-col items-center border-r border-border/40 bg-transparent pb-4 pt-2",
                         "transition-transform duration-200 ease-in-out will-change-transform",
                         isCollapsed && "-translate-x-full",
                     )}
@@ -148,7 +148,7 @@ export function Sidebar() {
                     </Button>
                 </nav>
 
-                <nav className="flex flex-col gap-2">
+                <nav className="mt-auto flex flex-col gap-2">
                     <UpdatePopover />
 
                     <div className="relative">
