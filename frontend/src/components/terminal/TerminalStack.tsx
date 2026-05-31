@@ -20,6 +20,25 @@ function orderSplitPanes(primary: TerminalSession, partner: TerminalSession) {
     return [primary, partner];
 }
 
+function SessionTerminal({
+    session,
+    isActive,
+}: {
+    session: TerminalSession;
+    isActive: boolean;
+}) {
+    return (
+        <TerminalInstance
+            sessionId={session.id}
+            config={session.config}
+            sudoCredentials={session.sudoCredentials}
+            terminalFontFamily={session.terminalFontFamily}
+            terminalFontSize={session.terminalFontSize}
+            isActive={isActive}
+        />
+    );
+}
+
 export function TerminalStack({ isVisible }: TerminalStackProps) {
     const { t } = useTranslation("terminal");
     const { sessions, activeSessionId } = useSessionStore();
@@ -37,6 +56,16 @@ export function TerminalStack({ isVisible }: TerminalStackProps) {
         if (!activeSession || !splitPartner) return null;
         return orderSplitPanes(activeSession, splitPartner);
     }, [activeSession, splitPartner]);
+
+    const visibleSessionIds = useMemo(() => {
+        if (splitPanes) {
+            return new Set(splitPanes.map((session) => session.id));
+        }
+        if (activeSession) {
+            return new Set([activeSession.id]);
+        }
+        return new Set<string>();
+    }, [splitPanes, activeSession]);
 
     if (!activeSession) {
         return null;
@@ -107,52 +136,57 @@ export function TerminalStack({ isVisible }: TerminalStackProps) {
                         isSplit && "grid flex-1 grid-cols-2 gap-px bg-border",
                     )}
                 >
-                    {isSplit && splitPanes
-                        ? splitPanes.map((session) => (
-                              <div
-                                  key={session.id}
-                                  className="relative flex min-h-0 min-w-0 flex-col bg-background"
-                              >
-                                  <div className="shrink-0 border-b border-border bg-muted/30 px-2 py-1 text-xs font-medium text-muted-foreground">
-                                      {session.config.local
-                                          ? t("pane_local")
-                                          : session.title}
-                                  </div>
-                                  <div className="relative min-h-0 flex-1">
-                                      <TerminalInstance
-                                          sessionId={session.id}
-                                          config={session.config}
-                                          sudoCredentials={
-                                              session.sudoCredentials
-                                          }
-                                          terminalFontFamily={
-                                              session.terminalFontFamily
-                                          }
-                                          terminalFontSize={
-                                              session.terminalFontSize
-                                          }
-                                          isActive
-                                      />
-                                  </div>
-                              </div>
-                          ))
-                        : (
-                              <TerminalInstance
-                                  key={activeSession.id}
-                                  sessionId={activeSession.id}
-                                  config={activeSession.config}
-                                  sudoCredentials={
-                                      activeSession.sudoCredentials
-                                  }
-                                  terminalFontFamily={
-                                      activeSession.terminalFontFamily
-                                  }
-                                  terminalFontSize={
-                                      activeSession.terminalFontSize
-                                  }
-                                  isActive
-                              />
-                          )}
+                    {sessions.map((session) => {
+                        const isPaneVisible = visibleSessionIds.has(session.id);
+
+                        if (!isPaneVisible) {
+                            return (
+                                <div
+                                    key={session.id}
+                                    className="hidden"
+                                    aria-hidden
+                                >
+                                    <SessionTerminal
+                                        session={session}
+                                        isActive={false}
+                                    />
+                                </div>
+                            );
+                        }
+
+                        if (isSplit) {
+                            return (
+                                <div
+                                    key={session.id}
+                                    className="relative flex min-h-0 min-w-0 flex-col bg-background"
+                                >
+                                    <div className="shrink-0 border-b border-border bg-muted/30 px-2 py-1 text-xs font-medium text-muted-foreground">
+                                        {session.config.local
+                                            ? t("pane_local")
+                                            : session.title}
+                                    </div>
+                                    <div className="relative min-h-0 flex-1">
+                                        <SessionTerminal
+                                            session={session}
+                                            isActive
+                                        />
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        return (
+                            <div
+                                key={session.id}
+                                className="absolute inset-0"
+                            >
+                                <SessionTerminal
+                                    session={session}
+                                    isActive
+                                />
+                            </div>
+                        );
+                    })}
                 </div>
 
                 {sidePanel === "snippets" && activeSessionId && isRemote && (

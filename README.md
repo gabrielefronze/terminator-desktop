@@ -89,8 +89,9 @@ dlv debug --headless --listen=:2345 ./backend/cmd/terminator-desktop -- dev
 
 
 Package:
-```
-wails3 task package
+```sh
+./build.sh          # recommended: sets up PATH for wails3
+# or: wails3 task package
 ```
 
 ### Acknowledgements
