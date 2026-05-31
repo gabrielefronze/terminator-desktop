@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { HOSTS_QUERY_KEY } from "@/hooks/useHosts.ts";
 import { GROUPS_QUERY_KEY } from "@/hooks/useHostGroups.ts";
+import { TAB_GROUPS_QUERY_KEY } from "@/hooks/useTabGroups.ts";
 import { IDENTITIES_QUERY_KEY } from "@/hooks/useIdentities.ts";
 import { KEYS_QUERY_KEY } from "@/hooks/useKeys.ts";
 import { SETTINGS_QUERY_KEY } from "@/hooks/useSettings";
@@ -74,6 +75,7 @@ export default function App() {
 
             void queryClient.invalidateQueries({queryKey: HOSTS_QUERY_KEY});
             void queryClient.invalidateQueries({queryKey: GROUPS_QUERY_KEY});
+            void queryClient.invalidateQueries({queryKey: TAB_GROUPS_QUERY_KEY});
             void queryClient.invalidateQueries({queryKey: IDENTITIES_QUERY_KEY});
             void queryClient.invalidateQueries({queryKey: KEYS_QUERY_KEY});
         });

@@ -21,7 +21,8 @@ void i18n
                 "sftp",
                 "settings",
                 "terminal",
-                "update"
+                "update",
+                "tabgroups"
             ],
         defaultNS: "common",
         interpolation: {

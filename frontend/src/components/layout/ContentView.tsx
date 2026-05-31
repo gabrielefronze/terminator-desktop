@@ -1,5 +1,6 @@
 import { useUIStore, ViewType } from "@/store/uiStore";
 import { TerminalStack } from "@/components/terminal/TerminalStack";
+import { TabGroupsPage } from "@/components/views/TabGroupsPage.tsx";
 import { HostsPage } from "@/components/views/HostsPage.tsx";
 import { KeysPage } from "@/components/views/KeysPage.tsx";
 import { IdentitiesPage } from "@/components/views/IdentitiesPage.tsx";
@@ -14,6 +15,7 @@ export function ContentView() {
         <main className="relative flex min-h-0 flex-1 overflow-hidden bg-background">
 
             {activeView === ViewType.Hosts && <HostsPage/>}
+            {activeView === ViewType.TabGroups && <TabGroupsPage/>}
             {activeView === ViewType.Keys && <KeysPage/>}
             {activeView === ViewType.Identities && <IdentitiesPage/>}
             {activeView === ViewType.Snippets && <SnippetsPage/>}

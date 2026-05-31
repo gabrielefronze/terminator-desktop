@@ -8,6 +8,7 @@ const (
 	TypeGroup    ItemType = "group"
 	TypeIdentity ItemType = "identity"
 	TypeSnippet  ItemType = "snippet"
+	TypeTabGroup ItemType = "tabGroup"
 )
 
 type VaultItemHeader struct {
@@ -58,6 +59,18 @@ type HostGroup struct {
 	SortOrder int      `json:"sortOrder,omitempty"`
 	Icon      string   `json:"icon,omitempty"`
 	Color     string   `json:"color,omitempty"`
+}
+
+// TabGroup is a saved multi-host workspace shown in the sidebar.
+// HostIDs holds ordered host references; the same host ID may appear more than once.
+type TabGroup struct {
+	ID        string   `json:"id"`
+	Type      ItemType `json:"type"`
+	Name      string   `json:"name"`
+	HostIDs   []string `json:"hostIds"`
+	Icon      string   `json:"icon,omitempty"`
+	Color     string   `json:"color,omitempty"`
+	SortOrder int      `json:"sortOrder,omitempty"`
 }
 
 type SavedKey struct {

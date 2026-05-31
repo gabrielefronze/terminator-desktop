@@ -57,6 +57,13 @@ export function TerminalStack({ isVisible }: TerminalStackProps) {
         return orderSplitPanes(activeSession, splitPartner);
     }, [activeSession, splitPartner]);
 
+    const splitOrderBySessionId = useMemo(() => {
+        if (!splitPanes) return new Map<string, number>();
+        return new Map(
+            splitPanes.map((session, index) => [session.id, index]),
+        );
+    }, [splitPanes]);
+
     const visibleSessionIds = useMemo(() => {
         if (splitPanes) {
             return new Set(splitPanes.map((session) => session.id));
@@ -138,52 +145,52 @@ export function TerminalStack({ isVisible }: TerminalStackProps) {
                 >
                     {sessions.map((session) => {
                         const isPaneVisible = visibleSessionIds.has(session.id);
-
-                        if (!isPaneVisible) {
-                            return (
-                                <div
-                                    key={session.id}
-                                    className="hidden"
-                                    aria-hidden
-                                >
-                                    <SessionTerminal
-                                        session={session}
-                                        isActive={false}
-                                    />
-                                </div>
-                            );
-                        }
-
-                        if (isSplit) {
-                            return (
-                                <div
-                                    key={session.id}
-                                    className="relative flex min-h-0 min-w-0 flex-col bg-background"
-                                >
-                                    <div className="shrink-0 border-b border-border bg-muted/30 px-2 py-1 text-xs font-medium text-muted-foreground">
-                                        {session.config.local
-                                            ? t("pane_local")
-                                            : session.title}
-                                    </div>
-                                    <div className="relative min-h-0 flex-1">
-                                        <SessionTerminal
-                                            session={session}
-                                            isActive
-                                        />
-                                    </div>
-                                </div>
-                            );
-                        }
+                        const isSessionActive =
+                            isPaneVisible &&
+                            (isSplit || session.id === activeSessionId);
+                        const splitOrder = splitOrderBySessionId.get(session.id);
 
                         return (
                             <div
                                 key={session.id}
-                                className="absolute inset-0"
+                                aria-hidden={!isPaneVisible}
+                                style={
+                                    splitOrder !== undefined
+                                        ? { order: splitOrder }
+                                        : undefined
+                                }
+                                className={cn(
+                                    !isPaneVisible && "hidden",
+                                    isPaneVisible &&
+                                        !isSplit &&
+                                        "absolute inset-0",
+                                    isPaneVisible &&
+                                        isSplit &&
+                                        "relative flex min-h-0 min-w-0 flex-col bg-background",
+                                )}
                             >
-                                <SessionTerminal
-                                    session={session}
-                                    isActive
-                                />
+                                <div
+                                    className={cn(
+                                        "shrink-0 border-b border-border bg-muted/30 px-2 py-1 text-xs font-medium text-muted-foreground",
+                                        !isSplit && "hidden",
+                                    )}
+                                >
+                                    {session.config.local
+                                        ? t("pane_local")
+                                        : session.title}
+                                </div>
+                                <div
+                                    className={cn(
+                                        "min-h-0",
+                                        isSplit && "relative flex-1",
+                                        !isSplit && "h-full",
+                                    )}
+                                >
+                                    <SessionTerminal
+                                        session={session}
+                                        isActive={isSessionActive}
+                                    />
+                                </div>
                             </div>
                         );
                     })}

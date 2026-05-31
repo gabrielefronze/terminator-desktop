@@ -302,10 +302,8 @@ export function TerminalInstance({
             fitAddonRef.current = null;
             hasConnectedRef.current = false;
             isReadyRef.current = false;
-            SshService.Disconnect(sessionId).catch(() => {
-            });
         };
-    }, [sessionId, config]);
+    }, [sessionId]);
 
     useEffect(() => {
         const term = terminalRef.current;

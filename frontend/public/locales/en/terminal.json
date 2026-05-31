@@ -18,6 +18,8 @@
   "sftp_title": "SFTP",
   "sftp_loading": "Loading…",
   "split_pane": "Split",
+  "tab_drag_to_split": "Drag onto another tab to split",
+  "tab_split_tooltip": "{{leader}} + {{partner}}",
   "pane_local": "Local",
   "snippet_new": "New snippet",
   "snippet_edit": "Edit snippet",
@@ -35,6 +37,8 @@
   "new_tab_button": "New tab",
   "new_tab_button_shortcut": "New tab ({{shortcut}})",
   "new_tab_title": "New tab",
-  "new_tab_description": "Search for a host to open in a new terminal tab.",
-  "new_tab_no_hosts": "No hosts configured yet. Add one from the Hosts page."
+  "new_tab_description": "Search for a host or tab group to open.",
+  "new_tab_search_placeholder": "Search hosts and tab groups…",
+  "new_tab_section_hosts": "Hosts",
+  "new_tab_no_hosts": "No hosts or tab groups yet. Add hosts from the Hosts page, or save a combined tab as a tab group."
 }

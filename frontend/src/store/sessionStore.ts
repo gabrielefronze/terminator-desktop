@@ -8,6 +8,7 @@ import {
     sessionAppearanceChanged,
     sessionAppearanceFromHost,
 } from "@/lib/syncSessionHost";
+import { BUILTIN_LOCALHOST_HOST_ID } from "@/lib/defaultLocalhost";
 
 export interface TerminalSession {
     id: string;
@@ -20,6 +21,10 @@ export interface TerminalSession {
     terminalFontFamily?: string;
     terminalFontSize?: number;
     splitPartnerId?: string;
+    /** When set, this session is the secondary pane; the mother tab stays in the title bar. */
+    splitMotherId?: string;
+    /** Saved tab group this session belongs to, if any. */
+    tabGroupId?: string;
 }
 
 export interface SudoCredential {
@@ -66,6 +71,8 @@ interface SessionState {
         remoteParams: CreateSessionParams,
     ) => string;
     removeSession: (id: string) => void;
+    linkSplitSessions: (sourceId: string, targetId: string) => void;
+    assignTabGroupId: (sessionIds: string[], tabGroupId: string) => void;
     setActiveSession: (id: string) => void;
     syncSessionsFromHosts: (hosts: Host[]) => void;
     clearSessions: () => void;
@@ -103,7 +110,9 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             id: newId,
             title: params.title || params.host,
             config: fullConfig,
-            hostId: params.hostId,
+            hostId:
+                params.hostId ??
+                (params.local ? BUILTIN_LOCALHOST_HOST_ID : undefined),
             icon: params.icon,
             color: params.color,
             sudoCredentials: params.sudoCredentials,
@@ -159,10 +168,13 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             id: localId,
             title: localParams.title || "Local",
             config: localConfig,
-            hostId: localParams.hostId,
+            hostId:
+                localParams.hostId ??
+                (localParams.local ? BUILTIN_LOCALHOST_HOST_ID : undefined),
             icon: localParams.icon,
             color: localParams.color,
             splitPartnerId: remoteId,
+            splitMotherId: remoteId,
         };
 
         const remoteSession: TerminalSession = {
@@ -186,20 +198,127 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         return remoteId;
     },
 
-    removeSession: (id) => set((state) => {
+    linkSplitSessions: (sourceId, targetId) => {
+        if (sourceId === targetId) return;
+
+        set((state) => {
+            const source = state.sessions.find((s) => s.id === sourceId);
+            const target = state.sessions.find((s) => s.id === targetId);
+            if (!source || !target) return state;
+            if (source.splitPartnerId === targetId) return state;
+
+            let sessions = state.sessions;
+
+            const clearPartner = (sessionId: string) => {
+                const session = sessions.find((s) => s.id === sessionId);
+                const partnerId = session?.splitPartnerId;
+                if (!partnerId) return;
+
+                sessions = sessions.map((s) =>
+                    s.id === partnerId
+                        ? {
+                              ...s,
+                              splitPartnerId: undefined,
+                              splitMotherId: undefined,
+                              tabGroupId: undefined,
+                          }
+                        : s,
+                );
+            };
+
+            clearPartner(sourceId);
+            clearPartner(targetId);
+
+            sessions = sessions.map((s) => {
+                if (s.id === sourceId) {
+                    return {
+                        ...s,
+                        splitPartnerId: targetId,
+                        splitMotherId: targetId,
+                        tabGroupId: undefined,
+                    };
+                }
+                if (s.id === targetId) {
+                    return {
+                        ...s,
+                        splitPartnerId: sourceId,
+                        splitMotherId: undefined,
+                        tabGroupId: undefined,
+                    };
+                }
+                return s;
+            });
+
+            useUIStore.getState().setActiveView(ViewType.Terminal);
+
+            const nextActiveId =
+                state.activeSessionId === sourceId ||
+                state.activeSessionId === targetId
+                    ? state.activeSessionId
+                    : targetId;
+
+            return {
+                sessions,
+                activeSessionId: nextActiveId,
+            };
+        });
+    },
+
+    assignTabGroupId: (sessionIds, tabGroupId) => {
+        const idSet = new Set(sessionIds);
+        set((state) => ({
+            sessions: state.sessions.map((session) =>
+                idSet.has(session.id) ? { ...session, tabGroupId } : session,
+            ),
+        }));
+    },
+
+    removeSession: (id) => {
+        const state = get();
+        const closing = state.sessions.find((session) => session.id === id);
+        if (!closing) return;
+
+        const partnerId = closing.splitPartnerId;
+        const closeWholeGroup = Boolean(partnerId && !closing.splitMotherId);
+        const idsToRemove = closeWholeGroup
+            ? [id, partnerId!]
+            : [id];
+
+        idsToRemove.forEach((sessionId) => {
+            void SshService.Disconnect(sessionId).catch(console.error);
+        });
+
+        set((state) => {
         const closing = state.sessions.find((s) => s.id === id);
-        const partnerId = closing?.splitPartnerId;
+        if (!closing) return state;
+
+        const partnerId = closing.splitPartnerId;
+        const closeWholeGroup = Boolean(partnerId && !closing.splitMotherId);
+        const idsToRemove = new Set(
+            closeWholeGroup ? [id, partnerId!] : [id],
+        );
+
         const newSessions = state.sessions
-            .filter((s) => s.id !== id)
+            .filter((s) => !idsToRemove.has(s.id))
             .map((s) =>
-                s.id === partnerId ? { ...s, splitPartnerId: undefined } : s,
+                s.splitPartnerId && idsToRemove.has(s.splitPartnerId)
+                    ? {
+                          ...s,
+                          splitPartnerId: undefined,
+                          splitMotherId: undefined,
+                          tabGroupId: undefined,
+                      }
+                    : s,
             );
         let newActiveId = state.activeSessionId;
 
-        if (state.activeSessionId === id) {
+        if (state.activeSessionId && idsToRemove.has(state.activeSessionId)) {
             if (newSessions.length > 0) {
-                const closedIndex = state.sessions.findIndex((s) => s.id === id);
-                const fallbackSession = newSessions[closedIndex - 1] || newSessions[0];
+                const closedIndex = state.sessions.findIndex(
+                    (s) => s.id === id,
+                );
+                const fallbackSession =
+                    newSessions[closedIndex - 1] || newSessions[0];
                 newActiveId = fallbackSession.id;
             } else {
                 newActiveId = null;
@@ -211,7 +330,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             sessions: newSessions,
             activeSessionId: newActiveId,
         };
-    }),
+        });
+    },
 
     setActiveSession: (id) => {
         useUIStore.getState().setActiveView(ViewType.Terminal);

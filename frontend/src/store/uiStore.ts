@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 export enum ViewType {
     Hosts = "hosts",
+    TabGroups = "tabGroups",
     Keys = "keys",
     Identities = "identities",
     Snippets = "snippets",

@@ -168,6 +168,7 @@ export enum ItemType {
     TypeGroup = "group",
     TypeIdentity = "identity",
     TypeSnippet = "snippet",
+    TypeTabGroup = "tabGroup",
 };
 
 export class SavedIdentity {
@@ -271,6 +272,50 @@ export class SavedSnippet {
     static createFrom($$source: any = {}): SavedSnippet {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new SavedSnippet($$parsedSource as Partial<SavedSnippet>);
+    }
+}
+
+/**
+ * TabGroup is a saved multi-host workspace shown in the sidebar.
+ * HostIDs holds ordered host references; the same host ID may appear more than once.
+ */
+export class TabGroup {
+    "id": string;
+    "type": ItemType;
+    "name": string;
+    "hostIds": string[];
+    "icon"?: string;
+    "color"?: string;
+    "sortOrder"?: number;
+
+    /** Creates a new TabGroup instance. */
+    constructor($$source: Partial<TabGroup> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("type" in $$source)) {
+            this["type"] = ItemType.$zero;
+        }
+        if (!("name" in $$source)) {
+            this["name"] = "";
+        }
+        if (!("hostIds" in $$source)) {
+            this["hostIds"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new TabGroup instance from a string or object.
+     */
+    static createFrom($$source: any = {}): TabGroup {
+        const $$createField3_0 = $$createType0;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("hostIds" in $$parsedSource) {
+            $$parsedSource["hostIds"] = $$createField3_0($$parsedSource["hostIds"]);
+        }
+        return new TabGroup($$parsedSource as Partial<TabGroup>);
     }
 }
 

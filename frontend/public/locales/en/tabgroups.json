@@ -1,0 +1,17 @@
+{
+  "picker_section": "Tab groups",
+  "page_title": "Tab groups",
+  "page_description": "Saved split workspaces. Open a group to tile its hosts, or create one by saving a combined tab from the title bar.",
+  "search_placeholder": "Search tab groups…",
+  "empty_state": "No tab groups yet. Split two tabs, then right-click the combined tab and choose Save tab group.",
+  "no_hosts_available": "No hosts available",
+  "save_title": "Save tab group",
+  "edit_title": "Rename tab group",
+  "name_label": "Name",
+  "name_placeholder": "My workspace",
+  "hosts_label": "Hosts",
+  "save_tab_group": "Save tab group…",
+  "rename_tab_group": "Rename tab group…",
+  "delete_title": "Delete tab group",
+  "delete_description": "Delete \"{{name}}\"? This will not close any open terminals."
+}

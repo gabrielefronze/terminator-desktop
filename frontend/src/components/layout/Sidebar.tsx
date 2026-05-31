@@ -15,6 +15,7 @@ import { SyncStatus } from "../../../bindings/terminator-desktop/backend/interna
 import { useSyncStore } from "@/store/syncStore.ts";
 import { useTranslation } from "react-i18next";
 import { UpdatePopover } from "@/components/layout/UpdatePopover.tsx";
+import { SidebarTabGroupsNav } from "@/components/layout/SidebarTabGroupsNav";
 import { sidebarNavButtonClass } from "@/lib/sidebarNav";
 import { usePlatform } from "@/hooks/usePlatform";
 
@@ -99,6 +100,8 @@ export function Sidebar() {
                     >
                         <Server className="size-5" />
                     </Button>
+
+                    <SidebarTabGroupsNav />
 
                     <Button
                         variant="ghost"
