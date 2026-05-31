@@ -1,0 +1,6 @@
+{
+  "page_title": "Проброс портов",
+  "select_session": "SSH-сессия",
+  "select_session_placeholder": "Выберите сессию…",
+  "empty_state": "Откройте удалённую SSH-сессию для управления пробросом портов."
+}

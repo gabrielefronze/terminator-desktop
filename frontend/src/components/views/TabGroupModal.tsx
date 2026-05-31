@@ -24,6 +24,7 @@ import {
     type HostIconId,
 } from "@/lib/hostAppearance";
 import { resolveTabGroupHosts } from "@/lib/tabGroups";
+import type { SavedTileNode } from "@/lib/tabGroupLayout";
 
 interface TabGroupModalProps {
     isOpen: boolean;
@@ -31,6 +32,7 @@ interface TabGroupModalProps {
     onSave: (group: TabGroup) => void;
     initialData?: Partial<TabGroup> | null;
     hostIds: string[];
+    tileLayout?: SavedTileNode;
     allHosts: Host[];
     isSaving: boolean;
 }
@@ -48,6 +50,7 @@ export function TabGroupModal({
     onSave,
     initialData,
     hostIds,
+    tileLayout,
     allHosts,
     isSaving,
 }: TabGroupModalProps) {
@@ -82,6 +85,7 @@ export function TabGroupModal({
             type: ItemType.TypeTabGroup,
             name: formData.name?.trim() || "",
             hostIds,
+            tileLayout: tileLayout as TabGroup["tileLayout"],
             icon: normalizeGroupIcon(formData.icon),
             color: normalizeGroupColor(formData.color),
         });

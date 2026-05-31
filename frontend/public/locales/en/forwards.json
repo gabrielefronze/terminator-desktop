@@ -1,0 +1,6 @@
+{
+  "page_title": "Forwards",
+  "select_session": "SSH session",
+  "select_session_placeholder": "Choose a session…",
+  "empty_state": "Open a remote SSH session to manage port forwards."
+}

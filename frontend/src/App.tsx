@@ -1,3 +1,4 @@
+import { TabDragProvider } from "@/components/layout/TabDragProvider";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TitleBar } from "@/components/layout/TitleBar";
 import { ContentView } from "@/components/layout/ContentView";
@@ -113,17 +114,19 @@ export default function App() {
             <div
                 className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[calc(var(--window-radius)-1px)] bg-background text-foreground"
             >
-                <TitleBar />
-                <div className="relative flex min-h-0 flex-1 overflow-hidden">
-                    {!isUnlocked ? (
-                        <LockScreen />
-                    ) : (
-                        <>
-                            <Sidebar />
-                            <ContentView />
-                        </>
-                    )}
-                </div>
+                <TabDragProvider>
+                    <TitleBar />
+                    <div className="relative flex min-h-0 flex-1 overflow-hidden">
+                        {!isUnlocked ? (
+                            <LockScreen />
+                        ) : (
+                            <>
+                                <Sidebar />
+                                <ContentView />
+                            </>
+                        )}
+                    </div>
+                </TabDragProvider>
                 <Toaster position="bottom-right" theme="dark" richColors />
                 {isUnlocked && <NewTabHostPickerModal />}
             </div>

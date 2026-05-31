@@ -25,5 +25,6 @@ export {
     SavedIdentity,
     SavedKey,
     SavedSnippet,
-    TabGroup
+    TabGroup,
+    TabTileLayoutNode
 } from "./models.js";

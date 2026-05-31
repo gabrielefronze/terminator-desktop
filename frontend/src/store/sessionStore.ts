@@ -9,6 +9,19 @@ import {
     sessionAppearanceFromHost,
 } from "@/lib/syncSessionHost";
 import { BUILTIN_LOCALHOST_HOST_ID } from "@/lib/defaultLocalhost";
+import {
+    buildHorizontalTileChain,
+    collectTileSessionIds,
+    insertSessionIntoTile,
+    MAX_TILE_PANES,
+    removeSessionFromTile,
+    resolveTileMother,
+    resolveTileRoot,
+    tileLeaf,
+    tileSplit,
+    type TileDropZone,
+    type TileNode,
+} from "@/lib/tileLayout";
 
 export interface TerminalSession {
     id: string;
@@ -23,6 +36,8 @@ export interface TerminalSession {
     splitPartnerId?: string;
     /** When set, this session is the secondary pane; the mother tab stays in the title bar. */
     splitMotherId?: string;
+    /** Multi-pane tile layout owned by the mother tab. */
+    tileRoot?: TileNode;
     /** Saved tab group this session belongs to, if any. */
     tabGroupId?: string;
 }
@@ -71,11 +86,113 @@ interface SessionState {
         remoteParams: CreateSessionParams,
     ) => string;
     removeSession: (id: string) => void;
+    closeTileGroup: (leaderId: string) => void;
     linkSplitSessions: (sourceId: string, targetId: string) => void;
+    addSessionToTile: (
+        sourceId: string,
+        targetId: string,
+        zone?: TileDropZone,
+    ) => void;
+    assignTileGroup: (sessionIds: string[], tileRoot?: TileNode) => void;
     assignTabGroupId: (sessionIds: string[], tabGroupId: string) => void;
     setActiveSession: (id: string) => void;
     syncSessionsFromHosts: (hosts: Host[]) => void;
     clearSessions: () => void;
+}
+
+function pickActiveSessionAfterClose(
+    previousSessions: TerminalSession[],
+    newSessions: TerminalSession[],
+    closedId: string,
+    previousActiveId: string | null,
+    remainingInGroup: string[],
+): string | null {
+    if (!previousActiveId || previousActiveId !== closedId) {
+        return previousActiveId;
+    }
+
+    if (remainingInGroup.length > 0) {
+        return remainingInGroup[0];
+    }
+
+    if (newSessions.length === 0) {
+        return null;
+    }
+
+    const closedIndex = previousSessions.findIndex(
+        (session) => session.id === closedId,
+    );
+    return newSessions[closedIndex - 1]?.id ?? newSessions[0].id;
+}
+
+function applySingleSessionRemoval(
+    sessions: TerminalSession[],
+    closingId: string,
+): TerminalSession[] {
+    const closing = sessions.find((session) => session.id === closingId);
+    if (!closing) return sessions;
+
+    const mother = resolveTileMother(closing, sessions);
+    const tileRoot = resolveTileRoot(mother, sessions);
+    const memberCount = tileRoot ? collectTileSessionIds(tileRoot).length : 1;
+
+    if (!tileRoot || memberCount <= 1) {
+        return sessions.filter((session) => session.id !== closingId);
+    }
+
+    const nextRoot = removeSessionFromTile(tileRoot, closingId);
+    if (!nextRoot) {
+        return sessions.filter((session) => session.id !== closingId);
+    }
+
+    const remainingIds = collectTileSessionIds(nextRoot);
+    if (remainingIds.length === 1) {
+        const remainingId = remainingIds[0];
+        return sessions
+            .filter((session) => session.id !== closingId)
+            .map((session) =>
+                session.id === remainingId
+                    ? {
+                          ...session,
+                          tileRoot: undefined,
+                          splitMotherId: undefined,
+                          splitPartnerId: undefined,
+                      }
+                    : session,
+            );
+    }
+
+    const closingMother = mother.id === closingId;
+    const nextMotherId = closingMother ? remainingIds[0] : mother.id;
+    const previousMother = sessions.find((session) => session.id === mother.id);
+
+    return sessions
+        .filter((session) => session.id !== closingId)
+        .map((session) => {
+            if (session.id === nextMotherId) {
+                return {
+                    ...session,
+                    tileRoot: nextRoot,
+                    splitMotherId: undefined,
+                    splitPartnerId: undefined,
+                    tabGroupId:
+                        closingMother && previousMother?.tabGroupId
+                            ? previousMother.tabGroupId
+                            : session.tabGroupId,
+                };
+            }
+
+            if (remainingIds.includes(session.id)) {
+                return {
+                    ...session,
+                    splitMotherId: nextMotherId,
+                    splitPartnerId: undefined,
+                    tileRoot: undefined,
+                };
+            }
+
+            return session;
+        });
 }
 
 export const useSessionStore = create<SessionState>((set, get) => ({
@@ -188,6 +305,11 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             terminalFontFamily: remoteParams.terminalFontFamily,
             terminalFontSize: remoteParams.terminalFontSize,
             splitPartnerId: localId,
+            tileRoot: tileSplit(
+                "horizontal",
+                tileLeaf(localId),
+                tileLeaf(remoteId),
+            ),
         };
 
         set((state) => ({
@@ -199,54 +321,166 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     },
 
     linkSplitSessions: (sourceId, targetId) => {
+        get().addSessionToTile(sourceId, targetId, "right");
+    },
+
+    addSessionToTile: (sourceId, targetId, zone = "right") => {
         if (sourceId === targetId) return;
 
         set((state) => {
-            const source = state.sessions.find((s) => s.id === sourceId);
-            const target = state.sessions.find((s) => s.id === targetId);
+            const source = state.sessions.find((session) => session.id === sourceId);
+            const target = state.sessions.find((session) => session.id === targetId);
             if (!source || !target) return state;
-            if (source.splitPartnerId === targetId) return state;
 
-            let sessions = state.sessions;
+            const sourceMother = resolveTileMother(source, state.sessions);
+            const targetMother = resolveTileMother(target, state.sessions);
 
-            const clearPartner = (sessionId: string) => {
-                const session = sessions.find((s) => s.id === sessionId);
-                const partnerId = session?.splitPartnerId;
-                if (!partnerId) return;
+            if (
+                sourceMother.id === targetMother.id ||
+                collectTileSessionIds(
+                    resolveTileRoot(targetMother, state.sessions) ??
+                        tileLeaf(targetMother.id),
+                ).includes(sourceId)
+            ) {
+                return state;
+            }
 
-                sessions = sessions.map((s) =>
-                    s.id === partnerId
-                        ? {
-                              ...s,
-                              splitPartnerId: undefined,
-                              splitMotherId: undefined,
-                              tabGroupId: undefined,
-                          }
-                        : s,
-                );
+            let sessions = state.sessions.map((session) => ({ ...session }));
+
+            const detachSession = (sessionId: string) => {
+                const session = sessions.find((item) => item.id === sessionId);
+                if (!session) return;
+
+                const mother = resolveTileMother(session, sessions);
+                const root = resolveTileRoot(mother, sessions);
+                if (!root) return;
+
+                const idsInTree = collectTileSessionIds(root);
+                if (idsInTree.length <= 1) {
+                    sessions = sessions.map((item) =>
+                        item.id === mother.id
+                            ? {
+                                  ...item,
+                                  tileRoot: undefined,
+                                  splitPartnerId: undefined,
+                                  splitMotherId: undefined,
+                                  tabGroupId: undefined,
+                              }
+                            : item,
+                    );
+                    return;
+                }
+
+                const nextRoot = removeSessionFromTile(root, sessionId);
+                if (!nextRoot) return;
+
+                sessions = sessions.map((item) => {
+                    if (item.id === mother.id) {
+                        return {
+                            ...item,
+                            tileRoot: nextRoot,
+                            splitPartnerId: undefined,
+                            tabGroupId: undefined,
+                        };
+                    }
+                    if (item.splitMotherId === mother.id && item.id !== sessionId) {
+                        return {
+                            ...item,
+                            splitMotherId: undefined,
+                            splitPartnerId: undefined,
+                            tabGroupId: undefined,
+                        };
+                    }
+                    if (item.id === sessionId) {
+                        return {
+                            ...item,
+                            tileRoot: undefined,
+                            splitPartnerId: undefined,
+                            splitMotherId: undefined,
+                            tabGroupId: undefined,
+                        };
+                    }
+                    return item;
+                });
+
+                const remainingIds = collectTileSessionIds(nextRoot);
+                sessions = sessions.map((item) => {
+                    if (item.id === mother.id) {
+                        return { ...item, tileRoot: nextRoot };
+                    }
+                    if (remainingIds.includes(item.id) && item.id !== mother.id) {
+                        return {
+                            ...item,
+                            splitMotherId: mother.id,
+                            splitPartnerId: undefined,
+                            tabGroupId: undefined,
+                        };
+                    }
+                    return item;
+                });
             };
 
-            clearPartner(sourceId);
-            clearPartner(targetId);
+            detachSession(sourceId);
 
-            sessions = sessions.map((s) => {
-                if (s.id === sourceId) {
+            const refreshedSource = sessions.find((session) => session.id === sourceId);
+            const refreshedTarget = sessions.find((session) => session.id === targetId);
+            if (!refreshedSource || !refreshedTarget) return state;
+
+            const targetMotherAfterDetach = resolveTileMother(
+                refreshedTarget,
+                sessions,
+            );
+            const existingRoot = resolveTileRoot(
+                targetMotherAfterDetach,
+                sessions,
+            );
+            const baseRoot =
+                existingRoot && existingRoot.kind === "leaf"
+                    ? existingRoot
+                    : existingRoot ?? tileLeaf(targetMotherAfterDetach.id);
+
+            const currentCount = collectTileSessionIds(baseRoot).length;
+            if (currentCount >= MAX_TILE_PANES) {
+                return state;
+            }
+
+            const nextRoot = insertSessionIntoTile(
+                baseRoot,
+                targetId,
+                sourceId,
+                zone,
+            );
+            const memberIds = collectTileSessionIds(nextRoot);
+
+            sessions = sessions.map((session) => {
+                if (session.id === targetMotherAfterDetach.id) {
                     return {
-                        ...s,
-                        splitPartnerId: targetId,
-                        splitMotherId: targetId,
-                        tabGroupId: undefined,
-                    };
-                }
-                if (s.id === targetId) {
-                    return {
-                        ...s,
-                        splitPartnerId: sourceId,
+                        ...session,
+                        tileRoot: nextRoot,
+                        splitPartnerId: undefined,
                         splitMotherId: undefined,
                         tabGroupId: undefined,
                     };
                 }
-                return s;
+                if (memberIds.includes(session.id) && session.id !== targetMotherAfterDetach.id) {
+                    return {
+                        ...session,
+                        splitMotherId: targetMotherAfterDetach.id,
+                        splitPartnerId: undefined,
+                        tabGroupId: undefined,
+                        tileRoot: undefined,
+                    };
+                }
+                if (session.id === sourceId) {
+                    return {
+                        ...session,
+                        splitMotherId: targetMotherAfterDetach.id,
+                        splitPartnerId: undefined,
+                        tabGroupId: undefined,
+                        tileRoot: undefined,
+                    };
+                }
+                return session;
             });
 
             useUIStore.getState().setActiveView(ViewType.Terminal);
@@ -264,6 +498,38 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         });
     },
 
+    assignTileGroup: (sessionIds, tileRoot) => {
+        if (sessionIds.length < 2) return;
+
+        set((state) => {
+            const motherId = sessionIds[0];
+            const root = tileRoot ?? buildHorizontalTileChain(sessionIds);
+            const memberIds = collectTileSessionIds(root);
+
+            const sessions = state.sessions.map((session) => {
+                if (session.id === motherId) {
+                    return {
+                        ...session,
+                        tileRoot: root,
+                        splitPartnerId: undefined,
+                        splitMotherId: undefined,
+                    };
+                }
+                if (memberIds.includes(session.id)) {
+                    return {
+                        ...session,
+                        splitMotherId: motherId,
+                        splitPartnerId: undefined,
+                        tileRoot: undefined,
+                    };
+                }
+                return session;
+            });
+
+            return { sessions };
+        });
+    },
+
     assignTabGroupId: (sessionIds, tabGroupId) => {
         const idSet = new Set(sessionIds);
         set((state) => ({
@@ -278,58 +544,87 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         const closing = state.sessions.find((session) => session.id === id);
         if (!closing) return;
 
-        const partnerId = closing.splitPartnerId;
-        const closeWholeGroup = Boolean(partnerId && !closing.splitMotherId);
-        const idsToRemove = closeWholeGroup
-            ? [id, partnerId!]
-            : [id];
+        const mother = resolveTileMother(closing, state.sessions);
+        const tileRoot = resolveTileRoot(mother, state.sessions);
+        const remainingInGroup = tileRoot
+            ? collectTileSessionIds(tileRoot).filter(
+                  (sessionId) => sessionId !== id,
+              )
+            : [];
+
+        void SshService.Disconnect(id).catch(console.error);
+
+        set((state) => {
+            const closing = state.sessions.find((session) => session.id === id);
+            if (!closing) return state;
+
+            const newSessions = applySingleSessionRemoval(state.sessions, id);
+            const newActiveId = pickActiveSessionAfterClose(
+                state.sessions,
+                newSessions,
+                id,
+                state.activeSessionId,
+                remainingInGroup,
+            );
+
+            if (newSessions.length === 0) {
+                useUIStore.getState().setActiveView(ViewType.Hosts);
+            }
+
+            return {
+                sessions: newSessions,
+                activeSessionId: newActiveId,
+            };
+        });
+    },
+
+    closeTileGroup: (leaderId) => {
+        const state = get();
+        const leader = state.sessions.find((session) => session.id === leaderId);
+        if (!leader) return;
+
+        const tileRoot = resolveTileRoot(leader, state.sessions);
+        const idsToRemove = tileRoot
+            ? collectTileSessionIds(tileRoot)
+            : [leaderId];
 
         idsToRemove.forEach((sessionId) => {
             void SshService.Disconnect(sessionId).catch(console.error);
         });
 
         set((state) => {
-        const closing = state.sessions.find((s) => s.id === id);
-        if (!closing) return state;
-
-        const partnerId = closing.splitPartnerId;
-        const closeWholeGroup = Boolean(partnerId && !closing.splitMotherId);
-        const idsToRemove = new Set(
-            closeWholeGroup ? [id, partnerId!] : [id],
-        );
-
-        const newSessions = state.sessions
-            .filter((s) => !idsToRemove.has(s.id))
-            .map((s) =>
-                s.splitPartnerId && idsToRemove.has(s.splitPartnerId)
-                    ? {
-                          ...s,
-                          splitPartnerId: undefined,
-                          splitMotherId: undefined,
-                          tabGroupId: undefined,
-                      }
-                    : s,
+            const leader = state.sessions.find(
+                (session) => session.id === leaderId,
             );
-        let newActiveId = state.activeSessionId;
+            if (!leader) return state;
 
-        if (state.activeSessionId && idsToRemove.has(state.activeSessionId)) {
-            if (newSessions.length > 0) {
-                const closedIndex = state.sessions.findIndex(
-                    (s) => s.id === id,
-                );
-                const fallbackSession =
-                    newSessions[closedIndex - 1] || newSessions[0];
-                newActiveId = fallbackSession.id;
-            } else {
-                newActiveId = null;
-                useUIStore.getState().setActiveView(ViewType.Hosts);
+            const tileRoot = resolveTileRoot(leader, state.sessions);
+            const idsToRemove = new Set(
+                tileRoot ? collectTileSessionIds(tileRoot) : [leaderId],
+            );
+
+            const newSessions = state.sessions.filter(
+                (session) => !idsToRemove.has(session.id),
+            );
+
+            let newActiveId = state.activeSessionId;
+            if (state.activeSessionId && idsToRemove.has(state.activeSessionId)) {
+                if (newSessions.length > 0) {
+                    const closedIndex = state.sessions.findIndex(
+                        (session) => session.id === leaderId,
+                    );
+                    newActiveId =
+                        newSessions[closedIndex - 1]?.id ?? newSessions[0].id;
+                } else {
+                    newActiveId = null;
+                    useUIStore.getState().setActiveView(ViewType.Hosts);
+                }
             }
-        }
 
-        return {
-            sessions: newSessions,
-            activeSessionId: newActiveId,
-        };
+            return {
+                sessions: newSessions,
+                activeSessionId: newActiveId,
+            };
         });
     },
 

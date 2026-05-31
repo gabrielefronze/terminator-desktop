@@ -275,10 +275,6 @@ export class SavedSnippet {
     }
 }
 
-/**
- * TabGroup is a saved multi-host workspace shown in the sidebar.
- * HostIDs holds ordered host references; the same host ID may appear more than once.
- */
 export class TabGroup {
     "id": string;
     "type": ItemType;
@@ -287,6 +283,7 @@ export class TabGroup {
     "icon"?: string;
     "color"?: string;
     "sortOrder"?: number;
+    "tileLayout"?: TabTileLayoutNode | null;
 
     /** Creates a new TabGroup instance. */
     constructor($$source: Partial<TabGroup> = {}) {
@@ -311,14 +308,58 @@ export class TabGroup {
      */
     static createFrom($$source: any = {}): TabGroup {
         const $$createField3_0 = $$createType0;
+        const $$createField7_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("hostIds" in $$parsedSource) {
             $$parsedSource["hostIds"] = $$createField3_0($$parsedSource["hostIds"]);
         }
+        if ("tileLayout" in $$parsedSource) {
+            $$parsedSource["tileLayout"] = $$createField7_0($$parsedSource["tileLayout"]);
+        }
         return new TabGroup($$parsedSource as Partial<TabGroup>);
+    }
+}
+
+/**
+ * TabGroup is a saved multi-host workspace shown in the sidebar.
+ * HostIDs holds ordered host references; the same host ID may appear more than once.
+ * TileLayout stores the split-tree positions of hosts by index into HostIDs.
+ */
+export class TabTileLayoutNode {
+    "kind": string;
+    "hostIndex"?: number;
+    "direction"?: string;
+    "first"?: TabTileLayoutNode | null;
+    "second"?: TabTileLayoutNode | null;
+
+    /** Creates a new TabTileLayoutNode instance. */
+    constructor($$source: Partial<TabTileLayoutNode> = {}) {
+        if (!("kind" in $$source)) {
+            this["kind"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new TabTileLayoutNode instance from a string or object.
+     */
+    static createFrom($$source: any = {}): TabTileLayoutNode {
+        const $$createField3_0 = $$createType3;
+        const $$createField4_0 = $$createType3;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("first" in $$parsedSource) {
+            $$parsedSource["first"] = $$createField3_0($$parsedSource["first"]);
+        }
+        if ("second" in $$parsedSource) {
+            $$parsedSource["second"] = $$createField4_0($$parsedSource["second"]);
+        }
+        return new TabTileLayoutNode($$parsedSource as Partial<TabTileLayoutNode>);
     }
 }
 
 // Private type creation functions
 const $$createType0 = $Create.Array($Create.Any);
 const $$createType1 = $Create.Map($Create.Any, $Create.Any);
+const $$createType2 = TabTileLayoutNode.createFrom;
+const $$createType3 = $Create.Nullable($$createType2);

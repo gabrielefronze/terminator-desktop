@@ -63,14 +63,24 @@ type HostGroup struct {
 
 // TabGroup is a saved multi-host workspace shown in the sidebar.
 // HostIDs holds ordered host references; the same host ID may appear more than once.
+// TileLayout stores the split-tree positions of hosts by index into HostIDs.
+type TabTileLayoutNode struct {
+	Kind      string              `json:"kind"`
+	HostIndex int                 `json:"hostIndex,omitempty"`
+	Direction string              `json:"direction,omitempty"`
+	First     *TabTileLayoutNode  `json:"first,omitempty"`
+	Second    *TabTileLayoutNode  `json:"second,omitempty"`
+}
+
 type TabGroup struct {
-	ID        string   `json:"id"`
-	Type      ItemType `json:"type"`
-	Name      string   `json:"name"`
-	HostIDs   []string `json:"hostIds"`
-	Icon      string   `json:"icon,omitempty"`
-	Color     string   `json:"color,omitempty"`
-	SortOrder int      `json:"sortOrder,omitempty"`
+	ID         string              `json:"id"`
+	Type       ItemType            `json:"type"`
+	Name       string              `json:"name"`
+	HostIDs    []string            `json:"hostIds"`
+	Icon       string              `json:"icon,omitempty"`
+	Color      string              `json:"color,omitempty"`
+	SortOrder  int                 `json:"sortOrder,omitempty"`
+	TileLayout *TabTileLayoutNode  `json:"tileLayout,omitempty"`
 }
 
 type SavedKey struct {

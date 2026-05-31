@@ -4,6 +4,10 @@ import { SavedIdentity } from "../../bindings/terminator-desktop/backend/interna
 import { SavedKey } from "../../bindings/terminator-desktop/backend/internal/services/blob/models";
 import { buildSessionFromHost } from "@/lib/connectHost";
 import { resolveTabGroupHosts } from "@/lib/tabGroups";
+import {
+    deserializeTileLayout,
+    tabGroupTileLayout,
+} from "@/lib/tabGroupLayout";
 import { useSessionStore } from "@/store/sessionStore";
 import { useUIStore, ViewType } from "@/store/uiStore";
 import { toast } from "sonner";
@@ -14,7 +18,7 @@ export function useOpenTabGroup(
     allHosts: Host[] | undefined,
 ) {
     const addSession = useSessionStore((state) => state.addSession);
-    const linkSplitSessions = useSessionStore((state) => state.linkSplitSessions);
+    const assignTileGroup = useSessionStore((state) => state.assignTileGroup);
     const assignTabGroupId = useSessionStore((state) => state.assignTabGroupId);
     const setActiveSession = useSessionStore((state) => state.setActiveSession);
 
@@ -38,7 +42,11 @@ export function useOpenTabGroup(
             }
 
             if (sessionIds.length >= 2) {
-                linkSplitSessions(sessionIds[1], sessionIds[0]);
+                const tileRoot = deserializeTileLayout(
+                    tabGroupTileLayout(tabGroup),
+                    sessionIds,
+                );
+                assignTileGroup(sessionIds, tileRoot ?? undefined);
             }
 
             assignTabGroupId(sessionIds, tabGroup.id);
@@ -49,9 +57,9 @@ export function useOpenTabGroup(
             addSession,
             allHosts,
             assignTabGroupId,
+            assignTileGroup,
             identities,
             keys,
-            linkSplitSessions,
             setActiveSession,
         ],
     );

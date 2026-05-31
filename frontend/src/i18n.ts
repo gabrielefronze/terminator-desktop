@@ -18,6 +18,7 @@ void i18n
                 "keys",
                 "identities",
                 "snippets",
+                "forwards",
                 "sftp",
                 "settings",
                 "terminal",

@@ -7,6 +7,7 @@ import {
     PanelLeftOpen,
     FileCode2,
     FolderOpen,
+    ArrowLeftRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUIStore, ViewType } from "@/store/uiStore";
@@ -135,6 +136,18 @@ export function Sidebar() {
                         title={t("page_title", { ns: "snippets" })}
                     >
                         <FileCode2 className="size-5" />
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setActiveView(ViewType.Forwards)}
+                        className={sidebarNavButtonClass(
+                            activeView === ViewType.Forwards,
+                        )}
+                        title={t("page_title", { ns: "forwards" })}
+                    >
+                        <ArrowLeftRight className="size-5" />
                     </Button>
 
                     <Button

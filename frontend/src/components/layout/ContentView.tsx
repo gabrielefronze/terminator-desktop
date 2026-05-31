@@ -6,6 +6,7 @@ import { KeysPage } from "@/components/views/KeysPage.tsx";
 import { IdentitiesPage } from "@/components/views/IdentitiesPage.tsx";
 import { SettingsPage } from "@/components/views/SettingsPage.tsx";
 import { SnippetsPage } from "@/components/views/SnippetsPage.tsx";
+import { ForwardsPage } from "@/components/views/ForwardsPage.tsx";
 import { SftpPage } from "@/components/views/SftpPage.tsx";
 
 export function ContentView() {
@@ -19,6 +20,7 @@ export function ContentView() {
             {activeView === ViewType.Keys && <KeysPage/>}
             {activeView === ViewType.Identities && <IdentitiesPage/>}
             {activeView === ViewType.Snippets && <SnippetsPage/>}
+            {activeView === ViewType.Forwards && <ForwardsPage/>}
             {activeView === ViewType.Sftp && <SftpPage/>}
             {activeView === ViewType.Settings && <SettingsPage/>}
 

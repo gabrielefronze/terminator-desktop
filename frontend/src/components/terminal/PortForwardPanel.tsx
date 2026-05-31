@@ -7,13 +7,19 @@ import { SshService } from "../../../bindings/terminator-desktop/backend/interna
 import type { PortForward } from "../../../bindings/terminator-desktop/backend/internal/services/ssh/models";
 import { parseAppError } from "@/lib/error";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface PortForwardPanelProps {
     sessionId: string;
     disabled?: boolean;
+    layout?: "panel" | "page";
 }
 
-export function PortForwardPanel({ sessionId, disabled }: PortForwardPanelProps) {
+export function PortForwardPanel({
+    sessionId,
+    disabled,
+    layout = "panel",
+}: PortForwardPanelProps) {
     const { t } = useTranslation("terminal");
     const [forwards, setForwards] = useState<PortForward[]>([]);
     const [localPort, setLocalPort] = useState("8080");
@@ -61,10 +67,18 @@ export function PortForwardPanel({ sessionId, disabled }: PortForwardPanelProps)
     };
 
     return (
-        <div className="flex h-full flex-col border-l border-border bg-card p-3">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t("port_forward_title")}
-            </p>
+        <div
+            className={cn(
+                "flex h-full flex-col bg-card p-3",
+                layout === "panel" && "border-l border-border",
+                layout === "page" && "rounded-lg border border-border",
+            )}
+        >
+            {layout === "panel" && (
+                <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {t("port_forward_title")}
+                </p>
+            )}
             <div className="grid gap-2 text-sm">
                 <div>
                     <Label>{t("port_forward_local")}</Label>
