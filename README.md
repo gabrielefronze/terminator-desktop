@@ -6,17 +6,13 @@ Elemento Nexus
 
 </h1>
 
-<div align="center">
-
-   [![Discord](https://dcbadge.limes.pink/api/server/x7K9BRrQJE)](https://discord.gg/x7K9BRrQJE)
-
-</div>
-
 <h3 align="center">
    Local-first SSH client with optional encrypted sync
 </h3>
 
-Elemento Nexus is a cross-platform desktop SSH client built with [Wails v3](https://v3.wails.io/), Go, and React. Your vault (hosts, keys, snippets, and more) stays on your machine and is encrypted before anything is stored locally or synced to a server you control.
+Elemento Nexus is a cross-platform desktop SSH client built with [Wails v3](https://v3.wails.io/), Go, and React. **This project is a fork of [Terminator](https://terminator.sh)** ([terminator.sh](https://terminator.sh)): same core architecture and features, with Elemento branding and continued development here.
+
+Your vault (hosts, keys, snippets, and more) stays on your machine and is encrypted before anything is stored locally or synced to a server you control.
 
 ## Features
 
@@ -97,7 +93,7 @@ For multi-device sync, run a compatible self-hosted sync API and point the deskt
 - [ ] Android client
 - [ ] CLI client
 
-Missing something? [Open an issue](https://github.com/gabrielefronze/terminator-desktop/issues/new) or join [Discord](https://discord.gg/x7K9BRrQJE).
+Missing something? [Open an issue](https://github.com/gabrielefronze/terminator-desktop/issues/new).
 
 ## Screenshots
 
@@ -145,6 +141,8 @@ See [Delve installation](https://github.com/go-delve/delve/tree/master/Documenta
 Architecture and service layout are documented in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Acknowledgements
+
+Based on [Terminator](https://terminator.sh) ([terminator.sh](https://terminator.sh)).
 
 Inspired by [Termius](https://termius.com).
 
