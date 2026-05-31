@@ -7,7 +7,13 @@ import { buildTerminalOptions } from "@/lib/terminalTheme";
 import { ErrorCode } from "@/lib/errorCodes";
 import { PassphrasePromptModal } from "@/components/terminal/PassphrasePromptModal";
 import { useSettings } from "@/hooks/useSettings";
-import { parseAppError } from "@/lib/error";
+import { parseAppError, handleAppError } from "@/lib/error";
+import {
+    isTerminalZoomInShortcut,
+    isTerminalZoomOutShortcut,
+} from "@/lib/keyboardShortcuts";
+import { queryClient } from "@/lib/queryClient";
+import { adjustTerminalFontSize } from "@/lib/terminalFontSizeAdjust";
 import { cn, decodeBase64ToUint8Array } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import "@xterm/xterm/css/xterm.css";
@@ -218,6 +224,22 @@ export function TerminalInstance({
                     ) {
                         arg.preventDefault();
                         useUIStore.getState().toggleSidebar();
+                        return false;
+                    }
+
+                    if (isTerminalZoomInShortcut(arg)) {
+                        arg.preventDefault();
+                        void adjustTerminalFontSize(1, queryClient).catch(
+                            handleAppError,
+                        );
+                        return false;
+                    }
+
+                    if (isTerminalZoomOutShortcut(arg)) {
+                        arg.preventDefault();
+                        void adjustTerminalFontSize(-1, queryClient).catch(
+                            handleAppError,
+                        );
                         return false;
                     }
 

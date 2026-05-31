@@ -96,6 +96,7 @@ interface SessionState {
     assignTileGroup: (sessionIds: string[], tileRoot?: TileNode) => void;
     assignTabGroupId: (sessionIds: string[], tabGroupId: string) => void;
     setActiveSession: (id: string) => void;
+    setAllSessionsTerminalFontSize: (size: number) => void;
     syncSessionsFromHosts: (hosts: Host[]) => void;
     clearSessions: () => void;
 }
@@ -632,6 +633,14 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         useUIStore.getState().setActiveView(ViewType.Terminal);
         set({activeSessionId: id});
     },
+
+    setAllSessionsTerminalFontSize: (size) =>
+        set((state) => ({
+            sessions: state.sessions.map((session) => ({
+                ...session,
+                terminalFontSize: size,
+            })),
+        })),
 
     syncSessionsFromHosts: (hosts) =>
         set((state) => {

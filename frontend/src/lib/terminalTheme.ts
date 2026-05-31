@@ -27,7 +27,11 @@ export function resolveTerminalFontSize(settings?: AppSettings | null): number {
     if (!size || size <= 0) {
         return DEFAULT_TERMINAL_FONT_SIZE;
     }
-    return Math.min(32, Math.max(8, size));
+    return clampTerminalFontSize(size);
+}
+
+export function clampTerminalFontSize(size: number): number {
+    return Math.min(32, Math.max(8, Math.round(size)));
 }
 
 export type HostTerminalOverrides = {
@@ -42,7 +46,7 @@ export function buildTerminalOptions(
     const hostFontSize = hostOverrides?.terminalFontSize;
     const fontSize =
         hostFontSize && hostFontSize > 0
-            ? Math.min(32, Math.max(8, hostFontSize))
+            ? clampTerminalFontSize(hostFontSize)
             : resolveTerminalFontSize(settings);
 
     const hostFont = hostOverrides?.terminalFontFamily?.trim();

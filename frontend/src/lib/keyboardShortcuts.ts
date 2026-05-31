@@ -25,3 +25,31 @@ export function isNewTabShortcut(event: KeyboardEvent): boolean {
 export function isToggleSidebarShortcut(event: KeyboardEvent): boolean {
     return isModShortcut(event, "b");
 }
+
+type ShortcutKeyEvent = Pick<
+    KeyboardEvent,
+    "metaKey" | "ctrlKey" | "altKey" | "shiftKey" | "key" | "code"
+>;
+
+export function isTerminalZoomInShortcut(event: ShortcutKeyEvent): boolean {
+    if (!(event.metaKey || event.ctrlKey) || event.altKey) {
+        return false;
+    }
+    return (
+        event.key === "=" ||
+        event.key === "+" ||
+        event.code === "Equal" ||
+        event.code === "NumpadAdd"
+    );
+}
+
+export function isTerminalZoomOutShortcut(event: ShortcutKeyEvent): boolean {
+    if (!(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey) {
+        return false;
+    }
+    return (
+        event.key === "-" ||
+        event.code === "Minus" ||
+        event.code === "NumpadSubtract"
+    );
+}
