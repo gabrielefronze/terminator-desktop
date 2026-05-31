@@ -56,7 +56,7 @@ const dbFile = "terminator.db"
 const devDbFile = "dev.db"
 const logFileName = "terminator.log"
 const crashLogFileName = "crash.log"
-const updateUrl = "https://github.com/terminator-ssh/terminator-desktop/releases/latest/download/"
+const updateUrl = "https://github.com/gabrielefronze/terminator-desktop/releases/latest/download/"
 
 func main() {
 	velopack.Run(velopack.App{
