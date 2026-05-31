@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Build Terminator Desktop for redistribution (production package).
+# Build Elemento Nexus for redistribution (production package).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
 readonly BIN_DIR="$ROOT/bin"
-readonly APP_NAME="terminator"
+readonly APP_NAME="elemento-nexus"
 
 die() {
   echo "error: $*" >&2
@@ -36,9 +36,9 @@ Examples:
   ./build.sh zip
 
 Outputs (under bin/):
-  macOS     terminator.app
-  Windows   terminator.exe (+ NSIS installer when packaging on Windows)
-  Linux     terminator binary, AppImage, .deb, .rpm (when packaging on Linux)
+  macOS     elemento-nexus.app
+  Windows   elemento-nexus.exe (+ NSIS installer when packaging on Windows)
+  Linux     elemento-nexus binary, AppImage, .deb, .rpm (when packaging on Linux)
 
 Requires Go, Node, pnpm, and wails3. Run ./setup.sh if tools are missing.
 EOF
@@ -141,7 +141,7 @@ cmd_zip() {
   [[ -d "$app" ]] || die "expected $app after package"
   local version zip_name
   version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist" 2>/dev/null || echo "local")"
-  zip_name="$BIN_DIR/Terminator-macos-${version}.zip"
+  zip_name="$BIN_DIR/ElementoNexus-macos-${version}.zip"
   info "Creating $zip_name"
   rm -f "$zip_name"
   ditto -c -k --keepParent "$app" "$zip_name"

@@ -51,7 +51,7 @@ func init() {
 	application.RegisterEvent[uint](emitters.UpdaterProgressEvent)
 }
 
-const AppName = "Terminator"
+const AppName = "Elemento Nexus"
 const dbFile = "terminator.db"
 const devDbFile = "dev.db"
 const logFileName = "terminator.log"
@@ -134,7 +134,7 @@ func main() {
 			WebviewUserDataPath: filepath.Join(appDir, "webview2"),
 		},
 		SingleInstance: &application.SingleInstanceOptions{
-			UniqueID: "com.terminator.desktop",
+			UniqueID: "com.elemento.nexus",
 			OnSecondInstanceLaunch: func(data application.SecondInstanceData) {
 				if mainWindow != nil {
 					mainWindow.Restore()

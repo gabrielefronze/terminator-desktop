@@ -33,7 +33,7 @@
   "generate_algorithm_hint_rsa4096": "Совместимость со старыми серверами; больший размер ключа.",
   "generate_algorithm_hint_rsa2048": "Устаревшая совместимость; используйте только при необходимости.",
   "generate_comment_label": "Комментарий (необязательно)",
-  "generate_comment_placeholder": "напр. laptop-terminator",
+  "generate_comment_placeholder": "напр. laptop-elemento-nexus",
   "generate_public_key_label": "Открытый ключ",
   "generate_public_key_hint": "Добавьте эту строку в ~/.ssh/authorized_keys на каждом сервере перед подключением.",
   "generate_copy_public_key": "Копировать открытый ключ",

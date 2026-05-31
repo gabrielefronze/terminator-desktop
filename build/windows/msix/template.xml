@@ -8,27 +8,27 @@
         AllowPromptForPassword="false">
     </Settings>
     <Installer
-        Path="terminator.exe"
+        Path="elemento-nexus.exe"
         Arguments=""
-        InstallLocation="C:\Program Files\Terminator\Terminator">
+        InstallLocation="C:\Program Files\Elemento\Elemento Nexus">
     </Installer>
     <PackageInformation
-        PackageName="Terminator"
-        PackageDisplayName="Terminator"
-        PublisherName="CN=Terminator"
-        PublisherDisplayName="Terminator"
+        PackageName="Elemento Nexus"
+        PackageDisplayName="Elemento Nexus"
+        PublisherName="CN=Elemento"
+        PublisherDisplayName="Elemento"
         Version="0.1.0.0"
-        PackageDescription="Terminator Description">
+        PackageDescription="Elemento Nexus">
         <Capabilities>
             <Capability Name="runFullTrust" />
             
         </Capabilities>
         <Applications>
             <Application
-                Id="com.terminator.desktop"
-                Description="Terminator Description"
-                DisplayName="Terminator"
-                ExecutableName="terminator.exe"
+                Id="com.elemento.nexus"
+                Description="Elemento Nexus"
+                DisplayName="Elemento Nexus"
+                ExecutableName="elemento-nexus.exe"
                 EntryPoint="Windows.FullTrustApplication">
                 
             </Application>
@@ -41,13 +41,13 @@
         </Dependencies>
         <Properties>
             <Framework>false</Framework>
-            <DisplayName>Terminator</DisplayName>
-            <PublisherDisplayName>Terminator</PublisherDisplayName>
-            <Description>Terminator Description</Description>
+            <DisplayName>Elemento Nexus</DisplayName>
+            <PublisherDisplayName>Elemento</PublisherDisplayName>
+            <Description>Elemento Nexus</Description>
             <Logo>Assets\AppIcon.png</Logo>
         </Properties>
     </PackageInformation>
-    <SaveLocation PackagePath="terminator.msix" />
+    <SaveLocation PackagePath="elemento-nexus.msix" />
     <PackageIntegrity>
         <CertificatePath></CertificatePath>
     </PackageIntegrity>

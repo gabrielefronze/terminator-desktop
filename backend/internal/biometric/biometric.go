@@ -3,7 +3,7 @@ package biometric
 import "errors"
 
 const (
-	ServiceName = "com.terminator.desktop"
+	ServiceName = "com.elemento.nexus"
 	AccountName = "master-password"
 )
 

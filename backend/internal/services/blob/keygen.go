@@ -18,7 +18,7 @@ const (
 	KeyAlgorithmRSA4096 = "rsa4096"
 	KeyAlgorithmRSA2048 = "rsa2048"
 
-	defaultKeyComment = "terminator-desktop"
+	defaultKeyComment = "elemento-nexus"
 )
 
 var (

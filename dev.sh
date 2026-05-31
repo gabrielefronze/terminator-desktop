@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Start Terminator Desktop in Wails development mode (Go rebuild + Vite HMR).
+# Start Elemento Nexus in Wails development mode (Go rebuild + Vite HMR).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

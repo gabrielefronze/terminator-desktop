@@ -5,19 +5,19 @@
 !include "FileFunc.nsh"
 
 !ifndef INFO_PROJECTNAME
-    !define INFO_PROJECTNAME "terminator"
+    !define INFO_PROJECTNAME "elemento-nexus"
 !endif
 !ifndef INFO_COMPANYNAME
-    !define INFO_COMPANYNAME "Terminator"
+    !define INFO_COMPANYNAME "Elemento"
 !endif
 !ifndef INFO_PRODUCTNAME
-    !define INFO_PRODUCTNAME "Terminator"
+    !define INFO_PRODUCTNAME "Elemento Nexus"
 !endif
 !ifndef INFO_PRODUCTVERSION
     !define INFO_PRODUCTVERSION "0.0.1"
 !endif
 !ifndef INFO_COPYRIGHT
-    !define INFO_COPYRIGHT "(c) now, Terminator"
+    !define INFO_COPYRIGHT "(c) now, Elemento"
 !endif
 !ifndef PRODUCT_EXECUTABLE
     !define PRODUCT_EXECUTABLE "${INFO_PROJECTNAME}.exe"

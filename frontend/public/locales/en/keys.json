@@ -33,7 +33,7 @@
   "generate_algorithm_hint_rsa4096": "Compatible with older servers; larger key size.",
   "generate_algorithm_hint_rsa2048": "Legacy compatibility; use only if required.",
   "generate_comment_label": "Comment (optional)",
-  "generate_comment_placeholder": "e.g. laptop-terminator",
+  "generate_comment_placeholder": "e.g. laptop-elemento-nexus",
   "generate_public_key_label": "Public key",
   "generate_public_key_hint": "Add this line to ~/.ssh/authorized_keys on each server before connecting.",
   "generate_copy_public_key": "Copy public key",

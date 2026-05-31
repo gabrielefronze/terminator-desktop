@@ -1,8 +1,8 @@
 <h1 align="center">
 
-Terminator
+Elemento Nexus
 
-   <img src="build/appicon.png" width=250 alt="Terminator logo"/>
+   <img src="build/appicon.png" width=250 alt="Elemento Nexus logo"/>
 
 </h1>
 
@@ -16,16 +16,16 @@ Terminator
    Self-hostable SSH client with sync
 </h3>
 
-Terminator is a cross-platform SSH client built with [Wails v3](https://v3.wails.io/) and Go. Supports self-hosted servers for sync.
+Elemento Nexus is a cross-platform SSH client built with [Wails v3](https://v3.wails.io/) and Go. Supports self-hosted servers for sync.
 
 ## Features
 - **Encryption.** All sensitive data is encrypted locally using Argon2id and AES-256GCM.
 - **Sync** encrypted data across multiple devices. Data is encrypted *before* it leaves the client!
 - **Lightweight.** ~15MB binaries, ~10MB RAM.
 - Cross-platform:
-   - [Windows](https://github.com/terminator-ssh/terminator-desktop/releases/latest/download/Terminator-windows-stable-Setup.exe)
-   - [Linux](https://github.com/terminator-ssh/terminator-desktop/releases/latest/download/Terminator-linux-stable.AppImage)
-   - [MacOS](https://github.com/terminator-ssh/terminator-desktop/releases/latest/download/Terminator-macos-stable-Setup.pkg)
+   - [Windows](https://github.com/terminator-ssh/terminator-desktop/releases/latest/download/ElementoNexus-windows-stable-Setup.exe)
+   - [Linux](https://github.com/terminator-ssh/terminator-desktop/releases/latest/download/ElementoNexus-linux-stable.AppImage)
+   - [MacOS](https://github.com/terminator-ssh/terminator-desktop/releases/latest/download/ElementoNexus-macos-stable-Setup.pkg)
 - Local first. You *don't have to* use a server!
 - **SSH host key verification** with a local known-hosts store and trust prompts.
 - **Hosts & groups** with drag-and-drop organization, icons, and colors.
@@ -37,7 +37,7 @@ Terminator is a cross-platform SSH client built with [Wails v3](https://v3.wails
 - **Sudo / password picker** for common interactive prompts.
 
 ## Server
-Terminator is designed as a local-first app, but it supports E2E encrypted sync. Grab the server [here](https://github.com/terminator-ssh/terminator-server)!
+Elemento Nexus is designed as a local-first app, but it supports E2E encrypted sync. Grab the server [here](https://github.com/terminator-ssh/terminator-server)!
 
 ## Roadmap
 - [x] Encryption
@@ -63,8 +63,8 @@ Terminator is designed as a local-first app, but it supports E2E encrypted sync.
 Something missing? Suggest more! [Issues](https://github.com/terminator-ssh/terminator-desktop/issues/new) | [Discord](https://discord.gg/x7K9BRrQJE)
 
 ## Screenshots
-<img src="assets/term-en-white.png" width="1600" alt="Terminator main screen"/>
-<img src="assets/term-t-white.png" width="1600" alt="Terminator terminal"/>
+<img src="assets/term-en-white.png" width="1600" alt="Elemento Nexus main screen"/>
+<img src="assets/term-t-white.png" width="1600" alt="Elemento Nexus terminal"/>
 
 ## Development
 

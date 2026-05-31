@@ -34,12 +34,12 @@ jobs:
             --outputDir releases || true
           
           vpk pack \
-            --packId "Terminator" \
+            --packId "ElementoNexus" \
             --packVersion "${{ env.VERSION }}" \
             --packDir "bin" \
-            --mainExe "terminator.exe" \
-            --packTitle "Terminator" \
-            --packAuthors "Terminator SSH" \
+            --mainExe "elemento-nexus.exe" \
+            --packTitle "Elemento Nexus" \
+            --packAuthors "Elemento" \
             --channel windows-stable \
             --icon "build/windows/icon.ico" \
             --outputDir releases
@@ -100,12 +100,12 @@ jobs:
             --outputDir releases || true
           
           vpk pack \
-            --packId "Terminator" \
+            --packId "ElementoNexus" \
             --packVersion "${{ env.VERSION }}" \
             --packDir "bin" \
-            --mainExe "terminator" \
-            --packTitle "Terminator" \
-            --packAuthors "Terminator SSH" \
+            --mainExe "elemento-nexus" \
+            --packTitle "Elemento Nexus" \
+            --packAuthors "Elemento" \
             --channel linux-stable \
             --icon "build/appicon.png" \
             --outputDir releases
@@ -158,12 +158,12 @@ jobs:
           APP_BUNDLE=$(find bin -maxdepth 1 -name "*.app" | head -n 1)
           
           vpk pack \
-            --packId "Terminator" \
+            --packId "ElementoNexus" \
             --packVersion "${{ env.VERSION }}" \
             --packDir "$APP_BUNDLE" \
-            --mainExe "terminator" \
-            --packTitle "Terminator" \
-            --packAuthors "Terminator SSH" \
+            --mainExe "elemento-nexus" \
+            --packTitle "Elemento Nexus" \
+            --packAuthors "Elemento" \
             --channel macos-stable \
             --runtime osx-arm64 \
             --icon "build/darwin/icons.icns" \

@@ -1,13 +1,13 @@
 [Desktop Entry]
 Version=1.0
-Name=Terminator
-Comment=Terminator
+Name=Elemento Nexus
+Comment=Elemento Nexus
 # The Exec line includes %u to pass the URL to the application
-Exec=/usr/local/bin/terminator %u
+Exec=/usr/local/bin/elemento-nexus %u
 Terminal=false
 Type=Application
-Icon=terminator
+Icon=elemento-nexus
 Categories=Utility;
-StartupWMClass=terminator
+StartupWMClass=elemento-nexus
 
  

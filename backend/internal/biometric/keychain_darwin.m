@@ -7,7 +7,7 @@
 #import <string.h>
 
 static CFStringRef terminatorService(void) {
-    return CFSTR("com.terminator.desktop");
+    return CFSTR("com.elemento.nexus");
 }
 
 static CFStringRef terminatorAccount(void) {
@@ -40,7 +40,7 @@ static void runOnMainSync(void (^block)(void)) {
 static int promptUserPresence(void) {
     __block int result = -1;
     LAContext *context = [[LAContext alloc] init];
-    context.localizedReason = @"Unlock Terminator";
+    context.localizedReason = @"Unlock Elemento Nexus";
     context.localizedFallbackTitle = @"";
 
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);

@@ -1,6 +1,6 @@
-# Terminator Desktop — Architecture & Structure
+# Elemento Nexus — Architecture & Structure
 
-Terminator is a **local-first, cross-platform SSH client** with optional **end-to-end encrypted sync** to a self-hosted [terminator-server](https://github.com/terminator-ssh/terminator-server). Sensitive data is encrypted on the client before it is stored locally or sent to the server.
+Elemento Nexus is a **local-first, cross-platform SSH client** with optional **end-to-end encrypted sync** to a self-hosted [terminator-server](https://github.com/terminator-ssh/terminator-server). Sensitive data is encrypted on the client before it is stored locally or sent to the server.
 
 The app is a **Wails v3** desktop application: a **Go backend** (SSH, crypto, database, sync) and a **React + TypeScript** UI embedded in a native webview.
 

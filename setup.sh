@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time (or repeat) development environment setup for Terminator Desktop.
+# One-time (or repeat) development environment setup for Elemento Nexus.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -131,7 +131,7 @@ linux_hint() {
 }
 
 main() {
-  info "Setting up Terminator Desktop (root: $ROOT)"
+  info "Setting up Elemento Nexus (root: $ROOT)"
 
   check_go
   check_node

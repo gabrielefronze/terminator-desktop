@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Application
-Name=terminator
-Exec=terminator
-Icon=terminator
+Name=Elemento Nexus
+Exec=elemento-nexus
+Icon=elemento-nexus
 Categories=Development;
 Terminal=false
 Keywords=wails
