@@ -9,95 +9,143 @@ Elemento Nexus
 <div align="center">
 
    [![Discord](https://dcbadge.limes.pink/api/server/x7K9BRrQJE)](https://discord.gg/x7K9BRrQJE)
-   
+
 </div>
 
 <h3 align="center">
-   Self-hostable SSH client with sync
+   Local-first SSH client with optional encrypted sync
 </h3>
 
-Elemento Nexus is a cross-platform SSH client built with [Wails v3](https://v3.wails.io/) and Go. Supports self-hosted servers for sync.
+Elemento Nexus is a cross-platform desktop SSH client built with [Wails v3](https://v3.wails.io/), Go, and React. Your vault (hosts, keys, snippets, and more) stays on your machine and is encrypted before anything is stored locally or synced to a server you control.
 
 ## Features
-- **Encryption.** All sensitive data is encrypted locally using Argon2id and AES-256GCM.
-- **Sync** encrypted data across multiple devices. Data is encrypted *before* it leaves the client!
-- **Lightweight.** ~15MB binaries, ~10MB RAM.
-- Cross-platform:
-   - [Windows](https://github.com/terminator-ssh/terminator-desktop/releases/latest/download/ElementoNexus-windows-stable-Setup.exe)
-   - [Linux](https://github.com/terminator-ssh/terminator-desktop/releases/latest/download/ElementoNexus-linux-stable.AppImage)
-   - [MacOS](https://github.com/terminator-ssh/terminator-desktop/releases/latest/download/ElementoNexus-macos-stable-Setup.pkg)
-- Local first. You *don't have to* use a server!
-- **SSH host key verification** with a local known-hosts store and trust prompts.
-- **Hosts & groups** with drag-and-drop organization, icons, and colors.
-- **Jump hosts / relay chains** (multi-hop bastion).
-- **SSH keys & identities** with passphrase-protected key support.
-- **Multi-tab terminals** with split panes, snippets panel, and SFTP browser.
-- **Per-host** startup command, environment variables, and terminal font overrides.
-- **Port forwarding** (local) on active SSH sessions.
-- **Sudo / password picker** for common interactive prompts.
 
-## Server
-Elemento Nexus is designed as a local-first app, but it supports E2E encrypted sync. Grab the server [here](https://github.com/terminator-ssh/terminator-server)!
+### Security & privacy
+
+- **Encrypted vault** — Sensitive data is protected with Argon2id key derivation and AES-256-GCM.
+- **Optional sync** — Push encrypted blobs to a self-hosted sync API; the server never sees plaintext.
+- **SSH host key verification** — Local known-hosts store with trust prompts before connecting.
+- **Touch ID unlock** (macOS) — Unlock the vault with biometrics after enabling it in Settings.
+
+### Connection management
+
+- **Hosts & groups** — Drag-and-drop organization, custom icons, and colors.
+- **Identities** — Reusable username/password or key combinations linked to hosts.
+- **SSH keys** — Import existing keys, passphrases, or generate Ed25519 / RSA pairs in-app.
+- **Jump hosts** — Multi-hop bastion / relay chains.
+- **Reachability checks** — TCP probes on the hosts list (online / offline / latency).
+- **Per-host options** — Startup command, environment variables, and terminal font overrides.
+
+### Terminal & sessions
+
+- **Multi-tab terminals** — xterm.js sessions with split panes.
+- **Tab groups** — Open a saved set of hosts into tabs in one action.
+- **Command broadcast** — Send the same input to every pane in a split layout.
+- **Snippets** — Quick-insert commands from the terminal toolbar.
+- **Local shell** — Optional built-in localhost session (configurable in Settings).
+- **Interactive auth** — Sudo / password picker and keyboard-interactive prompts.
+
+### Files & networking
+
+- **SFTP dual-pane browser** — Browse local and remote paths; upload and download files.
+- **Port forwarding** — Local forwards on live sessions, plus a library of saved forwards you can start on demand.
+
+### App experience
+
+- **Custom theme** — Accent color and app background.
+- **Terminal appearance** — Global font family and size (with per-host overrides).
+- **Localization** — English and Russian UI strings.
+- **Auto-updates** — Checks GitHub releases after unlock (Velopack on Windows).
+- **Lightweight** — Small native binaries and modest memory use.
+
+### Platforms
+
+Downloads from [GitHub Releases](https://github.com/gabrielefronze/terminator-desktop/releases/latest):
+
+- [Windows](https://github.com/gabrielefronze/terminator-desktop/releases/latest/download/ElementoNexus-windows-stable-Setup.exe)
+- [Linux (AppImage)](https://github.com/gabrielefronze/terminator-desktop/releases/latest/download/ElementoNexus-linux-stable.AppImage)
+- [macOS](https://github.com/gabrielefronze/terminator-desktop/releases/latest/download/ElementoNexus-macos-stable-Setup.pkg)
+
+You can use Elemento Nexus entirely offline — a sync server is optional.
+
+## Sync server
+
+For multi-device sync, run a compatible self-hosted sync API and point the desktop app at it in **Settings → Server**. The sync service only receives encrypted blobs; your master password never leaves the client in cleartext.
 
 ## Roadmap
-- [x] Encryption
-- [x] Sync
-- [x] SSH keys
+
+- [x] Encrypted local vault
+- [x] E2E encrypted sync
+- [x] SSH keys (import + in-app generation)
+- [x] Identities
 - [x] Host groups
-- [x] Jump / relay hosts (multi-hop)
-- [x] Interactive passwords (sudo picker + keyboard-interactive auth)
-- [x] Custom themes (app accent & background)
+- [x] Jump / relay hosts
 - [x] Known host keys & trust UI
-- [x] Snippets & startup commands
-- [x] SFTP file browser (read-only navigation MVP)
-- [x] Local port forwarding
-- [x] Split terminal panes
+- [x] Snippets & per-host startup commands
+- [x] Tab groups
+- [x] Split terminal panes & command broadcast
+- [x] SFTP dual-pane browser with upload & download
+- [x] Local port forwarding & saved forwards
+- [x] Interactive passwords (sudo picker, keyboard-interactive)
+- [x] Custom accent & background theme
+- [x] Host reachability indicators
+- [x] Touch ID vault unlock (macOS)
 - [ ] Remote / dynamic port forwarding
-- [ ] SFTP upload & download
-- [ ] Command history (encrypted, searchable)
+- [ ] Encrypted command history (searchable)
 - [ ] Import / export hosts
-- [ ] Multiple profiles (teams?)
+- [ ] Multiple profiles / teams
 - [ ] Android client
 - [ ] CLI client
 
-Something missing? Suggest more! [Issues](https://github.com/terminator-ssh/terminator-desktop/issues/new) | [Discord](https://discord.gg/x7K9BRrQJE)
+Missing something? [Open an issue](https://github.com/gabrielefronze/terminator-desktop/issues/new) or join [Discord](https://discord.gg/x7K9BRrQJE).
 
 ## Screenshots
-<img src="assets/term-en-white.png" width="1600" alt="Elemento Nexus main screen"/>
-<img src="assets/term-t-white.png" width="1600" alt="Elemento Nexus terminal"/>
+
+<img src="assets/term-en-white.png" width="1600" alt="Elemento Nexus hosts view"/>
+<img src="assets/term-t-white.png" width="1600" alt="Elemento Nexus terminal with splits"/>
 
 ## Development
 
 ### Prerequisites
 
-1. [**Go**](https://go.dev/dl/) (1.25+)
-2. [**Node.js**](https://nodejs.org/en/download/current) (v24+)
-3. *Preferrably* [**pnpm**](https://pnpm.io/installation#using-corepack)
-4. [**Wails3 CLI**](https://v3.wails.io/getting-started/installation/)
+1. [**Go**](https://go.dev/dl/) 1.25+
+2. [**Node.js**](https://nodejs.org/en/download/current) 24+
+3. [**pnpm**](https://pnpm.io/installation#using-corepack) (recommended)
+4. [**Wails v3 CLI**](https://v3.wails.io/getting-started/installation/)
 
-### Build
+### First-time setup
 
-For development: just
+```sh
+./setup.sh
 ```
-wails3 dev
+
+### Run in dev mode
+
+```sh
+./dev.sh
 ```
 
-Debug: use remote debug and [delve](https://github.com/go-delve/delve/tree/master/Documentation/installation):
+Equivalent to `wails3 dev` with project config and frontend HMR.
+
+### Debug (Delve)
+
 ```sh
 dlv debug --headless --listen=:2345 ./backend/cmd/terminator-desktop -- dev
 ```
 
+See [Delve installation](https://github.com/go-delve/delve/tree/master/Documentation/installation).
 
-Package:
+### Package
+
 ```sh
-./build.sh          # recommended: sets up PATH for wails3
+./build.sh          # recommended: ensures wails3 on PATH
 # or: wails3 task package
 ```
 
-### Acknowledgements
+Architecture and service layout are documented in [ARCHITECTURE.md](ARCHITECTURE.md).
 
-Inspired by: [Termius](https://termius.com)
+## Acknowledgements
 
-Built on: [Wails](https://v3.wails.io)
+Inspired by [Termius](https://termius.com).
 
-Beautiful UI: [shadcn](https://ui.shadcn.com)
+Built with [Wails](https://v3.wails.io) and UI components from [shadcn/ui](https://ui.shadcn.com).
