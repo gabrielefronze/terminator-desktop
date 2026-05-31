@@ -8,7 +8,6 @@ import {
     findRemoteSessionForHost,
     startSavedForward,
     stopSavedForward,
-    waitForRemoteSession,
 } from "@/lib/savedForwardRuntime";
 import { useSessionStore } from "@/store/sessionStore";
 import type { SavedIdentity, SavedKey } from "../../bindings/terminator-desktop/backend/internal/services/blob/models";
@@ -21,7 +20,7 @@ export function useStartSavedForward(
 ) {
     const sessions = useSessionStore((state) => state.sessions);
     const {
-        connect,
+        connectForwardOnly,
         hostKeyCheck,
         trustHostKey,
         cancelHostKey,
@@ -40,11 +39,13 @@ export function useStartSavedForward(
                         toast.error("Host not found");
                         return;
                     }
-                    void connect(host);
-                    session = await waitForRemoteSession(
-                        forward.hostId,
-                        () => useSessionStore.getState().sessions,
-                    );
+                    const sessionId = await connectForwardOnly(host);
+                    session = useSessionStore
+                        .getState()
+                        .sessions.find((item) => item.id === sessionId);
+                    if (!session) {
+                        throw new Error("SSH session not available");
+                    }
                 }
 
                 await startSavedForward(session.id, forward);
@@ -54,7 +55,7 @@ export function useStartSavedForward(
                 setStartingId(null);
             }
         },
-        [connect, remoteHosts, sessions],
+        [connectForwardOnly, remoteHosts, sessions],
     );
 
     const stopForward = useCallback(async (forwardId: string) => {

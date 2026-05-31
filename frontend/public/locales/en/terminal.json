@@ -19,6 +19,8 @@
   "snippet_picker_search_placeholder": "Search snippets…",
   "broadcast_enable": "Broadcast commands to all panes",
   "broadcast_disable": "Stop broadcasting commands",
+  "running_tunnels_title": "Running tunnels ({{count}})",
+  "running_tunnels_title_one": "Running tunnel",
   "sftp_title": "SFTP",
   "sftp_loading": "Loading…",
   "split_pane": "Split",

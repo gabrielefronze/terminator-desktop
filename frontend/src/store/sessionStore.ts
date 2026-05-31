@@ -40,6 +40,8 @@ export interface TerminalSession {
     tileRoot?: TileNode;
     /** Saved tab group this session belongs to, if any. */
     tabGroupId?: string;
+    /** SSH client for port forwarding only — no terminal tab or shell. */
+    forwardOnly?: boolean;
 }
 
 export interface SudoCredential {
@@ -79,7 +81,11 @@ interface SessionState {
     activeSessionId: string | null;
     addSession: (
         params: CreateSessionParams,
-        options?: { switchToTerminal?: boolean },
+        options?: {
+            switchToTerminal?: boolean;
+            forwardOnly?: boolean;
+            activate?: boolean;
+        },
     ) => string;
     openLocalRemoteSplit: (
         localParams: CreateSessionParams,
@@ -201,7 +207,13 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     activeSessionId: null,
 
     addSession: (params, options) => {
-        const switchToTerminal = options?.switchToTerminal !== false;
+        const forwardOnly = options?.forwardOnly === true;
+        const switchToTerminal = forwardOnly
+            ? false
+            : options?.switchToTerminal !== false;
+        const activate = forwardOnly
+            ? false
+            : options?.activate !== false;
         const newId = crypto.randomUUID();
         set((state) => {
         const fullConfig = new SSHConnectionConfig({
@@ -236,6 +248,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             sudoCredentials: params.sudoCredentials,
             terminalFontFamily: params.terminalFontFamily,
             terminalFontSize: params.terminalFontSize,
+            forwardOnly,
         };
 
         if (switchToTerminal) {
@@ -244,7 +257,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
         return {
             sessions: [...state.sessions, newSession],
-            activeSessionId: newId,
+            activeSessionId: activate ? newId : state.activeSessionId,
         };
         });
         return newId;

@@ -28,7 +28,9 @@ export function getSplitPartner(
 export function getTitleBarSessions(
     sessions: TerminalSession[],
 ): TerminalSession[] {
-    return sessions.filter((session) => !session.splitMotherId);
+    return sessions.filter(
+        (session) => !session.splitMotherId && !session.forwardOnly,
+    );
 }
 
 export function getSplitExtraCount(

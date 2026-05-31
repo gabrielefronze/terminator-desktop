@@ -17,6 +17,13 @@ export function Connect(config: $models.SSHConnectionConfig | null): $Cancellabl
     return $Call.ByID(662660765, config);
 }
 
+/**
+ * ConnectForwardOnly opens an SSH client without a shell, for port forwarding only.
+ */
+export function ConnectForwardOnly(config: $models.SSHConnectionConfig | null): $CancellablePromise<void> {
+    return $Call.ByID(1535207060, config);
+}
+
 export function Disconnect(sessionID: string): $CancellablePromise<void> {
     return $Call.ByID(2124563103, sessionID);
 }

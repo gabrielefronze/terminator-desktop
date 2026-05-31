@@ -3,6 +3,7 @@ import { Host } from "../../bindings/terminator-desktop/backend/internal/service
 import { HostKeyCheck } from "../../bindings/terminator-desktop/backend/internal/services/knownhosts/models";
 import { Service as KnownHostsService } from "../../bindings/terminator-desktop/backend/internal/services/knownhosts";
 import { SSHConnectionConfig } from "../../bindings/terminator-desktop/backend/internal/services/ssh/models";
+import { SshService } from "../../bindings/terminator-desktop/backend/internal/services/ssh";
 import { SavedIdentity } from "../../bindings/terminator-desktop/backend/internal/services/blob/models";
 import { SavedKey } from "../../bindings/terminator-desktop/backend/internal/services/blob/models";
 import { buildSessionFromHost } from "@/lib/connectHost";
@@ -12,7 +13,7 @@ import { useResolvedLocalhostHost } from "@/hooks/useResolvedLocalhostHost";
 import { useSessionStore, type CreateSessionParams } from "@/store/sessionStore";
 import { toast } from "sonner";
 
-type ConnectMode = "terminal" | "split-with-local" | "sftp";
+type ConnectMode = "terminal" | "split-with-local" | "sftp" | "forward-only";
 
 /** Ignore repeat connect attempts within this window (typical double-click interval). */
 const CONNECT_DEBOUNCE_MS = 400;
@@ -24,11 +25,18 @@ type PendingConnect = {
     endpointIndex: number;
     mode: ConnectMode;
     onSftpConfig?: (config: SSHConnectionConfig) => void;
+    forwardConnect?: {
+        resolve: (sessionId: string) => void;
+        reject: (error: unknown) => void;
+    };
 };
 
-function paramsToSshConfig(params: CreateSessionParams): SSHConnectionConfig {
+function paramsToSshConfig(
+    params: CreateSessionParams,
+    sessionId?: string,
+): SSHConnectionConfig {
     return new SSHConnectionConfig({
-        id: crypto.randomUUID(),
+        id: sessionId ?? crypto.randomUUID(),
         local: false,
         host: params.host,
         port: params.port,
@@ -52,6 +60,7 @@ export function useConnectHost(
     allHosts: Host[] | undefined,
 ) {
     const addSession = useSessionStore((s) => s.addSession);
+    const removeSession = useSessionStore((s) => s.removeSession);
     const openLocalRemoteSplit = useSessionStore((s) => s.openLocalRemoteSplit);
     const { host: localhostHost } = useResolvedLocalhostHost();
     const [hostKeyCheck, setHostKeyCheck] = useState<HostKeyCheck | null>(null);
@@ -88,6 +97,27 @@ export function useConnectHost(
                 openLocalRemoteSplit(state.localParams, state.params);
             } else if (state.mode === "sftp") {
                 state.onSftpConfig?.(paramsToSshConfig(state.params));
+            } else if (state.mode === "forward-only") {
+                const sessionId = addSession(state.params, {
+                    forwardOnly: true,
+                    switchToTerminal: false,
+                    activate: false,
+                });
+                const config = paramsToSshConfig(state.params, sessionId);
+                void SshService.ConnectForwardOnly(config)
+                    .then(() => {
+                        state.forwardConnect?.resolve(sessionId);
+                    })
+                    .catch((err) => {
+                        removeSession(sessionId);
+                        state.forwardConnect?.reject(err);
+                    })
+                    .finally(() => {
+                        releaseConnect(state.params.hostId ?? "");
+                        setPending(null);
+                        setHostKeyCheck(null);
+                    });
+                return;
             } else {
                 addSession(state.params);
             }
@@ -95,7 +125,7 @@ export function useConnectHost(
             setPending(null);
             setHostKeyCheck(null);
         },
-        [addSession, openLocalRemoteSplit, releaseConnect],
+        [addSession, openLocalRemoteSplit, releaseConnect, removeSession],
     );
 
     const continueHostKeyChecks = useCallback(
@@ -124,8 +154,10 @@ export function useConnectHost(
             mode: ConnectMode,
             overrides?: Partial<CreateSessionParams>,
             onSftpConfig?: (config: SSHConnectionConfig) => void,
+            forwardConnect?: PendingConnect["forwardConnect"],
         ) => {
             if (!tryAcquireConnect(host.id)) {
+                forwardConnect?.reject(new Error("Already connecting to this host"));
                 return;
             }
 
@@ -141,11 +173,19 @@ export function useConnectHost(
                 if (mode === "sftp") {
                     toast.error("Select a remote host for SFTP");
                     releaseConnect(host.id);
+                    forwardConnect?.reject(new Error("Local host cannot be used for SFTP"));
                     return;
                 }
                 if (mode === "split-with-local") {
                     toast.error("Select a remote host for split workspace");
                     releaseConnect(host.id);
+                    forwardConnect?.reject(new Error("Local host cannot be used for split workspace"));
+                    return;
+                }
+                if (mode === "forward-only") {
+                    toast.error("Select a remote host for port forwarding");
+                    releaseConnect(host.id);
+                    forwardConnect?.reject(new Error("Local host cannot be used for port forwarding"));
                     return;
                 }
                 addSession(params);
@@ -182,9 +222,11 @@ export function useConnectHost(
                     endpointIndex: 0,
                     mode,
                     onSftpConfig,
+                    forwardConnect,
                 });
-            } catch {
+            } catch (error) {
                 releaseConnect(host.id);
+                forwardConnect?.reject(error);
             }
         },
         [
@@ -216,6 +258,20 @@ export function useConnectHost(
         [startRemoteConnect],
     );
 
+    const connectForwardOnly = useCallback(
+        (host: Host): Promise<string> =>
+            new Promise((resolve, reject) => {
+                void startRemoteConnect(
+                    host,
+                    "forward-only",
+                    undefined,
+                    undefined,
+                    { resolve, reject },
+                );
+            }),
+        [startRemoteConnect],
+    );
+
     const trustHostKey = useCallback(async () => {
         if (!pending || !hostKeyCheck) return;
         await KnownHostsService.TrustHost(
@@ -234,6 +290,9 @@ export function useConnectHost(
         if (pending?.params.hostId) {
             releaseConnect(pending.params.hostId);
         }
+        pending?.forwardConnect?.reject(
+            new Error("Host key verification cancelled"),
+        );
         setPending(null);
         setHostKeyCheck(null);
     }, [pending, releaseConnect]);
@@ -242,6 +301,7 @@ export function useConnectHost(
         connect,
         connectSplitWithLocal,
         connectSftp,
+        connectForwardOnly,
         hostKeyCheck,
         trustHostKey,
         cancelHostKey,

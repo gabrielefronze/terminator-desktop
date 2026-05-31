@@ -19,6 +19,7 @@ type SSHEmitter interface {
 
 type activeSession struct {
 	local       bool
+	forwardOnly bool
 	stdin       io.WriteCloser
 	stdout      io.Reader
 	client      *ssh.Client
@@ -152,6 +153,47 @@ func (s *SshService) Connect(config *SSHConnectionConfig) error {
 	return nil
 }
 
+// ConnectForwardOnly opens an SSH client without a shell, for port forwarding only.
+func (s *SshService) ConnectForwardOnly(config *SSHConnectionConfig) error {
+	if config.Local {
+		return apperror.Validation("forward-only sessions require a remote host")
+	}
+
+	port := config.Port
+	if port <= 0 {
+		port = 22
+	}
+
+	targetConfig, err := clientConfig(
+		config.Username,
+		targetAuthOptions(config),
+		config.Host,
+		port,
+		s.verifier,
+	)
+	if err != nil {
+		return err
+	}
+
+	targetAddr := fmt.Sprintf("%s:%d", config.Host, port)
+	hops := legacyRelayHops(config)
+	client, jumpClients, err := dialViaRelayChain(hops, s.verifier, targetConfig, targetAddr)
+	if err != nil {
+		return err
+	}
+
+	s.mu.Lock()
+	s.sessions[config.ID] = &activeSession{
+		local:       false,
+		forwardOnly: true,
+		client:      client,
+		jumpClients: jumpClients,
+	}
+	s.mu.Unlock()
+
+	return nil
+}
+
 // Input writes data to SSH stdin
 func (s *SshService) Input(sessionID string, data string) error {
 	s.mu.RLock()
@@ -160,6 +202,9 @@ func (s *SshService) Input(sessionID string, data string) error {
 
 	if !exists {
 		return apperror.SSHSessionNotFound()
+	}
+	if active.forwardOnly {
+		return apperror.Validation("session is forward-only")
 	}
 
 	_, err := active.stdin.Write([]byte(data))
@@ -173,6 +218,9 @@ func (s *SshService) Resize(sessionID string, rows, cols int) error {
 
 	if !exists {
 		return apperror.SSHSessionNotFound()
+	}
+	if active.forwardOnly {
+		return apperror.Validation("session is forward-only")
 	}
 
 	if active.local {
@@ -194,6 +242,9 @@ func (s *SshService) Disconnect(sessionID string) {
 		s.stopForwardsForSession(sessionID)
 		if active.local {
 			closeLocalSession(active)
+		} else if active.forwardOnly {
+			_ = active.client.Close()
+			closeClients(active.jumpClients)
 		} else {
 			_ = active.session.Close()
 			_ = active.client.Close()
@@ -283,6 +334,11 @@ func (s *SshService) cleanupSession(sessionID string, current *activeSession) {
 		s.stopForwardsForSession(sessionID)
 		if current.local {
 			closeLocalSession(current)
+		} else if current.forwardOnly {
+			if current.client != nil {
+				_ = current.client.Close()
+			}
+			closeClients(current.jumpClients)
 		} else {
 			if current.session != nil {
 				_ = current.session.Close()

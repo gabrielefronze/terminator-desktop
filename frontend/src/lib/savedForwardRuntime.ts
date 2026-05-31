@@ -9,9 +9,10 @@ export function findRemoteSessionForHost(
     sessions: TerminalSession[],
     hostId: string,
 ): TerminalSession | undefined {
-    return sessions.find(
+    const matches = sessions.filter(
         (session) => session.hostId === hostId && !session.config.local,
     );
+    return matches.find((session) => !session.forwardOnly) ?? matches[0];
 }
 
 export async function waitForRemoteSession(
@@ -66,6 +67,17 @@ export async function stopSavedForward(forwardId: string): Promise<void> {
 }
 
 export function formatForwardRoute(forward: SavedForward): string {
+    const localHost = forward.localHost || "127.0.0.1";
+    const remoteHost = forward.remoteHost || "127.0.0.1";
+    return `${localHost}:${forward.localPort} → ${remoteHost}:${forward.remotePort}`;
+}
+
+export function formatPortForwardRoute(forward: {
+    localHost?: string;
+    localPort: number;
+    remoteHost?: string;
+    remotePort: number;
+}): string {
     const localHost = forward.localHost || "127.0.0.1";
     const remoteHost = forward.remoteHost || "127.0.0.1";
     return `${localHost}:${forward.localPort} → ${remoteHost}:${forward.remotePort}`;

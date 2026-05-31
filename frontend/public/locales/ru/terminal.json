@@ -20,4 +20,6 @@
   "snippet_picker_search_placeholder": "Поиск сниппетов…",
   "broadcast_enable": "Транслировать команды во все панели",
   "broadcast_disable": "Остановить трансляцию команд",
+  "running_tunnels_title": "Активные туннели ({{count}})",
+  "running_tunnels_title_one": "Активный туннель",
 }

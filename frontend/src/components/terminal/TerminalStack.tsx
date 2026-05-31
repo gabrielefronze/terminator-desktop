@@ -220,6 +220,10 @@ export function TerminalStack({ isVisible }: TerminalStackProps) {
             <div className="relative flex min-h-0 flex-1">
                 <div className="relative flex h-full min-h-0 w-full flex-col">
                     {sessions.map((session) => {
+                        if (session.forwardOnly) {
+                            return null;
+                        }
+
                         const placement = placements.get(session.id);
                         if (!placement) {
                             return (
