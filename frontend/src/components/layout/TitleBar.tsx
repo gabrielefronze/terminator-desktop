@@ -31,6 +31,7 @@ import { useTranslation } from "react-i18next";
 import React, { useRef } from "react";
 import { useAllHosts } from "@/hooks/useHosts";
 import { useTabGroups, useSaveTabGroup } from "@/hooks/useTabGroups";
+import { TitleBarActions } from "@/components/layout/TitleBarActions";
 
 function handleTitleBarDoubleClick(e: React.MouseEvent<HTMLElement>) {
     const target = e.target as HTMLElement;
@@ -251,6 +252,8 @@ export function TitleBar() {
                         </button>
                     )}
                 </div>
+
+                {isUnlocked && isTerminalView && <TitleBarActions />}
 
                 {!isMac && <WindowControls className="ml-2 shrink-0" />}
             </header>

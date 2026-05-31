@@ -14,4 +14,10 @@
   "tab_drag_to_tile": "Перетащите на активную панель, чтобы выбрать расположение",
   "tab_split_tooltip": "{{leader}} + {{partner}}",
   "pane_close": "Закрыть панель",
+  "snippets_title": "Сниппеты",
+  "snippets_empty": "Сохранённых сниппетов пока нет.",
+  "snippet_picker_title": "Вставить сниппет",
+  "snippet_picker_search_placeholder": "Поиск сниппетов…",
+  "broadcast_enable": "Транслировать команды во все панели",
+  "broadcast_disable": "Остановить трансляцию команд",
 }

@@ -14,6 +14,9 @@ import {
 } from "@/lib/keyboardShortcuts";
 import { queryClient } from "@/lib/queryClient";
 import { adjustTerminalFontSize } from "@/lib/terminalFontSizeAdjust";
+import { resolveBroadcastInputTargetSessionIds } from "@/lib/snippetApply";
+import { useSessionStore } from "@/store/sessionStore";
+import { useUIStore } from "@/store/uiStore";
 import { cn, decodeBase64ToUint8Array } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import "@xterm/xterm/css/xterm.css";
@@ -21,7 +24,6 @@ import { SshService } from "../../../bindings/terminator-desktop/backend/interna
 import { SSHConnectionConfig } from "../../../bindings/terminator-desktop/backend/internal/services/ssh/models";
 import { useTranslation } from "react-i18next";
 import { AppEvent } from "@/lib/events.ts";
-import { useUIStore } from "@/store/uiStore";
 import { SudoCredential } from "@/store/sessionStore";
 import {
     applyUnicode11Addon,
@@ -265,6 +267,24 @@ export function TerminalInstance({
                 return true;
             });
 
+            const sendInput = (data: string) => {
+                const { sessions } = useSessionStore.getState();
+                const { commandBroadcastEnabled } = useUIStore.getState();
+                const targetIds = resolveBroadcastInputTargetSessionIds(
+                    sessionId,
+                    sessions,
+                    commandBroadcastEnabled,
+                );
+
+                for (const targetId of targetIds) {
+                    SshService.Input(targetId, data).catch((err) => {
+                        if (targetId === sessionId) {
+                            printErrorToTerminal(err);
+                        }
+                    });
+                }
+            };
+
             const handleContextMenu = (e: MouseEvent) => {
                 e.preventDefault();
 
@@ -275,7 +295,7 @@ export function TerminalInstance({
                 } else {
                     navigator.clipboard.readText().then((text) => {
                         if (text && isReadyRef.current) {
-                            SshService.Input(sessionId, text).catch(printErrorToTerminal);
+                            sendInput(text);
                         }
                     }).catch(console.error);
                 }
@@ -297,10 +317,7 @@ export function TerminalInstance({
 
             const onDataDisposable = term.onData((data) => {
                 if (!isReadyRef.current) return;
-
-                SshService.Input(sessionId, data).catch((err) => {
-                    printErrorToTerminal(err);
-                });
+                sendInput(data);
             });
 
             return () => {
