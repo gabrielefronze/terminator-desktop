@@ -9,6 +9,7 @@ export class AppSettings {
     "language": string;
     "terminalFontFamily": string;
     "terminalFontSize": number;
+    "terminalWebglRenderer": boolean;
     "showLocalhostHost": boolean;
     "appBackgroundColor": string;
     "accentColor": string;
@@ -23,6 +24,9 @@ export class AppSettings {
         }
         if (!("terminalFontSize" in $$source)) {
             this["terminalFontSize"] = 0;
+        }
+        if (!("terminalWebglRenderer" in $$source)) {
+            this["terminalWebglRenderer"] = false;
         }
         if (!("showLocalhostHost" in $$source)) {
             this["showLocalhostHost"] = false;

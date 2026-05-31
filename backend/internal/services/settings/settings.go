@@ -13,12 +13,13 @@ const (
 )
 
 type AppSettings struct {
-	Language            string `json:"language"`
-	TerminalFontFamily  string `json:"terminalFontFamily"`
-	TerminalFontSize    int    `json:"terminalFontSize"`
-	ShowLocalhostHost   bool   `json:"showLocalhostHost"`
-	AppBackgroundColor  string `json:"appBackgroundColor"`
-	AccentColor         string `json:"accentColor"`
+	Language               string `json:"language"`
+	TerminalFontFamily     string `json:"terminalFontFamily"`
+	TerminalFontSize       int    `json:"terminalFontSize"`
+	TerminalWebglRenderer  bool   `json:"terminalWebglRenderer"`
+	ShowLocalhostHost      bool   `json:"showLocalhostHost"`
+	AppBackgroundColor     string `json:"appBackgroundColor"`
+	AccentColor            string `json:"accentColor"`
 }
 
 func normalizeSettings(settings AppSettings) AppSettings {
@@ -52,12 +53,13 @@ func (s *SettingsService) GetSettings() (AppSettings, error) {
 	defer s.mutex.RUnlock()
 
 	settings := AppSettings{
-		Language:            "en",
-		TerminalFontFamily:  DefaultTerminalFontFamily,
-		TerminalFontSize:    DefaultTerminalFontSize,
-		ShowLocalhostHost:   true,
-		AppBackgroundColor:  DefaultAppBackgroundColor,
-		AccentColor:         DefaultAccentColor,
+		Language:              "en",
+		TerminalFontFamily:      DefaultTerminalFontFamily,
+		TerminalFontSize:        DefaultTerminalFontSize,
+		TerminalWebglRenderer:   true,
+		ShowLocalhostHost:       true,
+		AppBackgroundColor:      DefaultAppBackgroundColor,
+		AccentColor:             DefaultAccentColor,
 	}
 
 	data, err := os.ReadFile(s.configPath)

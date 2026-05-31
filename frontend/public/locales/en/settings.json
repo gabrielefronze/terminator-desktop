@@ -39,5 +39,7 @@
   "wipe_btn": "Wipe data",
   "wipe_confirm_title": "Wipe all local data?",
   "wipe_confirm_desc": "This cannot be undone. Your vault and all saved hosts will be removed from this device.",
-  "nuke_it": "Wipe everything"
+  "nuke_it": "Wipe everything",
+  "terminal_webgl_label": "Hardware-accelerated terminal",
+  "terminal_webgl_desc": "Use the WebGL renderer for faster output. Turn off if you see rendering glitches."
 }

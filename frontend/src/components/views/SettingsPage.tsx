@@ -475,6 +475,35 @@ export function SettingsPage() {
                             </Button>
                         </div>
                     </div>
+
+                    <div className="h-px w-full bg-border" />
+
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="flex min-w-0 flex-1 items-start gap-4">
+                            <div
+                                className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+                            >
+                                <Monitor className="size-5" />
+                            </div>
+                            <div className="flex min-w-0 flex-col gap-1">
+                                <span className="text-sm font-medium text-foreground">
+                                    {t("terminal_webgl_label")}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("terminal_webgl_desc")}
+                                </span>
+                            </div>
+                        </div>
+                        <Switch
+                            checked={settings?.terminalWebglRenderer ?? true}
+                            disabled={saveSettingsMutation.isPending}
+                            onCheckedChange={(checked) => {
+                                void persistSettings({
+                                    terminalWebglRenderer: checked,
+                                }).catch(handleAppError);
+                            }}
+                        />
+                    </div>
                 </SettingsCard>
 
                 <SettingsCard title={t("security_title")} description={t("security_desc")}>

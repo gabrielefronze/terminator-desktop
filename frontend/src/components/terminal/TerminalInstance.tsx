@@ -30,6 +30,10 @@ import {
     applyUnicode11Addon,
     resolveTerminalFontFamily,
 } from "@/lib/terminalSetup";
+import {
+    syncTerminalWebglRenderer,
+    type TerminalWebglAddon,
+} from "@/lib/terminalWebgl";
 
 interface TerminalInstanceProps {
     sessionId: string;
@@ -79,6 +83,7 @@ export function TerminalInstance({
     const containerRef = useRef<HTMLDivElement>(null);
     const terminalRef = useRef<Terminal | null>(null);
     const fitAddonRef = useRef<FitAddon | null>(null);
+    const webglAddonRef = useRef<TerminalWebglAddon | null>(null);
     const hasConnectedRef = useRef(false);
     const isReadyRef = useRef(false);
     const promptBufferRef = useRef("");
@@ -218,6 +223,11 @@ export function TerminalInstance({
             term.loadAddon(fitAddon);
             term.loadAddon(linksAddon);
             term.open(containerRef.current);
+            syncTerminalWebglRenderer(
+                term,
+                webglAddonRef,
+                settings?.terminalWebglRenderer ?? true,
+            );
 
             terminalRef.current = term;
             fitAddonRef.current = fitAddon;
@@ -353,13 +363,29 @@ export function TerminalInstance({
         return () => {
             disposed = true;
             cleanupListeners?.();
-            terminalRef.current?.dispose();
+            const term = terminalRef.current;
+            if (term) {
+                syncTerminalWebglRenderer(term, webglAddonRef, false);
+                term.dispose();
+            }
             terminalRef.current = null;
             fitAddonRef.current = null;
+            webglAddonRef.current = null;
             hasConnectedRef.current = false;
             isReadyRef.current = false;
         };
     }, [sessionId]);
+
+    useEffect(() => {
+        const term = terminalRef.current;
+        if (!term || !settings) return;
+
+        syncTerminalWebglRenderer(
+            term,
+            webglAddonRef,
+            settings.terminalWebglRenderer,
+        );
+    }, [settings?.terminalWebglRenderer]);
 
     useEffect(() => {
         const term = terminalRef.current;
@@ -379,6 +405,7 @@ export function TerminalInstance({
                 settings,
                 hostOverrides,
             ).fontSize!;
+            webglAddonRef.current?.clearTextureAtlas();
 
             if (isReadyRef.current && fit) {
                 try {
