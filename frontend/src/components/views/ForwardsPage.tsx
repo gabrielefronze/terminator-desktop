@@ -21,6 +21,7 @@ import { useStartSavedForward } from "@/hooks/useStartSavedForward";
 import { SavedForward } from "../../../bindings/terminator-desktop/backend/internal/services/blob/models";
 import { useSessionStore } from "@/store/sessionStore";
 import { formatForwardRoute } from "@/lib/savedForwardRuntime";
+import { ResourceGrid, ResourceGridItem } from "@/components/views/ResourceGrid";
 
 export function ForwardsPage() {
     const { t } = useTranslation(["forwards", "common"]);
@@ -131,28 +132,29 @@ export function ForwardsPage() {
                 </p>
             )}
 
-            <div className="grid gap-3">
+            <ResourceGrid>
                 {filtered?.map((forward) => (
-                    <ForwardCard
-                        key={forward.id}
-                        forward={forward}
-                        host={hostsById.get(forward.hostId)}
-                        isRunning={activeForwards.has(forward.id)}
-                        isStarting={startingId === forward.id}
-                        isStopping={stoppingId === forward.id}
-                        onStart={startForward}
-                        onStop={stopForward}
-                        onEdit={(item) => {
-                            setEditing(item);
-                            setIsModalOpen(true);
-                        }}
-                        onDelete={setToDelete}
-                    />
+                    <ResourceGridItem key={forward.id}>
+                        <ForwardCard
+                            forward={forward}
+                            host={hostsById.get(forward.hostId)}
+                            isRunning={activeForwards.has(forward.id)}
+                            isStarting={startingId === forward.id}
+                            isStopping={stoppingId === forward.id}
+                            onStart={startForward}
+                            onStop={stopForward}
+                            onEdit={(item) => {
+                                setEditing(item);
+                                setIsModalOpen(true);
+                            }}
+                            onDelete={setToDelete}
+                        />
+                    </ResourceGridItem>
                 ))}
                 {!isLoading && filtered?.length === 0 && (
-                    <p className="text-muted-foreground">{t("empty")}</p>
+                    <p className="col-span-full text-muted-foreground">{t("empty")}</p>
                 )}
-            </div>
+            </ResourceGrid>
 
             <ForwardModal
                 isOpen={isModalOpen}

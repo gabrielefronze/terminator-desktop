@@ -18,6 +18,7 @@ import {
     getHostsForIdentity,
     isIdentityUsedByHosts,
 } from "@/lib/hostLinks";
+import { ResourceGrid, ResourceGridItem } from "@/components/views/ResourceGrid";
 
 export function IdentitiesPage() {
     const { t } = useTranslation(["identities", "common"]);
@@ -114,20 +115,18 @@ export function IdentitiesPage() {
                 </div>
             )}
 
-            <div
-                className="grid w-full gap-4"
-                style={{ gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))" }}
-            >
+            <ResourceGrid>
                 {filteredIdentities?.map((identity) => (
-                    <IdentityCard
-                        key={identity.id}
-                        identity={identity}
-                        linkedHosts={getHostsForIdentity(hosts ?? [], identity.id)}
-                        onEdit={handleEdit}
-                        onDelete={handleDeletePrompt}
-                    />
+                    <ResourceGridItem key={identity.id}>
+                        <IdentityCard
+                            identity={identity}
+                            linkedHosts={getHostsForIdentity(hosts ?? [], identity.id)}
+                            onEdit={handleEdit}
+                            onDelete={handleDeletePrompt}
+                        />
+                    </ResourceGridItem>
                 ))}
-            </div>
+            </ResourceGrid>
 
             <IdentityModal
                 isOpen={isEditModalOpen}

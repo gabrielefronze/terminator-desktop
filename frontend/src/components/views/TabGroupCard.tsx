@@ -1,4 +1,4 @@
-import { User, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -7,67 +7,54 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SavedIdentity } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
-import type { HostLink } from "@/lib/hostLinks";
-import { formatHostLinkList } from "@/lib/hostLinks";
+import { HostIconBadge } from "@/components/views/HostIconBadge";
+import { formatTabGroupHostList } from "@/lib/tabGroups";
 import {
     RESOURCE_ROW_CARD_ACTIONS_CLASS,
     RESOURCE_ROW_CARD_BODY_CLASS,
     RESOURCE_ROW_CARD_SURFACE_CLASS,
     RESOURCE_ROW_CARD_TEXT_CLASS,
 } from "@/lib/resourceLayout";
+import { Host, TabGroup } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
-interface IdentityCardProps {
-    identity: SavedIdentity;
-    linkedHosts: HostLink[];
-    onEdit: (identity: SavedIdentity) => void;
-    onDelete: (identity: SavedIdentity) => void;
+interface TabGroupCardProps {
+    group: TabGroup;
+    hosts: Host[];
+    onOpen: (group: TabGroup) => void;
+    onEdit: (group: TabGroup) => void;
+    onDelete: (group: TabGroup) => void;
 }
 
-export function IdentityCard({
-    identity,
-    linkedHosts,
+export function TabGroupCard({
+    group,
+    hosts,
+    onOpen,
     onEdit,
     onDelete,
-}: IdentityCardProps) {
-    const { t } = useTranslation(["identities", "common"]);
-    const linkedHostSummary = formatHostLinkList(linkedHosts);
+}: TabGroupCardProps) {
+    const { t } = useTranslation(["tabgroups", "common"]);
 
     return (
-        <div
-            tabIndex={0}
-            onKeyDown={(e) => {
-                if (e.key === "Enter" && e.target === e.currentTarget) {
-                    e.preventDefault();
-                    onEdit(identity);
-                }
-            }}
-            className={cn(RESOURCE_ROW_CARD_SURFACE_CLASS)}
-        >
-            <div
-                onClick={() => onEdit(identity)}
+        <div className={cn(RESOURCE_ROW_CARD_SURFACE_CLASS)}>
+            <button
+                type="button"
+                onClick={() => onOpen(group)}
                 className={RESOURCE_ROW_CARD_BODY_CLASS}
             >
-                <div
-                    className="flex size-10 shrink-0 items-center justify-center rounded-lg
-                                bg-primary/10 text-primary"
-                >
-                    <User className="size-5" />
-                </div>
+                <HostIconBadge icon={group.icon} color={group.color} />
                 <div className={RESOURCE_ROW_CARD_TEXT_CLASS}>
                     <h3 className="truncate font-semibold text-card-foreground">
-                        {identity.name}
+                        {group.name}
                     </h3>
                     <p className="truncate text-xs text-muted-foreground">
-                        {identity.username}
-                    </p>
-                    <p className="truncate text-xs text-muted-foreground">
-                        {linkedHostSummary || t("linked_hosts_none", { ns: "common" })}
+                        {hosts.length > 0
+                            ? formatTabGroupHostList(hosts)
+                            : t("no_hosts_available")}
                     </p>
                 </div>
-            </div>
+            </button>
 
             <div className={RESOURCE_ROW_CARD_ACTIONS_CLASS}>
                 <DropdownMenu modal={false}>
@@ -83,13 +70,14 @@ export function IdentityCard({
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="z-50 w-40">
-                        <DropdownMenuItem onClick={() => onEdit(identity)}>
+                        <DropdownMenuItem onClick={() => onEdit(group)}>
                             <Edit className="mr-2 size-4" />
                             {t("edit", { ns: "common" })}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                            onClick={() => onDelete(identity)}
+                            variant="destructive"
+                            onClick={() => onDelete(group)}
                             className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                         >
                             <Trash2 className="mr-2 size-4" />

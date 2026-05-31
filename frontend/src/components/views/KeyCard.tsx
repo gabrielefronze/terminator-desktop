@@ -11,7 +11,9 @@ import { SavedKey } from "../../../bindings/terminator-desktop/backend/internal/
 import { LinkedHostsList } from "@/components/views/LinkedHostsList";
 import type { HostLink } from "@/lib/hostLinks";
 import type { Host } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
+import { HOST_CARD_SURFACE_CLASS } from "@/lib/hostAppearance";
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 interface KeyCardProps {
     savedKey: SavedKey;
@@ -41,10 +43,12 @@ export function KeyCard({
                     onEdit(savedKey);
                 }
             }}
-            className="group flex flex-col bg-card shadow-sm transition-all
-                       rounded-xl border border-border
-                       hover:border-primary/40 hover:shadow-md
-                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className={cn(
+                "group flex w-full min-w-0 flex-col rounded-xl transition-all",
+                HOST_CARD_SURFACE_CLASS,
+                "hover:border-primary/40 hover:shadow-md",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            )}
         >
             <div className="flex flex-row justify-between">
                 <div

@@ -16,8 +16,13 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { HostIconBadge } from "@/components/views/HostIconBadge";
-import { HOST_CARD_SURFACE_CLASS } from "@/lib/hostAppearance";
 import { formatForwardRoute } from "@/lib/savedForwardRuntime";
+import {
+    RESOURCE_ROW_CARD_ACTIONS_CLASS,
+    RESOURCE_ROW_CARD_BODY_CLASS,
+    RESOURCE_ROW_CARD_SURFACE_CLASS,
+    RESOURCE_ROW_CARD_TEXT_CLASS,
+} from "@/lib/resourceLayout";
 import { Host } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import { SavedForward } from "../../../bindings/terminator-desktop/backend/internal/services/blob/models";
 import { cn } from "@/lib/utils";
@@ -51,14 +56,11 @@ export function ForwardCard({
     const hostLabel = host?.name || host?.host || t("missing_host");
 
     return (
-        <div
-            className={cn(
-                "group flex flex-row items-center justify-between rounded-xl transition-all",
-                HOST_CARD_SURFACE_CLASS,
-                "hover:border-primary/40 hover:shadow-md",
-            )}
-        >
-            <div className="flex min-w-0 flex-1 items-center gap-4 p-5">
+        <div className={cn(RESOURCE_ROW_CARD_SURFACE_CLASS)}>
+            <div
+                onClick={() => onEdit(forward)}
+                className={RESOURCE_ROW_CARD_BODY_CLASS}
+            >
                 <div className="relative shrink-0">
                     {host ? (
                         <HostIconBadge icon={host.icon} color={host.color} />
@@ -68,7 +70,7 @@ export function ForwardCard({
                         </div>
                     )}
                 </div>
-                <div className="min-w-0">
+                <div className={RESOURCE_ROW_CARD_TEXT_CLASS}>
                     <h3 className="truncate font-semibold text-card-foreground">
                         {forward.name}
                     </h3>
@@ -81,7 +83,7 @@ export function ForwardCard({
                 </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2 pr-4">
+            <div className={cn(RESOURCE_ROW_CARD_ACTIONS_CLASS, "gap-2")}>
                 <Button
                     type="button"
                     size="icon"

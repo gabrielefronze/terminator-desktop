@@ -18,7 +18,12 @@ import {
 import { Host } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import { HostPingResult } from "../../../bindings/terminator-desktop/backend/internal/services/reachability";
 import { HostReachabilityIndicator } from "@/components/views/HostReachabilityIndicator";
-import { HOST_CARD_SURFACE_CLASS } from "@/lib/hostAppearance";
+import {
+    RESOURCE_ROW_CARD_ACTIONS_CLASS,
+    RESOURCE_ROW_CARD_BODY_CLASS,
+    RESOURCE_ROW_CARD_SURFACE_CLASS,
+    RESOURCE_ROW_CARD_TEXT_CLASS,
+} from "@/lib/resourceLayout";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
@@ -100,16 +105,11 @@ export function HostCard({
                             onConnect(host);
                         }
                     }}
-                    className={cn(
-                        "group flex flex-row justify-between rounded-xl transition-all",
-                        HOST_CARD_SURFACE_CLASS,
-                        "hover:border-primary/40 hover:shadow-md",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    )}
+                    className={cn(RESOURCE_ROW_CARD_SURFACE_CLASS)}
                 >
                     <div
                         onClick={() => onConnect(host)}
-                        className="flex min-w-0 flex-1 cursor-pointer items-center gap-4 p-5"
+                        className={RESOURCE_ROW_CARD_BODY_CLASS}
                     >
                         <div className="relative shrink-0">
                             <HostIconBadge icon={host.icon} color={host.color} />
@@ -119,7 +119,7 @@ export function HostCard({
                                 className="absolute -right-0.5 -top-0.5"
                             />
                         </div>
-                        <div className="flex min-w-0 flex-col pr-4">
+                        <div className={RESOURCE_ROW_CARD_TEXT_CLASS}>
                             <h3 className="truncate font-semibold text-card-foreground">
                                 {host.name || host.host}
                             </h3>
@@ -129,7 +129,7 @@ export function HostCard({
                         </div>
                     </div>
 
-                    <div className="flex shrink-0 items-center pr-4">
+                    <div className={RESOURCE_ROW_CARD_ACTIONS_CLASS}>
                         <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
                                 <Button

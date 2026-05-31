@@ -1,11 +1,13 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { SnippetCard } from "@/components/views/SnippetCard";
 import { SnippetModal } from "@/components/views/SnippetModal";
 import { useSnippets, useSaveSnippet, useDeleteSnippet } from "@/hooks/useSnippets";
+import { ResourceGrid, ResourceGridItem } from "@/components/views/ResourceGrid";
 import { SavedSnippet } from "../../../bindings/terminator-desktop/backend/internal/services/blob/models";
 
 export function SnippetsPage() {
@@ -67,39 +69,23 @@ export function SnippetsPage() {
                 <p className="text-muted-foreground">{t("loading", { ns: "common" })}</p>
             )}
 
-            <div className="grid gap-3">
+            <ResourceGrid>
                 {filtered?.map((snippet) => (
-                    <div
-                        key={snippet.id}
-                        className="flex items-start justify-between gap-4 rounded-lg border border-border bg-card p-4"
-                    >
-                        <button
-                            type="button"
-                            className="min-w-0 flex-1 text-left"
-                            onClick={() => {
-                                setEditing(snippet);
+                    <ResourceGridItem key={snippet.id}>
+                        <SnippetCard
+                            snippet={snippet}
+                            onEdit={(item) => {
+                                setEditing(item);
                                 setIsModalOpen(true);
                             }}
-                        >
-                            <div className="font-medium">{snippet.name}</div>
-                            <pre className="mt-1 truncate font-mono text-xs text-muted-foreground">
-                                {snippet.content}
-                            </pre>
-                        </button>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setToDelete(snippet)}
-                        >
-                            <Trash2 className="size-4" />
-                        </Button>
-                    </div>
+                            onDelete={setToDelete}
+                        />
+                    </ResourceGridItem>
                 ))}
                 {!isLoading && filtered?.length === 0 && (
-                    <p className="text-muted-foreground">{t("empty")}</p>
+                    <p className="col-span-full text-muted-foreground">{t("empty")}</p>
                 )}
-            </div>
+            </ResourceGrid>
 
             <SnippetModal
                 isOpen={isModalOpen}

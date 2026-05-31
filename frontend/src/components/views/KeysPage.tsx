@@ -18,6 +18,7 @@ import { useHosts } from "@/hooks/useHosts";
 import { SavedKey } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import { getHostsForKey, isKeyUsedByHosts } from "@/lib/hostLinks";
 import { handleAppError } from "@/lib/error";
+import { ResourceGrid, ResourceGridItem } from "@/components/views/ResourceGrid";
 
 export function KeysPage() {
     const {t} = useTranslation(["keys", "common"]);
@@ -121,17 +122,18 @@ export function KeysPage() {
                 </div>
             )}
 
-            <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(16rem,20rem))] gap-4">
+            <ResourceGrid>
                 {filteredKeys?.map((key) => (
-                    <KeyCard
-                        key={key.id}
-                        savedKey={key}
-                        linkedHosts={getHostsForKey(hosts ?? [], key.id)}
-                        onEdit={handleEdit}
-                        onDelete={handleDeletePrompt}
-                    />
+                    <ResourceGridItem key={key.id}>
+                        <KeyCard
+                            savedKey={key}
+                            linkedHosts={getHostsForKey(hosts ?? [], key.id)}
+                            onEdit={handleEdit}
+                            onDelete={handleDeletePrompt}
+                        />
+                    </ResourceGridItem>
                 ))}
-            </div>
+            </ResourceGrid>
 
             <KeyModal
                 isOpen={isEditModalOpen}

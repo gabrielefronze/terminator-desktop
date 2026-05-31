@@ -1,10 +1,8 @@
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/ui/search-input";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
-import { HostIconBadge } from "@/components/views/HostIconBadge";
+import { TabGroupCard } from "@/components/views/TabGroupCard";
 import { TabGroupModal } from "@/components/views/TabGroupModal";
 import { useAllHosts } from "@/hooks/useHosts";
 import { useKeys } from "@/hooks/useKeys";
@@ -15,7 +13,8 @@ import {
     useSaveTabGroup,
     useDeleteTabGroup,
 } from "@/hooks/useTabGroups";
-import { resolveTabGroupHosts, formatTabGroupHostList } from "@/lib/tabGroups";
+import { resolveTabGroupHosts } from "@/lib/tabGroups";
+import { ResourceGrid, ResourceGridItem } from "@/components/views/ResourceGrid";
 import { TabGroup } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 
 export function TabGroupsPage() {
@@ -78,63 +77,19 @@ export function TabGroupsPage() {
                 <p className="text-sm text-muted-foreground">{t("empty_state")}</p>
             )}
 
-            <div className="grid gap-3">
-                {filtered.map((group) => {
-                    const hosts = resolveTabGroupHosts(group, allHosts);
-
-                    return (
-                        <div
-                            key={group.id}
-                            className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card p-4"
-                        >
-                            <button
-                                type="button"
-                                onClick={() => openTabGroup(group)}
-                                className="flex min-w-0 flex-1 items-center gap-3 text-left"
-                            >
-                                <HostIconBadge
-                                    icon={group.icon}
-                                    color={group.color}
-                                    className="size-10"
-                                    iconClassName="size-5"
-                                />
-                                <div className="min-w-0">
-                                    <div className="truncate font-medium">
-                                        {group.name}
-                                    </div>
-                                    <div className="truncate text-xs text-muted-foreground">
-                                        {hosts.length > 0
-                                            ? formatTabGroupHostList(hosts)
-                                            : t("no_hosts_available")}
-                                    </div>
-                                </div>
-                            </button>
-
-                            <div className="flex shrink-0 items-center gap-1">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => setEditingGroup(group)}
-                                >
-                                    {t("common:edit")}
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="text-muted-foreground hover:text-destructive"
-                                    title={t("common:delete")}
-                                    aria-label={t("common:delete")}
-                                    onClick={() => setGroupToDelete(group)}
-                                >
-                                    <Trash2 className="size-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
+            <ResourceGrid>
+                {filtered.map((group) => (
+                    <ResourceGridItem key={group.id}>
+                        <TabGroupCard
+                            group={group}
+                            hosts={resolveTabGroupHosts(group, allHosts)}
+                            onOpen={openTabGroup}
+                            onEdit={setEditingGroup}
+                            onDelete={setGroupToDelete}
+                        />
+                    </ResourceGridItem>
+                ))}
+            </ResourceGrid>
 
             <TabGroupModal
                 isOpen={editingGroup != null}

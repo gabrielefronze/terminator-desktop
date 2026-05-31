@@ -32,10 +32,8 @@ import { Host, HostGroup } from "../../../bindings/terminator-desktop/backend/in
 import { HostTreeNode } from "@/lib/hostTree";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
+import { RESOURCE_GRID_ITEM_CLASS, RESOURCE_TILE_GRID_CLASS } from "@/lib/resourceLayout";
 import { useDroppable } from "@dnd-kit/core";
-
-const HOST_GRID_CLASS =
-    "grid gap-3 grid-cols-[repeat(auto-fill,minmax(17rem,20rem))]";
 
 function GroupMenuItems({
     group,
@@ -291,9 +289,9 @@ export function HostGroupSection({
                     )}
                 >
                     {node.hosts.length > 0 && (
-                        <div className={HOST_GRID_CLASS}>
+                        <div className={RESOURCE_TILE_GRID_CLASS}>
                             {node.hosts.map((host) => (
-                                <div key={host.id} className="min-w-0 max-w-80">
+                                <div key={host.id} className={RESOURCE_GRID_ITEM_CLASS}>
                                     {renderHostCard(host, handlers)}
                                 </div>
                             ))}
@@ -407,9 +405,9 @@ export function UncategorizedHostSection({
                         isOver && "bg-primary/5 ring-1 ring-inset ring-primary/25",
                     )}
                 >
-                    <div className={HOST_GRID_CLASS}>
+                    <div className={RESOURCE_TILE_GRID_CLASS}>
                         {hosts.map((host) => (
-                            <div key={host.id} className="min-w-0 max-w-80">
+                            <div key={host.id} className={RESOURCE_GRID_ITEM_CLASS}>
                                 {renderHostCard(host, handlers)}
                             </div>
                         ))}

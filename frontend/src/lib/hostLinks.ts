@@ -11,6 +11,10 @@ export function formatHostLabel(host: Host): string {
     return host.name?.trim() || host.host || "Host";
 }
 
+export function formatHostLinkList(links: HostLink[]): string {
+    return links.map((link) => formatHostLabel(link.host)).join(" · ");
+}
+
 export function getHostsForIdentity(
     hosts: Host[],
     identityId: string,

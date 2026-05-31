@@ -119,6 +119,9 @@
     --info-foreground: oklch(1 0 0);
     --success: oklch(0.72 0.19 150);
     --success-foreground: oklch(1 0 0);
+
+    --resource-card-min: 17rem;
+    --resource-card-max: 20rem;
 }
 
 @layer base {
@@ -203,4 +206,31 @@ body,
 
 .tunnel-status-ping {
     animation: tunnel-pulse 1.6s ease-in-out infinite;
+}
+
+/* Resource cards: grow columns to fill each row, cap card width at --resource-card-max. */
+.resource-tile-grid {
+    display: grid;
+    width: 100%;
+    gap: 0.75rem;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(min(100%, var(--resource-card-min)), 1fr)
+    );
+}
+
+.resource-grid-item {
+    min-width: 0;
+    width: 100%;
+    max-width: min(var(--resource-card-max), 100%);
+}
+
+/* Two cards: share the row evenly (auto-fit + max-width leaves a wide empty strip). */
+.resource-tile-grid:has(> .resource-grid-item:nth-child(2):last-child) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.resource-tile-grid:has(> .resource-grid-item:nth-child(2):last-child)
+    > .resource-grid-item {
+    max-width: none;
 }
