@@ -43,6 +43,7 @@ export const APP_THEME_CSS_VARS = [
     "sidebar-accent-foreground",
     "sidebar-border",
     "sidebar-ring",
+    "window-border",
     "host-card",
     "group-card",
 ] as const;
@@ -184,6 +185,11 @@ export function buildDerivedAppTheme(hex: string): DerivedAppTheme {
         { l: 0.78, c: Math.max(chroma * 0.6, 0.008), h },
         0.12,
     );
+    const windowBorder = formatOklch({
+        l: clamp01(base.l + 0.14),
+        c: Math.max(chroma * 0.75, 0.008),
+        h,
+    });
     const input = formatOklch(
         { l: 0.78, c: Math.max(chroma * 0.6, 0.008), h },
         0.15,
@@ -209,6 +215,7 @@ export function buildDerivedAppTheme(hex: string): DerivedAppTheme {
             c: Math.max(chroma * 3.2, 0.016),
             h,
         }),
+        "window-border": windowBorder,
         "host-card": surface,
         "group-card": background,
     };

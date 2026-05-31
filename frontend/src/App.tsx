@@ -110,12 +110,8 @@ export default function App() {
     }, [isUnlocked, setUpdateVersionReady]);
 
     return (
-        <div
-            className="box-border flex h-dvh w-dvw flex-col overflow-hidden rounded-[var(--window-radius)] bg-border p-px"
-        >
-            <div
-                className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[calc(var(--window-radius)-1px)] bg-background text-foreground"
-            >
+        <div className="app-window-shell">
+            <div className="app-window-content">
                 <TabDragProvider>
                     <TitleBar />
                     <div className="relative flex min-h-0 flex-1 overflow-hidden">
