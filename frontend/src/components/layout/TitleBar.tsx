@@ -2,7 +2,6 @@ import { useSessionStore } from "@/store/sessionStore";
 import { useUIStore, ViewType } from "@/store/uiStore";
 import { WindowControls } from "@/components/layout/WindowControls";
 import { TerminalTab } from "@/components/layout/TerminalTab";
-import { NewTabHostPickerModal } from "@/components/layout/NewTabHostPickerModal";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore.ts";
 import { MAC_TITLE_BAR_HEIGHT_PX } from "@/lib/platform";
@@ -10,7 +9,7 @@ import { usePlatform } from "@/hooks/usePlatform";
 import { Window } from "@wailsio/runtime";
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 
 function handleTitleBarDoubleClick(e: React.MouseEvent<HTMLElement>) {
     const target = e.target as HTMLElement;
@@ -24,12 +23,12 @@ export function TitleBar() {
     const { t } = useTranslation("terminal");
     const { sessions, activeSessionId, setActiveSession, removeSession } =
         useSessionStore();
-    const { activeView } = useUIStore();
+    const { activeView, openNewTabHostPicker } = useUIStore();
     const { isMac } = usePlatform();
 
     const isTerminalView = activeView === ViewType.Terminal;
     const { isUnlocked } = useAuthStore();
-    const [isNewTabOpen, setIsNewTabOpen] = useState(false);
+    const newTabShortcut = isMac ? "⌘T" : "Ctrl+T";
 
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -87,10 +86,14 @@ export function TitleBar() {
                 {isUnlocked && (
                     <button
                         type="button"
-                        title={t("new_tab_button")}
-                        aria-label={t("new_tab_button")}
+                        title={t("new_tab_button_shortcut", {
+                            shortcut: newTabShortcut,
+                        })}
+                        aria-label={t("new_tab_button_shortcut", {
+                            shortcut: newTabShortcut,
+                        })}
                         className="wails-no-drag flex size-7 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
-                        onClick={() => setIsNewTabOpen(true)}
+                        onClick={openNewTabHostPicker}
                     >
                         <Plus className="size-3.5" />
                     </button>
@@ -98,11 +101,6 @@ export function TitleBar() {
             </div>
 
             {!isMac && <WindowControls className="ml-2 shrink-0" />}
-
-            <NewTabHostPickerModal
-                isOpen={isNewTabOpen}
-                onClose={() => setIsNewTabOpen(false)}
-            />
         </header>
     );
 }

@@ -15,6 +15,7 @@ import { SshService } from "../../../bindings/terminator-desktop/backend/interna
 import { SSHConnectionConfig } from "../../../bindings/terminator-desktop/backend/internal/services/ssh/models";
 import { useTranslation } from "react-i18next";
 import { AppEvent } from "@/lib/events.ts";
+import { useUIStore } from "@/store/uiStore";
 import { SudoCredential } from "@/store/sessionStore";
 import {
     applyUnicode11Addon,
@@ -198,6 +199,17 @@ export function TerminalInstance({
 
             term.attachCustomKeyEventHandler((arg) => {
                 if (arg.type === "keydown") {
+                    if (
+                        (arg.metaKey || arg.ctrlKey) &&
+                        !arg.altKey &&
+                        !arg.shiftKey &&
+                        arg.code === "KeyT"
+                    ) {
+                        arg.preventDefault();
+                        useUIStore.getState().openNewTabHostPicker();
+                        return false;
+                    }
+
                     if (arg.ctrlKey && arg.shiftKey && arg.code === "KeyC") {
                         arg.preventDefault();
                         const selection = term.getSelection();

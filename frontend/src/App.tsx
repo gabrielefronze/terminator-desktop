@@ -1,6 +1,8 @@
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TitleBar } from "@/components/layout/TitleBar";
 import { ContentView } from "@/components/layout/ContentView";
+import { NewTabHostPickerModal } from "@/components/layout/NewTabHostPickerModal";
+import { useNewTabShortcut } from "@/hooks/useNewTabShortcut";
 import { LockScreen } from "@/components/views/LockScreen";
 import { Toaster } from "@/components/ui/sonner";
 import { useAuthStore } from "@/store/authStore";
@@ -31,6 +33,7 @@ export default function App() {
 
     useAppTheme();
     useSyncSessionHostAppearance();
+    useNewTabShortcut();
 
     useEffect(() => {
         queryClient
@@ -118,6 +121,7 @@ export default function App() {
                     )}
                 </div>
                 <Toaster position="bottom-right" theme="dark" richColors />
+                {isUnlocked && <NewTabHostPickerModal />}
             </div>
         </div>
     );

@@ -20,12 +20,8 @@ import { useIdentities } from "@/hooks/useIdentities";
 import { useHosts } from "@/hooks/useHosts";
 import { filterHosts } from "@/lib/hostTree";
 import { isBuiltinLocalhostHost } from "@/lib/defaultLocalhost";
+import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/lib/utils";
-
-interface NewTabHostPickerModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-}
 
 function hostSortKey(host: Host): string {
     return (host.name || host.host).toLowerCase();
@@ -74,11 +70,10 @@ function HostPickerRow({
     );
 }
 
-export function NewTabHostPickerModal({
-    isOpen,
-    onClose,
-}: NewTabHostPickerModalProps) {
+export function NewTabHostPickerModal() {
     const { t } = useTranslation(["terminal", "hosts", "common"]);
+    const isOpen = useUIStore((s) => s.isNewTabHostPickerOpen);
+    const closeNewTabHostPicker = useUIStore((s) => s.closeNewTabHostPicker);
     const { data: allHosts } = useHosts();
     const { data: remoteHosts } = useHostsWithoutBuiltin();
     const { host: localhostHost } = useResolvedLocalhostHost();
@@ -148,9 +143,9 @@ export function NewTabHostPickerModal({
     const handleSelect = useCallback(
         (host: Host) => {
             void connect(host);
-            onClose();
+            closeNewTabHostPicker();
         },
-        [connect, onClose],
+        [connect, closeNewTabHostPicker],
     );
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -173,7 +168,10 @@ export function NewTabHostPickerModal({
 
     return (
         <>
-            <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <Dialog
+                open={isOpen}
+                onOpenChange={(open) => !open && closeNewTabHostPicker()}
+            >
                 <DialogContent
                     className="gap-0 overflow-hidden p-0 sm:max-w-md"
                     onOpenAutoFocus={(e) => e.preventDefault()}

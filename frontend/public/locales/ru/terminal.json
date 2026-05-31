@@ -3,6 +3,7 @@
   "choose_password_identity": "Выберите пароль идентичности для этого запроса",
   "dismiss_password_menu": "Закрыть",
   "new_tab_button": "Новая вкладка",
+  "new_tab_button_shortcut": "Новая вкладка ({{shortcut}})",
   "new_tab_title": "Новая вкладка",
   "new_tab_description": "Найдите хост для подключения в новой вкладке терминала.",
   "new_tab_no_hosts": "Хосты ещё не настроены. Добавьте их на странице «Хосты»."

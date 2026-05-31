@@ -33,6 +33,7 @@
   "toolbar_local_hint": "Connect to a remote host from Hosts to use snippets, SFTP, and port forwarding.",
   "toolbar_remote_only_hint": "Requires an SSH session (not local shell)",
   "new_tab_button": "New tab",
+  "new_tab_button_shortcut": "New tab ({{shortcut}})",
   "new_tab_title": "New tab",
   "new_tab_description": "Search for a host to open in a new terminal tab.",
   "new_tab_no_hosts": "No hosts configured yet. Add one from the Hosts page."
