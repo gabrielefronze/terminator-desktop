@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
@@ -73,6 +74,7 @@ export function TerminalInstance({
     const [menuPosition, setMenuPosition] = useState({ x: 12, y: 12 });
     const [keyPassphrase, setKeyPassphrase] = useState(config.keyPassphrase ?? "");
     const [showPassphraseModal, setShowPassphraseModal] = useState(false);
+    const [isConnecting, setIsConnecting] = useState(true);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const terminalRef = useRef<Terminal | null>(null);
@@ -98,7 +100,18 @@ export function TerminalInstance({
         setShowPasswordMenu(false);
         suppressMenuUntilRef.current = 0;
         setKeyPassphrase(config.keyPassphrase ?? "");
+        setIsConnecting(true);
     }, [sessionId, config.keyPassphrase]);
+
+    const connectionLabel = useMemo(() => {
+        if (config.local) {
+            return t("pane_local");
+        }
+        if (config.username) {
+            return `${config.username}@${config.host}`;
+        }
+        return config.host;
+    }, [config.host, config.local, config.username, t]);
 
     const hostOverrides = { terminalFontFamily, terminalFontSize };
 
@@ -111,9 +124,11 @@ export function TerminalInstance({
         });
 
     const attemptConnect = () => {
+        setIsConnecting(true);
         return SshService.Connect(buildConnectConfig())
             .then(() => {
                 isReadyRef.current = true;
+                setIsConnecting(false);
                 setShowPassphraseModal(false);
                 if (terminalRef.current && fitAddonRef.current) {
                     fitAddonRef.current.fit();
@@ -127,9 +142,11 @@ export function TerminalInstance({
             .catch((err) => {
                 const appError = parseAppError(err);
                 if (appError.code === ErrorCode.SSH_KEY_PASSPHRASE_REQUIRED) {
+                    setIsConnecting(false);
                     setShowPassphraseModal(true);
                     return;
                 }
+                setIsConnecting(false);
                 printErrorToTerminal(err);
             });
     };
@@ -449,6 +466,19 @@ export function TerminalInstance({
                 ref={containerRef}
                 className="terminal-host h-full min-h-0 w-full"
             />
+            {isConnecting && !showPassphraseModal && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background">
+                    <Loader2 className="size-8 animate-spin text-muted-foreground" />
+                    <div className="flex flex-col items-center gap-1 text-center">
+                        <p className="text-sm font-medium text-foreground">
+                            {t("connecting", { ns: "common" })}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                            {connectionLabel}
+                        </p>
+                    </div>
+                </div>
+            )}
             <PassphrasePromptModal
                 open={showPassphraseModal}
                 onCancel={() => setShowPassphraseModal(false)}
