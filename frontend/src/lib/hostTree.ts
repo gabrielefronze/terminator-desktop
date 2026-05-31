@@ -99,6 +99,12 @@ function filterNode(node: HostTreeNode, query: string): HostTreeNode | null {
     return null;
 }
 
+export function filterHosts(hosts: Host[], searchQuery: string): Host[] {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return hosts;
+    return hosts.filter((h) => hostMatchesQuery(h, query));
+}
+
 export function filterHostTree(
     tree: HostTreeResult,
     searchQuery: string,
