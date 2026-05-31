@@ -22,5 +22,11 @@
   "linked_hosts_none": "Not used by any host",
   "host_link_role_auth": "SSH login",
   "host_link_role_auto_password": "Auto password",
-  "host_link_role_key": "SSH key"
+  "host_link_role_key": "SSH key",
+  "toggle_sidebar": "Toggle sidebar",
+  "toggle_sidebar_shortcut": "Toggle sidebar ({{shortcut}})",
+  "show_sidebar": "Show sidebar",
+  "show_sidebar_shortcut": "Show sidebar ({{shortcut}})",
+  "hide_sidebar": "Hide sidebar",
+  "hide_sidebar_shortcut": "Hide sidebar ({{shortcut}})"
 }

@@ -22,5 +22,11 @@
   "linked_hosts_none": "Не используется ни одним хостом",
   "host_link_role_auth": "SSH вход",
   "host_link_role_auto_password": "Автопароль",
-  "host_link_role_key": "SSH ключ"
+  "host_link_role_key": "SSH ключ",
+  "toggle_sidebar": "Показать или скрыть боковую панель",
+  "toggle_sidebar_shortcut": "Боковая панель ({{shortcut}})",
+  "show_sidebar": "Показать боковую панель",
+  "show_sidebar_shortcut": "Показать боковую панель ({{shortcut}})",
+  "hide_sidebar": "Скрыть боковую панель",
+  "hide_sidebar_shortcut": "Скрыть боковую панель ({{shortcut}})"
 }

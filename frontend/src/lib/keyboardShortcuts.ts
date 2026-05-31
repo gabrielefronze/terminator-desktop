@@ -9,11 +9,19 @@ export function isTypingTarget(target: EventTarget | null): boolean {
     return target.isContentEditable;
 }
 
-export function isNewTabShortcut(event: KeyboardEvent): boolean {
+export function isModShortcut(event: KeyboardEvent, key: string): boolean {
     return (
         (event.metaKey || event.ctrlKey) &&
         !event.altKey &&
         !event.shiftKey &&
-        event.key.toLowerCase() === "t"
+        event.key.toLowerCase() === key.toLowerCase()
     );
+}
+
+export function isNewTabShortcut(event: KeyboardEvent): boolean {
+    return isModShortcut(event, "t");
+}
+
+export function isToggleSidebarShortcut(event: KeyboardEvent): boolean {
+    return isModShortcut(event, "b");
 }

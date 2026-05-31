@@ -210,6 +210,17 @@ export function TerminalInstance({
                         return false;
                     }
 
+                    if (
+                        (arg.metaKey || arg.ctrlKey) &&
+                        !arg.altKey &&
+                        !arg.shiftKey &&
+                        arg.code === "KeyB"
+                    ) {
+                        arg.preventDefault();
+                        useUIStore.getState().toggleSidebar();
+                        return false;
+                    }
+
                     if (arg.ctrlKey && arg.shiftKey && arg.code === "KeyC") {
                         arg.preventDefault();
                         const selection = term.getSelection();

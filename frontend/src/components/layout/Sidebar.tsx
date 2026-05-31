@@ -3,8 +3,8 @@ import {
     Key,
     User,
     Settings,
-    ChevronLeft,
-    ChevronRight,
+    PanelLeftClose,
+    PanelLeftOpen,
     FileCode2,
     FolderOpen,
 } from "lucide-react";
@@ -16,15 +16,51 @@ import { useSyncStore } from "@/store/syncStore.ts";
 import { useTranslation } from "react-i18next";
 import { UpdatePopover } from "@/components/layout/UpdatePopover.tsx";
 import { sidebarNavButtonClass } from "@/lib/sidebarNav";
+import { usePlatform } from "@/hooks/usePlatform";
+
+function SidebarToggleButton({
+    isVisible,
+    shortcut,
+    onClick,
+    className,
+}: {
+    isVisible: boolean;
+    shortcut: string;
+    onClick: () => void;
+    className?: string;
+}) {
+    const { t } = useTranslation("common");
+    const label = isVisible
+        ? t("hide_sidebar_shortcut", { shortcut })
+        : t("show_sidebar_shortcut", { shortcut });
+
+    return (
+        <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClick}
+            className={cn(sidebarNavButtonClass(isVisible), className)}
+            title={label}
+            aria-label={label}
+        >
+            {isVisible ? (
+                <PanelLeftClose className="size-5" />
+            ) : (
+                <PanelLeftOpen className="size-5" />
+            )}
+        </Button>
+    );
+}
 
 export function Sidebar() {
-    const { t } = useTranslation(["hosts", "update"]);
+    const { t } = useTranslation(["common", "hosts", "update"]);
     const { activeView, setActiveView, isSidebarVisible, toggleSidebar } =
         useUIStore();
     const { status } = useSyncStore();
+    const { isMac } = usePlatform();
 
-    const isTerminalView = activeView === ViewType.Terminal;
-    const isExpanded = !isTerminalView || isSidebarVisible;
+    const isCollapsed = !isSidebarVisible;
+    const sidebarShortcut = isMac ? "⌘B" : "Ctrl+B";
 
     let dotColor = "bg-muted-foreground";
     if (status === SyncStatus.SyncStatusSyncing)
@@ -36,23 +72,21 @@ export function Sidebar() {
     )
         dotColor = "bg-destructive";
 
-    const showCollapseToggle = isTerminalView;
-
     return (
-        <div
-            className={cn(
-                "relative shrink-0",
-                isExpanded ? "w-14" : "w-0",
-            )}
-        >
-            <aside
+        <div className="relative shrink-0">
+            <div
                 className={cn(
-                    "wails-drag flex h-full flex-col items-center justify-between border-r border-border/40 bg-transparent pb-4 pt-2",
-                    isExpanded
-                        ? "w-14"
-                        : "pointer-events-none w-0 overflow-hidden opacity-0",
+                    "overflow-hidden transition-[width] duration-200 ease-in-out",
+                    isCollapsed ? "w-0" : "w-14",
                 )}
             >
+                <aside
+                    className={cn(
+                        "wails-drag flex h-full w-14 flex-col items-center justify-between border-r border-border/40 bg-transparent pb-4 pt-2",
+                        "transition-transform duration-200 ease-in-out will-change-transform",
+                        isCollapsed && "-translate-x-full",
+                    )}
+                >
                 <nav className="flex flex-col gap-2">
                     <Button
                         variant="ghost"
@@ -134,34 +168,24 @@ export function Sidebar() {
                             )}
                         />
                     </div>
+
+                    <div className="size-9 shrink-0" aria-hidden />
                 </nav>
             </aside>
+            </div>
 
-            {showCollapseToggle && (
-                <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={toggleSidebar}
-                    aria-label={
-                        isSidebarVisible ? "Collapse sidebar" : "Expand sidebar"
-                    }
-                    className={cn(
-                        "wails-no-drag absolute top-1/2 z-10 !size-5 -translate-y-1/2",
-                        "rounded-full bg-background/90 p-0 shadow-sm",
-                        "text-muted-foreground hover:bg-muted hover:text-foreground",
-                        isSidebarVisible
-                            ? "right-0 translate-x-1/2"
-                            : "left-0 translate-x-0",
-                    )}
-                >
-                    {isSidebarVisible ? (
-                        <ChevronLeft className="size-3" strokeWidth={2.5} />
-                    ) : (
-                        <ChevronRight className="size-3" strokeWidth={2.5} />
-                    )}
-                </Button>
-            )}
+            <SidebarToggleButton
+                isVisible={isSidebarVisible}
+                shortcut={sidebarShortcut}
+                onClick={toggleSidebar}
+                className={cn(
+                    "wails-no-drag absolute bottom-4 z-10",
+                    "transition-[left,transform,box-shadow,border-color,background-color] duration-200 ease-in-out",
+                    isCollapsed
+                        ? "left-1 rounded-md border border-border bg-background shadow-sm"
+                        : "left-7 -translate-x-1/2",
+                )}
+            />
         </div>
     );
 }
