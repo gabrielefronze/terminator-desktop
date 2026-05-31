@@ -39,4 +39,5 @@ if [[ ! -d frontend/node_modules ]]; then
   "$ROOT/setup.sh"
 fi
 
+wails3 task common:generate:icons
 exec wails3 dev -config "$CONFIG" -port "$VITE_PORT" "$@"
