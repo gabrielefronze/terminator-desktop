@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Host } from "../../bindings/terminator-desktop/backend/internal/services/blob";
 import { HostKeyCheck } from "../../bindings/terminator-desktop/backend/internal/services/knownhosts/models";
 import { Service as KnownHostsService } from "../../bindings/terminator-desktop/backend/internal/services/knownhosts";
@@ -13,6 +13,9 @@ import { useSessionStore, type CreateSessionParams } from "@/store/sessionStore"
 import { toast } from "sonner";
 
 type ConnectMode = "terminal" | "split-with-local" | "sftp";
+
+/** Ignore repeat connect attempts within this window (typical double-click interval). */
+const CONNECT_DEBOUNCE_MS = 400;
 
 type PendingConnect = {
     params: CreateSessionParams;
@@ -53,6 +56,31 @@ export function useConnectHost(
     const { host: localhostHost } = useResolvedLocalhostHost();
     const [hostKeyCheck, setHostKeyCheck] = useState<HostKeyCheck | null>(null);
     const [pending, setPending] = useState<PendingConnect | null>(null);
+    const connectingHostIdsRef = useRef(new Set<string>());
+    const lastConnectAttemptRef = useRef(new Map<string, number>());
+
+    const releaseConnect = useCallback((hostId: string) => {
+        connectingHostIdsRef.current.delete(hostId);
+    }, []);
+
+    const tryAcquireConnect = useCallback((hostId: string): boolean => {
+        if (connectingHostIdsRef.current.has(hostId)) {
+            return false;
+        }
+
+        const now = Date.now();
+        const lastAttempt = lastConnectAttemptRef.current.get(hostId);
+        if (
+            lastAttempt !== undefined &&
+            now - lastAttempt < CONNECT_DEBOUNCE_MS
+        ) {
+            return false;
+        }
+
+        lastConnectAttemptRef.current.set(hostId, now);
+        connectingHostIdsRef.current.add(hostId);
+        return true;
+    }, []);
 
     const finishConnect = useCallback(
         (state: PendingConnect) => {
@@ -63,10 +91,11 @@ export function useConnectHost(
             } else {
                 addSession(state.params);
             }
+            releaseConnect(state.params.hostId ?? "");
             setPending(null);
             setHostKeyCheck(null);
         },
-        [addSession, openLocalRemoteSplit],
+        [addSession, openLocalRemoteSplit, releaseConnect],
     );
 
     const continueHostKeyChecks = useCallback(
@@ -96,6 +125,10 @@ export function useConnectHost(
             overrides?: Partial<CreateSessionParams>,
             onSftpConfig?: (config: SSHConnectionConfig) => void,
         ) => {
+            if (!tryAcquireConnect(host.id)) {
+                return;
+            }
+
             const params = buildSessionFromHost(
                 host,
                 keys,
@@ -107,13 +140,16 @@ export function useConnectHost(
             if (params.local || isBuiltinLocalhostHost(host)) {
                 if (mode === "sftp") {
                     toast.error("Select a remote host for SFTP");
+                    releaseConnect(host.id);
                     return;
                 }
                 if (mode === "split-with-local") {
                     toast.error("Select a remote host for split workspace");
+                    releaseConnect(host.id);
                     return;
                 }
                 addSession(params);
+                releaseConnect(host.id);
                 return;
             }
 
@@ -121,6 +157,7 @@ export function useConnectHost(
             if (mode === "split-with-local") {
                 if (!localhostHost) {
                     toast.error("Enable local shell in settings to use split workspace");
+                    releaseConnect(host.id);
                     return;
                 }
                 localParams = buildSessionFromHost(
@@ -137,14 +174,18 @@ export function useConnectHost(
                 params.relayHops,
             );
 
-            await continueHostKeyChecks({
-                params,
-                localParams,
-                endpoints,
-                endpointIndex: 0,
-                mode,
-                onSftpConfig,
-            });
+            try {
+                await continueHostKeyChecks({
+                    params,
+                    localParams,
+                    endpoints,
+                    endpointIndex: 0,
+                    mode,
+                    onSftpConfig,
+                });
+            } catch {
+                releaseConnect(host.id);
+            }
         },
         [
             keys,
@@ -153,6 +194,8 @@ export function useConnectHost(
             localhostHost,
             addSession,
             continueHostKeyChecks,
+            tryAcquireConnect,
+            releaseConnect,
         ],
     );
 
@@ -188,9 +231,12 @@ export function useConnectHost(
     }, [pending, hostKeyCheck, continueHostKeyChecks]);
 
     const cancelHostKey = useCallback(() => {
+        if (pending?.params.hostId) {
+            releaseConnect(pending.params.hostId);
+        }
         setPending(null);
         setHostKeyCheck(null);
-    }, []);
+    }, [pending, releaseConnect]);
 
     return {
         connect,
