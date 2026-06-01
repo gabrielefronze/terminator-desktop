@@ -38,6 +38,8 @@ import {
 interface TerminalInstanceProps {
     sessionId: string;
     isActive: boolean;
+    isFocused?: boolean;
+    onActivate?: () => void;
     config: SSHConnectionConfig;
     sudoCredentials?: SudoCredential[];
     terminalFontFamily?: string;
@@ -67,6 +69,8 @@ function looksLikePasswordPrompt(buffer: string): boolean {
 export function TerminalInstance({
     sessionId,
     isActive,
+    isFocused = false,
+    onActivate,
     config,
     sudoCredentials = [],
     terminalFontFamily,
@@ -90,6 +94,11 @@ export function TerminalInstance({
     const decoderRef = useRef(new TextDecoder("utf-8"));
     const lastPointerRef = useRef({ x: 16, y: 16 });
     const suppressMenuUntilRef = useRef(0);
+    const onActivateRef = useRef(onActivate);
+    const isFocusedRef = useRef(isFocused);
+
+    onActivateRef.current = onActivate;
+    isFocusedRef.current = isFocused;
 
     const printErrorToTerminal = (error: unknown) => {
         if (!terminalRef.current) return;
@@ -347,10 +356,15 @@ export function TerminalInstance({
                 sendInput(data);
             });
 
+            const onFocusDisposable = term.onFocus(() => {
+                onActivateRef.current?.();
+            });
+
             return () => {
                 container.removeEventListener("contextmenu", handleContextMenu);
                 container.removeEventListener("mousemove", handleMouseMove);
                 onDataDisposable.dispose();
+                onFocusDisposable.dispose();
             };
         };
 
@@ -437,6 +451,12 @@ export function TerminalInstance({
     }, [sessionId, sudoCredentials]);
 
     useEffect(() => {
+        if (!isFocused || !isReadyRef.current) return;
+
+        terminalRef.current?.focus();
+    }, [isFocused]);
+
+    useEffect(() => {
         if (!isActive || !isReadyRef.current) return;
 
         const fit = fitAddonRef.current;
@@ -469,7 +489,9 @@ export function TerminalInstance({
 
             try {
                 fit.fit();
-                term.focus();
+                if (isFocusedRef.current) {
+                    term.focus();
+                }
                 SshService.Resize(sessionId, term.rows, term.cols).catch((err) => {
                     printErrorToTerminal(err);
                 });
@@ -485,7 +507,7 @@ export function TerminalInstance({
     return (
         <div
             className={cn(
-                "absolute inset-0 overflow-hidden bg-background",
+                "absolute inset-0 overflow-hidden bg-background pl-2",
                 isActive ? "block" : "hidden",
             )}
         >

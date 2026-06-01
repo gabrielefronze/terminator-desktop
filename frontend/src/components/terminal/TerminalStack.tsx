@@ -16,6 +16,7 @@ import {
 } from "@/lib/tileLayout";
 import { terminalPaneDropId } from "@/lib/tileDrop";
 import { normalizeHostColor } from "@/lib/hostAppearance";
+import { HostIconBadge } from "@/components/views/HostIconBadge";
 import {
     getTitleBarSessions,
     isSplitGroupActive,
@@ -39,9 +40,13 @@ type SessionPlacement = {
 function SessionTerminal({
     session,
     isActive,
+    isFocused,
+    onActivate,
 }: {
     session: TerminalSession;
     isActive: boolean;
+    isFocused: boolean;
+    onActivate: () => void;
 }) {
     return (
         <TerminalInstance
@@ -51,6 +56,8 @@ function SessionTerminal({
             terminalFontFamily={session.terminalFontFamily}
             terminalFontSize={session.terminalFontSize}
             isActive={isActive}
+            isFocused={isFocused}
+            onActivate={onActivate}
         />
     );
 }
@@ -136,15 +143,28 @@ function PersistentSessionPane({
         placement.groupActive &&
         (placement.isTiled || session.id === activeSessionId);
 
+    const isPaneFocused =
+        placement.groupActive && session.id === activeSessionId;
+    const hostBorderColor = normalizeHostColor(session.color);
+    const paneStyle =
+        placement.isTiled
+            ? {
+                  ...placement.style,
+                  borderColor: isPaneFocused
+                      ? hostBorderColor
+                      : `color-mix(in srgb, ${hostBorderColor} 30%, transparent)`,
+              }
+            : placement.style;
+
     return (
         <div
             ref={droppable.setNodeRef}
             aria-hidden={!placement.groupActive}
-            style={placement.style}
+            style={paneStyle}
             className={cn(
                 "absolute flex min-h-0 min-w-0 flex-col bg-background",
                 placement.isTiled &&
-                    "overflow-hidden rounded-lg border border-border shadow-sm",
+                    "overflow-hidden rounded-lg border shadow-sm transition-[border-color] duration-200",
                 !placement.groupActive && "hidden",
             )}
         >
@@ -154,6 +174,11 @@ function PersistentSessionPane({
                     !placement.isTiled && "hidden",
                 )}
             >
+                <HostIconBadge
+                    icon={session.icon}
+                    color={session.color}
+                    size="sm"
+                />
                 <button
                     type="button"
                     className="min-w-0 flex-1 truncate text-left hover:text-foreground"
@@ -174,8 +199,16 @@ function PersistentSessionPane({
                     <X className="size-3" />
                 </button>
             </div>
-            <div className="relative min-h-0 flex-1 overflow-hidden">
-                <SessionTerminal session={session} isActive={isTerminalActive} />
+            <div
+                className="relative min-h-0 flex-1 overflow-hidden"
+                onPointerDown={() => onFocusPane(session.id)}
+            >
+                <SessionTerminal
+                    session={session}
+                    isActive={isTerminalActive}
+                    isFocused={isPaneFocused}
+                    onActivate={() => onFocusPane(session.id)}
+                />
                 <TabPaneDropOverlay
                     zone={isDropTarget ? paneDropTarget?.zone ?? null : null}
                     color={dragHighlightColor}
@@ -231,6 +264,8 @@ export function TerminalStack({ isVisible }: TerminalStackProps) {
                                     <SessionTerminal
                                         session={session}
                                         isActive={false}
+                                        isFocused={false}
+                                        onActivate={() => {}}
                                     />
                                 </div>
                             );
