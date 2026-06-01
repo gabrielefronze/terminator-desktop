@@ -1,0 +1,15 @@
+{
+  "title": "Command palette",
+  "description": "Connect, navigate, run snippets, and more.",
+  "search_placeholder": "Type a command or search…",
+  "no_results": "No matching commands",
+  "section_actions": "Actions",
+  "section_navigate": "Navigate",
+  "section_hosts": "Connect to host",
+  "section_tab_groups": "Open tab group",
+  "section_snippets": "Insert snippet",
+  "action_new_tab": "New terminal tab",
+  "action_lock_vault": "Lock vault",
+  "nav_terminal": "Terminal",
+  "snippet_insert_failed": "Could not insert snippet into the active session"
+}

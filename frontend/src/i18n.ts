@@ -23,7 +23,8 @@ void i18n
                 "settings",
                 "terminal",
                 "update",
-                "tabgroups"
+                "tabgroups",
+                "palette",
             ],
         defaultNS: "common",
         interpolation: {

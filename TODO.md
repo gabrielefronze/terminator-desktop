@@ -15,7 +15,7 @@ Quick wins and features that unblock adoption or daily use.
   - Import from bundle and from `~/.ssh/config` (+ optional `known_hosts` merge).
   - *Touches:* `backend/internal/services/blob/`, new import/export service, Settings UI.
 
-- [ ] **Global command palette (`⌘K` / `Ctrl+K`)**
+- [x] **Global command palette (`⌘K` / `Ctrl+K`)**
   - Connect to host, open tab group, insert snippet, navigate views, open settings.
   - *Touches:* new palette component, `useConnectHost`, `sessionStore`, `uiStore`.
 

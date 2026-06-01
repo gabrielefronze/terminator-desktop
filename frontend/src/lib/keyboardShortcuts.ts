@@ -22,6 +22,10 @@ export function isNewTabShortcut(event: KeyboardEvent): boolean {
     return isModShortcut(event, "t");
 }
 
+export function isCommandPaletteShortcut(event: KeyboardEvent): boolean {
+    return isModShortcut(event, "k");
+}
+
 export function isToggleSidebarShortcut(event: KeyboardEvent): boolean {
     return isModShortcut(event, "b");
 }

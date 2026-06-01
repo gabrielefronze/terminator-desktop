@@ -29,6 +29,8 @@ import { useSessionStore } from "@/store/sessionStore.ts";
 import { useUIStore } from "@/store/uiStore.ts";
 import { UpdaterService } from "../bindings/terminator-desktop/backend/internal/services/updater";
 import { useVaultAutoLock } from "@/hooks/useVaultAutoLock";
+import { useCommandPaletteShortcut } from "@/hooks/useCommandPaletteShortcut";
+import { CommandPalette } from "@/components/command-palette/CommandPalette";
 
 export default function App() {
     const {isUnlocked} = useAuthStore();
@@ -43,6 +45,7 @@ export default function App() {
     useTerminalFontSizeShortcut();
     useToggleSidebarShortcut();
     useVaultAutoLock();
+    useCommandPaletteShortcut();
 
     useEffect(() => {
         queryClient
@@ -130,7 +133,12 @@ export default function App() {
                     </div>
                 </TabDragProvider>
                 <Toaster position="bottom-right" theme="dark" richColors />
-                {isUnlocked && <NewTabHostPickerModal />}
+                {isUnlocked && (
+                    <>
+                        <NewTabHostPickerModal />
+                        <CommandPalette />
+                    </>
+                )}
             </div>
         </div>
     );

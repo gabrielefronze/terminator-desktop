@@ -1,0 +1,15 @@
+{
+  "title": "Командная палитра",
+  "description": "Подключение, навигация, сниппеты и другие действия.",
+  "search_placeholder": "Команда или поиск…",
+  "no_results": "Ничего не найдено",
+  "section_actions": "Действия",
+  "section_navigate": "Навигация",
+  "section_hosts": "Подключиться к хосту",
+  "section_tab_groups": "Открыть группу вкладок",
+  "section_snippets": "Вставить сниппет",
+  "action_new_tab": "Новая вкладка терминала",
+  "action_lock_vault": "Заблокировать хранилище",
+  "nav_terminal": "Терминал",
+  "snippet_insert_failed": "Не удалось вставить сниппет в активную сессию"
+}
