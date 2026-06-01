@@ -17,6 +17,7 @@ import (
 	"terminator-desktop/backend/internal/dbgen"
 	"terminator-desktop/backend/internal/migration"
 	"terminator-desktop/backend/internal/services/auth"
+	"terminator-desktop/backend/internal/services/autolock"
 	"terminator-desktop/backend/internal/services/blob"
 	"terminator-desktop/backend/internal/services/knownhosts"
 	"terminator-desktop/backend/internal/services/localfs"
@@ -50,6 +51,7 @@ func init() {
 	application.RegisterEvent[emitters.SSHClosedPayload](emitters.SSHClosedEvent)
 
 	application.RegisterEvent[uint](emitters.UpdaterProgressEvent)
+	application.RegisterEvent[bool](autolock.VaultAutoLockedEvent)
 }
 
 const AppName = "Elemento Nexus"
@@ -232,6 +234,8 @@ func main() {
 
 	vaultTransferService := vaulttransfer.NewService(queries, v, knownHostsService, app, mainWindow)
 	app.RegisterService(application.NewService(vaultTransferService))
+
+	autolock.NewService(authService, settingsService, app).Attach(mainWindow)
 
 	defer v.Lock() // eh why not
 	defer syncService.StopAutoSync()

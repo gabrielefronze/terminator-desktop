@@ -13,6 +13,9 @@ export class AppSettings {
     "showLocalhostHost": boolean;
     "appBackgroundColor": string;
     "accentColor": string;
+    "vaultAutoLockEnabled": boolean;
+    "vaultAutoLockMinutes": number;
+    "vaultAutoLockOnSleep": boolean;
 
     /** Creates a new AppSettings instance. */
     constructor($$source: Partial<AppSettings> = {}) {
@@ -36,6 +39,15 @@ export class AppSettings {
         }
         if (!("accentColor" in $$source)) {
             this["accentColor"] = "";
+        }
+        if (!("vaultAutoLockEnabled" in $$source)) {
+            this["vaultAutoLockEnabled"] = false;
+        }
+        if (!("vaultAutoLockMinutes" in $$source)) {
+            this["vaultAutoLockMinutes"] = 0;
+        }
+        if (!("vaultAutoLockOnSleep" in $$source)) {
+            this["vaultAutoLockOnSleep"] = false;
         }
 
         Object.assign(this, $$source);

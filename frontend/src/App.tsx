@@ -28,6 +28,7 @@ import { AppEvent } from "@/lib/events.ts";
 import { useSessionStore } from "@/store/sessionStore.ts";
 import { useUIStore } from "@/store/uiStore.ts";
 import { UpdaterService } from "../bindings/terminator-desktop/backend/internal/services/updater";
+import { useVaultAutoLock } from "@/hooks/useVaultAutoLock";
 
 export default function App() {
     const {isUnlocked} = useAuthStore();
@@ -41,6 +42,7 @@ export default function App() {
     useNewTabShortcut();
     useTerminalFontSizeShortcut();
     useToggleSidebarShortcut();
+    useVaultAutoLock();
 
     useEffect(() => {
         queryClient

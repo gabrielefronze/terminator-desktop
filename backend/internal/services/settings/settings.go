@@ -12,6 +12,12 @@ const (
 	DefaultTerminalFontSize    = 14
 )
 
+const (
+	DefaultVaultAutoLockMinutes = 15
+	minVaultAutoLockMinutes     = 1
+	maxVaultAutoLockMinutes     = 720
+)
+
 type AppSettings struct {
 	Language               string `json:"language"`
 	TerminalFontFamily     string `json:"terminalFontFamily"`
@@ -20,6 +26,9 @@ type AppSettings struct {
 	ShowLocalhostHost      bool   `json:"showLocalhostHost"`
 	AppBackgroundColor     string `json:"appBackgroundColor"`
 	AccentColor            string `json:"accentColor"`
+	VaultAutoLockEnabled   bool   `json:"vaultAutoLockEnabled"`
+	VaultAutoLockMinutes   int    `json:"vaultAutoLockMinutes"`
+	VaultAutoLockOnSleep   bool   `json:"vaultAutoLockOnSleep"`
 }
 
 func normalizeSettings(settings AppSettings) AppSettings {
@@ -34,7 +43,21 @@ func normalizeSettings(settings AppSettings) AppSettings {
 	}
 	settings.AppBackgroundColor = normalizeAppBackgroundColor(settings.AppBackgroundColor)
 	settings.AccentColor = normalizeAccentColor(settings.AccentColor)
+	settings.VaultAutoLockMinutes = normalizeVaultAutoLockMinutes(settings.VaultAutoLockMinutes)
 	return settings
+}
+
+func normalizeVaultAutoLockMinutes(minutes int) int {
+	if minutes <= 0 {
+		return DefaultVaultAutoLockMinutes
+	}
+	if minutes < minVaultAutoLockMinutes {
+		return minVaultAutoLockMinutes
+	}
+	if minutes > maxVaultAutoLockMinutes {
+		return maxVaultAutoLockMinutes
+	}
+	return minutes
 }
 
 type SettingsService struct {

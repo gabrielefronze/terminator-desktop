@@ -264,6 +264,10 @@ func (s *AuthService) LockVault() {
 	s.client.ClearToken()
 }
 
+func (s *AuthService) IsVaultUnlocked() bool {
+	return s.vault.IsUnlocked()
+}
+
 func (s *AuthService) GetCurrentUser(ctx context.Context) (*UserInfo, error) {
 	user, err := s.q.GetUser(ctx)
 	if err != nil {

@@ -35,6 +35,10 @@ export function HasUser(): $CancellablePromise<boolean> {
     return $Call.ByID(412997436);
 }
 
+export function IsVaultUnlocked(): $CancellablePromise<boolean> {
+    return $Call.ByID(936060738);
+}
+
 export function LockVault(): $CancellablePromise<void> {
     return $Call.ByID(2757158698);
 }

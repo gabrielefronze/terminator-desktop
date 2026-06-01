@@ -21,6 +21,7 @@ declare module "@wailsio/runtime" {
             "sync:status": sync$0.SyncStatus;
             "sync:updates-available": boolean;
             "updater:progress": number;
+            "vault:auto-locked": boolean;
         }
     }
 }

@@ -55,6 +55,7 @@ import {
     normalizeAccentColor,
 } from "@/lib/accentTheme";
 import { VaultDataSection } from "@/components/views/VaultDataSection";
+import { lockVaultFromUI } from "@/lib/vaultLock";
 
 export function SettingsPage() {
     const {t, i18n} = useTranslation(["settings", "common", "errors"]);
@@ -136,9 +137,7 @@ export function SettingsPage() {
 
     const handleLockVault = async () => {
         try {
-            clearSessions();
-            await AuthService.LockVault();
-            setUnlocked(false);
+            await lockVaultFromUI();
         } catch (error) {
             handleAppError(error);
         }
@@ -589,6 +588,102 @@ export function SettingsPage() {
                             </div>
                         </>
                     )}
+
+                    <div className="my-2 h-px w-full bg-border" />
+
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex flex-col">
+                                <span className="font-medium text-foreground">
+                                    {t("vault_auto_lock_label")}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("vault_auto_lock_desc")}
+                                </span>
+                            </div>
+                            <Switch
+                                checked={settings?.vaultAutoLockEnabled ?? false}
+                                disabled={saveSettingsMutation.isPending}
+                                onCheckedChange={(checked) => {
+                                    void persistSettings({
+                                        vaultAutoLockEnabled: checked,
+                                    }).catch(handleAppError);
+                                }}
+                            />
+                        </div>
+
+                        {settings?.vaultAutoLockEnabled && (
+                            <div className="flex flex-wrap items-center justify-between gap-4">
+                                <Label
+                                    htmlFor="vault-auto-lock-minutes"
+                                    className="text-sm text-muted-foreground"
+                                >
+                                    {t("vault_auto_lock_minutes_label")}
+                                </Label>
+                                <Select
+                                    value={String(
+                                        settings.vaultAutoLockMinutes > 0
+                                            ? settings.vaultAutoLockMinutes
+                                            : 15,
+                                    )}
+                                    onValueChange={(value) => {
+                                        void persistSettings({
+                                            vaultAutoLockMinutes: Number(value),
+                                        }).catch(handleAppError);
+                                    }}
+                                >
+                                    <SelectTrigger
+                                        id="vault-auto-lock-minutes"
+                                        className="w-36"
+                                    >
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="5">
+                                            {t("vault_auto_lock_minutes_option", {
+                                                count: 5,
+                                            })}
+                                        </SelectItem>
+                                        <SelectItem value="15">
+                                            {t("vault_auto_lock_minutes_option", {
+                                                count: 15,
+                                            })}
+                                        </SelectItem>
+                                        <SelectItem value="30">
+                                            {t("vault_auto_lock_minutes_option", {
+                                                count: 30,
+                                            })}
+                                        </SelectItem>
+                                        <SelectItem value="60">
+                                            {t("vault_auto_lock_minutes_option", {
+                                                count: 60,
+                                            })}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex flex-col">
+                                <span className="text-sm font-medium text-foreground">
+                                    {t("vault_auto_lock_on_sleep_label")}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("vault_auto_lock_on_sleep_desc")}
+                                </span>
+                            </div>
+                            <Switch
+                                checked={settings?.vaultAutoLockOnSleep ?? false}
+                                disabled={saveSettingsMutation.isPending}
+                                onCheckedChange={(checked) => {
+                                    void persistSettings({
+                                        vaultAutoLockOnSleep: checked,
+                                    }).catch(handleAppError);
+                                }}
+                            />
+                        </div>
+                    </div>
 
                     <div className="my-2 h-px w-full bg-border"/>
 

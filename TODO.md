@@ -23,7 +23,7 @@ Quick wins and features that unblock adoption or daily use.
   - Capture commands per session (or globally), store encrypted in vault, searchable from palette or terminal toolbar.
   - *Touches:* new blob type or SQLite table, terminal input hook in `TerminalInstance.tsx`, crypto via vault.
 
-- [ ] **Vault auto-lock**
+- [x] **Vault auto-lock**
   - Lock after configurable idle timeout; optional lock on system sleep.
   - *Touches:* `AuthService`, `LockScreen`, settings JSON in `SettingsService`.
 
