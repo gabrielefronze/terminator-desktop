@@ -30,6 +30,7 @@ import { useUIStore } from "@/store/uiStore.ts";
 import { UpdaterService } from "../bindings/terminator-desktop/backend/internal/services/updater";
 import { useVaultAutoLock } from "@/hooks/useVaultAutoLock";
 import { useCommandPaletteShortcut } from "@/hooks/useCommandPaletteShortcut";
+import { useTerminalFindShortcut } from "@/hooks/useTerminalFindShortcut";
 import { CommandPalette } from "@/components/command-palette/CommandPalette";
 
 export default function App() {
@@ -46,6 +47,7 @@ export default function App() {
     useToggleSidebarShortcut();
     useVaultAutoLock();
     useCommandPaletteShortcut();
+    useTerminalFindShortcut();
 
     useEffect(() => {
         queryClient

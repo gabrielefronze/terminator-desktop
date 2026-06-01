@@ -53,7 +53,7 @@ Completes the SSH/networking story and improves power-user workflows.
   - TCP/SSH keep-alive to prevent silent drops; optional auto-reconnect with user prompt.
   - *Touches:* `backend/internal/services/ssh/ssh.go`, terminal disconnect UI.
 
-- [ ] **Terminal find (`⌘F` / `Ctrl+F`)**
+- [x] **Terminal find (`⌘F` / `Ctrl+F`)**
   - xterm.js SearchAddon in active pane.
   - *Touches:* `TerminalInstance.tsx`, `@xterm/addon-search`.
 

@@ -1,0 +1,11 @@
+/* xterm SearchAddon decoration classes (see @xterm/addon-search) */
+.xterm .xterm-find-result-decoration {
+    border-radius: 2px;
+    mix-blend-mode: screen;
+}
+
+.xterm .xterm-find-active-result-decoration {
+    border-radius: 2px;
+    mix-blend-mode: screen;
+    outline-width: 2px !important;
+}

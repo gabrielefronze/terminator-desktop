@@ -26,6 +26,17 @@ export function isCommandPaletteShortcut(event: KeyboardEvent): boolean {
     return isModShortcut(event, "k");
 }
 
+export function isTerminalFindShortcut(event: KeyboardEvent): boolean {
+    return isModShortcut(event, "f");
+}
+
+export function isTerminalFindInput(target: EventTarget | null): boolean {
+    return (
+        target instanceof HTMLElement &&
+        target.dataset.terminalFindInput === "true"
+    );
+}
+
 export function isToggleSidebarShortcut(event: KeyboardEvent): boolean {
     return isModShortcut(event, "b");
 }

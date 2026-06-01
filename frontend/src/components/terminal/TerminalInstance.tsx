@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
+import { SearchAddon } from "@xterm/addon-search";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { Browser, Events } from "@wailsio/runtime";
 import { buildTerminalOptions, TERMINAL_BACKGROUND } from "@/lib/terminalTheme";
 import { ErrorCode } from "@/lib/errorCodes";
 import { PassphrasePromptModal } from "@/components/terminal/PassphrasePromptModal";
+import { TerminalFindBar } from "@/components/terminal/TerminalFindBar";
 import { useSettings } from "@/hooks/useSettings";
 import { parseAppError, handleAppError } from "@/lib/error";
 import {
@@ -16,11 +18,14 @@ import {
 import { queryClient } from "@/lib/queryClient";
 import { adjustTerminalFontSize } from "@/lib/terminalFontSizeAdjust";
 import { resolveBroadcastInputTargetSessionIds } from "@/lib/snippetApply";
+import { runTerminalFind } from "@/lib/terminalFind";
 import { useSessionStore } from "@/store/sessionStore";
+import { useTerminalFindStore } from "@/store/terminalFindStore";
 import { useUIStore } from "@/store/uiStore";
 import { cn, decodeBase64ToUint8Array } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import "@xterm/xterm/css/xterm.css";
+import "@/styles/terminal-find.css";
 import { SshService } from "../../../bindings/terminator-desktop/backend/internal/services/ssh";
 import { SSHConnectionConfig } from "../../../bindings/terminator-desktop/backend/internal/services/ssh/models";
 import { useTranslation } from "react-i18next";
@@ -87,7 +92,11 @@ export function TerminalInstance({
     const containerRef = useRef<HTMLDivElement>(null);
     const terminalRef = useRef<Terminal | null>(null);
     const fitAddonRef = useRef<FitAddon | null>(null);
+    const searchAddonRef = useRef<SearchAddon | null>(null);
     const webglAddonRef = useRef<TerminalWebglAddon | null>(null);
+    const findOpen = useTerminalFindStore((s) => s.isOpen);
+    const findQuery = useTerminalFindStore((s) => s.query);
+    const closeFind = useTerminalFindStore((s) => s.close);
     const hasConnectedRef = useRef(false);
     const isReadyRef = useRef(false);
     const promptBufferRef = useRef("");
@@ -220,6 +229,7 @@ export function TerminalInstance({
                 fontFamily,
             });
             const fitAddon = new FitAddon();
+            const searchAddon = new SearchAddon();
             const linksAddon = new WebLinksAddon((event, uri) => {
                 if (!event.metaKey) {
                     return;
@@ -230,6 +240,7 @@ export function TerminalInstance({
 
             applyUnicode11Addon(term);
             term.loadAddon(fitAddon);
+            term.loadAddon(searchAddon);
             term.loadAddon(linksAddon);
             term.open(containerRef.current);
             syncTerminalWebglRenderer(
@@ -240,9 +251,20 @@ export function TerminalInstance({
 
             terminalRef.current = term;
             fitAddonRef.current = fitAddon;
+            searchAddonRef.current = searchAddon;
 
             term.attachCustomKeyEventHandler((arg) => {
                 if (arg.type === "keydown") {
+                    if (
+                        (arg.metaKey || arg.ctrlKey) &&
+                        !arg.altKey &&
+                        arg.code === "KeyF"
+                    ) {
+                        arg.preventDefault();
+                        useTerminalFindStore.getState().toggle();
+                        return false;
+                    }
+
                     if (
                         (arg.metaKey || arg.ctrlKey) &&
                         !arg.altKey &&
@@ -383,13 +405,42 @@ export function TerminalInstance({
                 syncTerminalWebglRenderer(term, webglAddonRef, false);
                 term.dispose();
             }
+            searchAddonRef.current?.clearDecorations();
             terminalRef.current = null;
             fitAddonRef.current = null;
+            searchAddonRef.current = null;
             webglAddonRef.current = null;
             hasConnectedRef.current = false;
             isReadyRef.current = false;
         };
     }, [sessionId]);
+
+    const findNext = useCallback(() => {
+        runTerminalFind(searchAddonRef.current, findQuery, "next");
+    }, [findQuery]);
+
+    const findPrevious = useCallback(() => {
+        runTerminalFind(searchAddonRef.current, findQuery, "previous");
+    }, [findQuery]);
+
+    useEffect(() => {
+        if (!isFocused || !findOpen) {
+            return;
+        }
+        findNext();
+    }, [findNext, findOpen, isFocused, findQuery]);
+
+    useEffect(() => {
+        if (!findOpen) {
+            searchAddonRef.current?.clearDecorations();
+        }
+    }, [findOpen]);
+
+    useEffect(() => {
+        if (!isFocused && findOpen) {
+            closeFind();
+        }
+    }, [closeFind, findOpen, isFocused]);
 
     useEffect(() => {
         const term = terminalRef.current;
@@ -518,6 +569,12 @@ export function TerminalInstance({
                 className="terminal-host h-full min-h-0 w-full"
                 style={{ backgroundColor: TERMINAL_BACKGROUND }}
             />
+            {isFocused && findOpen && (
+                <TerminalFindBar
+                    onFindNext={findNext}
+                    onFindPrevious={findPrevious}
+                />
+            )}
             {isConnecting && !showPassphraseModal && (
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background">
                     <Loader2 className="size-8 animate-spin text-muted-foreground" />
