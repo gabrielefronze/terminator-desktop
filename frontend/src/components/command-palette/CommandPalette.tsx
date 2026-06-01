@@ -5,6 +5,7 @@ import {
     Columns2,
     FileCode2,
     FolderOpen,
+    History,
     Key,
     Lock,
     PanelLeft,
@@ -38,12 +39,19 @@ import { useAllHosts, useHosts } from "@/hooks/useHosts";
 import { useOpenTabGroup } from "@/hooks/useOpenTabGroup";
 import { useTabGroups } from "@/hooks/useTabGroups";
 import { useSnippets } from "@/hooks/useSnippets";
+import { useCommandHistorySearch } from "@/hooks/useCommandHistorySearch";
+import { useSettings } from "@/hooks/useSettings";
 import { isBuiltinLocalhostHost } from "@/lib/defaultLocalhost";
 import {
     formatTabGroupHostList,
     resolveTabGroupHosts,
 } from "@/lib/tabGroups";
 import { applySnippetContent, resolveSnippetTargetSessionIds } from "@/lib/snippetApply";
+import {
+    applyCommandToSessions,
+    sessionHistoryHostId,
+} from "@/lib/commandHistory";
+import { useTerminalHistoryStore } from "@/store/terminalHistoryStore";
 import { lockVaultFromUI } from "@/lib/vaultLock";
 import { useSessionStore } from "@/store/sessionStore";
 import { useUIStore, ViewType } from "@/store/uiStore";
@@ -133,6 +141,7 @@ export function CommandPalette() {
         "forwards",
         "settings",
         "sftp",
+        "commandHistory",
     ]);
     const isOpen = useUIStore((s) => s.isCommandPaletteOpen);
     const closeCommandPalette = useUIStore((s) => s.closeCommandPalette);
@@ -151,8 +160,10 @@ export function CommandPalette() {
     const { data: keys } = useKeys();
     const { data: identities } = useIdentities();
     const { data: snippets } = useSnippets();
+    const { data: settings } = useSettings();
     const sessions = useSessionStore((s) => s.sessions);
     const activeSessionId = useSessionStore((s) => s.activeSessionId);
+    const openTerminalHistory = useTerminalHistoryStore((s) => s.open);
 
     const {
         connect,
@@ -177,6 +188,32 @@ export function CommandPalette() {
         [activeSessionId, commandBroadcastEnabled, sessions],
     );
     const canInsertSnippet = snippetTargetIds.length > 0;
+    const canRunHistory = snippetTargetIds.length > 0;
+
+    const activeSession = sessions.find(
+        (session) => session.id === activeSessionId,
+    );
+    const activeHostId = activeSession
+        ? sessionHistoryHostId(activeSession)
+        : "";
+
+    const historyEnabled =
+        isOpen &&
+        settings?.commandHistoryEnabled !== false &&
+        searchQuery.trim().length > 0;
+
+    const { data: localHistory = [] } = useCommandHistorySearch(
+        searchQuery,
+        "local",
+        activeHostId,
+        historyEnabled && Boolean(activeHostId),
+    );
+    const { data: globalHistory = [] } = useCommandHistorySearch(
+        searchQuery,
+        "global",
+        "",
+        historyEnabled,
+    );
 
     const connectableHosts = useMemo(() => {
         const hosts: Host[] = [];
@@ -228,6 +265,19 @@ export function CommandPalette() {
             icon: <PanelLeft className="size-4" />,
             run: () => toggleSidebar(),
         });
+        if (canRunHistory && settings?.commandHistoryEnabled !== false) {
+            push({
+                id: "action-command-history",
+                sectionId: "actions",
+                sectionLabel: t("section_actions"),
+                label: t("commandHistory:open_bar"),
+                icon: <History className="size-4" />,
+                run: () => {
+                    setActiveView(ViewType.Terminal);
+                    openTerminalHistory("local");
+                },
+            });
+        }
         push({
             id: "action-lock",
             sectionId: "actions",
@@ -378,15 +428,67 @@ export function CommandPalette() {
             });
         }
 
+        const seenHistory = new Set<string>();
+        for (const entry of localHistory) {
+            const key = `local:${entry.hostId}:${entry.command}`;
+            if (seenHistory.has(key)) {
+                continue;
+            }
+            seenHistory.add(key);
+            push({
+                id: `history-local-${entry.id}`,
+                sectionId: "command-history-local",
+                sectionLabel: t("commandHistory:section_local"),
+                label: entry.command,
+                description: entry.hostLabel || undefined,
+                disabled: !canRunHistory,
+                icon: <History className="size-4" />,
+                run: () => {
+                    void applyCommandToSessions(
+                        snippetTargetIds,
+                        entry.command,
+                    );
+                },
+            });
+        }
+
+        for (const entry of globalHistory) {
+            const key = `global:${entry.hostId}:${entry.command}`;
+            if (seenHistory.has(key)) {
+                continue;
+            }
+            seenHistory.add(key);
+            push({
+                id: `history-global-${entry.id}`,
+                sectionId: "command-history-global",
+                sectionLabel: t("commandHistory:section_global"),
+                label: entry.command,
+                description: entry.hostLabel || undefined,
+                disabled: !canRunHistory,
+                icon: <History className="size-4" />,
+                run: () => {
+                    void applyCommandToSessions(
+                        snippetTargetIds,
+                        entry.command,
+                    );
+                },
+            });
+        }
+
         return entries;
     }, [
         allHosts,
         canInsertSnippet,
+        canRunHistory,
         connect,
         connectableHosts,
+        globalHistory,
+        localHistory,
         openNewTabHostPicker,
         openTabGroup,
+        openTerminalHistory,
         setActiveView,
+        settings?.commandHistoryEnabled,
         snippetTargetIds,
         snippets,
         sessions.length,
@@ -403,6 +505,8 @@ export function CommandPalette() {
     const sections = useMemo(() => {
         const order = [
             "actions",
+            "command-history-local",
+            "command-history-global",
             "navigate",
             "hosts",
             "tab-groups",

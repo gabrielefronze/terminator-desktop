@@ -87,7 +87,7 @@ For multi-device sync, run a compatible self-hosted sync API and point the deskt
 - [x] Host reachability indicators
 - [x] Touch ID vault unlock (macOS)
 - [ ] Remote / dynamic port forwarding
-- [ ] Encrypted command history (searchable)
+- [x] Encrypted command history (searchable)
 - [ ] Import / export hosts
 - [ ] Multiple profiles / teams
 - [ ] Android client

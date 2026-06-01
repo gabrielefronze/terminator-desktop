@@ -30,6 +30,7 @@ type AppSettings struct {
 	VaultAutoLockMinutes   int    `json:"vaultAutoLockMinutes"`
 	VaultAutoLockOnSleep   bool   `json:"vaultAutoLockOnSleep"`
 	SessionRestoreEnabled  bool   `json:"sessionRestoreEnabled"`
+	CommandHistoryEnabled  bool   `json:"commandHistoryEnabled"`
 }
 
 func normalizeSettings(settings AppSettings) AppSettings {
@@ -85,6 +86,7 @@ func (s *SettingsService) GetSettings() (AppSettings, error) {
 		AppBackgroundColor:      DefaultAppBackgroundColor,
 		AccentColor:             DefaultAccentColor,
 		SessionRestoreEnabled:   true,
+		CommandHistoryEnabled:   true,
 	}
 
 	data, err := os.ReadFile(s.configPath)

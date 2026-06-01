@@ -30,6 +30,15 @@ export function isTerminalFindShortcut(event: KeyboardEvent): boolean {
     return isModShortcut(event, "f");
 }
 
+export function isTerminalCommandHistoryShortcut(event: KeyboardEvent): boolean {
+    return (
+        (event.metaKey || event.ctrlKey) &&
+        !event.altKey &&
+        event.shiftKey &&
+        event.key.toLowerCase() === "r"
+    );
+}
+
 export function isTerminalFindInput(target: EventTarget | null): boolean {
     return (
         target instanceof HTMLElement &&

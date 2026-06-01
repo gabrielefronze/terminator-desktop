@@ -9,6 +9,13 @@ import { buildTerminalOptions, TERMINAL_BACKGROUND } from "@/lib/terminalTheme";
 import { ErrorCode } from "@/lib/errorCodes";
 import { PassphrasePromptModal } from "@/components/terminal/PassphrasePromptModal";
 import { TerminalFindBar } from "@/components/terminal/TerminalFindBar";
+import { TerminalCommandHistoryBar } from "@/components/terminal/TerminalCommandHistoryBar";
+import { TerminalCommandBuffer } from "@/lib/terminalCommandBuffer";
+import {
+    appendCommandHistory,
+    sessionHistoryHostId,
+    sessionHistoryHostLabel,
+} from "@/lib/commandHistory";
 import { useSettings } from "@/hooks/useSettings";
 import { parseAppError, handleAppError } from "@/lib/error";
 import {
@@ -82,7 +89,9 @@ export function TerminalInstance({
     terminalFontSize,
 }: TerminalInstanceProps) {
     const {t} = useTranslation("terminal");
-    const {data: settings} = useSettings();
+    const { data: settings } = useSettings();
+    const settingsRef = useRef(settings);
+    settingsRef.current = settings;
     const [showPasswordMenu, setShowPasswordMenu] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 12, y: 12 });
     const [keyPassphrase, setKeyPassphrase] = useState(config.keyPassphrase ?? "");
@@ -103,6 +112,7 @@ export function TerminalInstance({
     const decoderRef = useRef(new TextDecoder("utf-8"));
     const lastPointerRef = useRef({ x: 16, y: 16 });
     const suppressMenuUntilRef = useRef(0);
+    const commandBufferRef = useRef(new TerminalCommandBuffer());
     const onActivateRef = useRef(onActivate);
     const isFocusedRef = useRef(isFocused);
 
@@ -375,6 +385,27 @@ export function TerminalInstance({
 
             const onDataDisposable = term.onData((data) => {
                 if (!isReadyRef.current) return;
+
+                if (settingsRef.current?.commandHistoryEnabled !== false) {
+                    commandBufferRef.current.feed(data, (line) => {
+                        const current = useSessionStore
+                            .getState()
+                            .sessions.find((item) => item.id === sessionId);
+                        if (!current) {
+                            return;
+                        }
+                        const hostId = sessionHistoryHostId(current);
+                        if (!hostId) {
+                            return;
+                        }
+                        void appendCommandHistory(
+                            hostId,
+                            sessionHistoryHostLabel(current),
+                            line,
+                        );
+                    });
+                }
+
                 sendInput(data);
             });
 
@@ -575,6 +606,7 @@ export function TerminalInstance({
                     onFindPrevious={findPrevious}
                 />
             )}
+            <TerminalCommandHistoryBar sessionId={sessionId} />
             {isConnecting && !showPassphraseModal && (
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background">
                     <Loader2 className="size-8 animate-spin text-muted-foreground" />

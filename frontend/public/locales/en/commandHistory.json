@@ -1,0 +1,17 @@
+{
+  "section_local": "Command history (this host)",
+  "section_global": "Command history (all hosts)",
+  "open_bar": "Search command history",
+  "search_placeholder": "Search commands…",
+  "scope_local": "This host",
+  "scope_global": "All hosts",
+  "loading": "Loading…",
+  "empty": "No matching commands",
+  "hint": "↑↓ to select · Enter to run · Esc to close",
+  "settings_label": "Save command history",
+  "settings_desc": "Store commands you run in the terminal, encrypted in your vault. Search from ⌘K or ⌘⇧R in a session.",
+  "clear_all": "Clear all history",
+  "clear_all_confirm_title": "Clear command history?",
+  "clear_all_confirm_desc": "Remove all saved commands from this device. This cannot be undone.",
+  "cleared_toast": "Command history cleared"
+}

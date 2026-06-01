@@ -31,6 +31,7 @@ import { UpdaterService } from "../bindings/terminator-desktop/backend/internal/
 import { useVaultAutoLock } from "@/hooks/useVaultAutoLock";
 import { useCommandPaletteShortcut } from "@/hooks/useCommandPaletteShortcut";
 import { useTerminalFindShortcut } from "@/hooks/useTerminalFindShortcut";
+import { useTerminalHistoryShortcut } from "@/hooks/useTerminalHistoryShortcut";
 import { CommandPalette } from "@/components/command-palette/CommandPalette";
 import { SessionRestorePrompt } from "@/components/session-restore/SessionRestorePrompt";
 import {
@@ -53,6 +54,7 @@ export default function App() {
     useVaultAutoLock();
     useCommandPaletteShortcut();
     useTerminalFindShortcut();
+    useTerminalHistoryShortcut();
     useSessionRestorePersistence();
     const sessionRestore = useSessionRestoreOffer();
 

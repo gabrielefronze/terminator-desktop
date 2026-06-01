@@ -56,9 +56,11 @@ import {
 } from "@/lib/accentTheme";
 import { VaultDataSection } from "@/components/views/VaultDataSection";
 import { lockVaultFromUI } from "@/lib/vaultLock";
+import { Service as CommandHistoryService } from "../../../bindings/terminator-desktop/backend/internal/services/commandhistory";
+import { toast } from "sonner";
 
 export function SettingsPage() {
-    const {t, i18n} = useTranslation(["settings", "common", "errors"]);
+    const {t, i18n} = useTranslation(["settings", "common", "errors", "commandHistory"]);
     const {data: user, refetch} = useCurrentUser();
     const {setUnlocked, setHasUser} = useAuthStore();
     const {clearSessions} = useSessionStore();
@@ -66,6 +68,7 @@ export function SettingsPage() {
 
     const [isServerModalOpen, setIsServerModalOpen] = useState(false);
     const [isWipeModalOpen, setIsWipeModalOpen] = useState(false);
+    const [isClearHistoryModalOpen, setIsClearHistoryModalOpen] = useState(false);
     const { data: settings } = useSettings();
     const { data: systemFonts, isLoading: isFontsLoading } = useSystemFonts();
     const saveSettingsMutation = useSaveSettings();
@@ -595,6 +598,42 @@ export function SettingsPage() {
                         <div className="flex items-center justify-between gap-4">
                             <div className="flex flex-col">
                                 <span className="font-medium text-foreground">
+                                    {t("commandHistory:settings_label")}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("commandHistory:settings_desc")}
+                                </span>
+                            </div>
+                            <Switch
+                                checked={settings?.commandHistoryEnabled ?? true}
+                                disabled={saveSettingsMutation.isPending}
+                                onCheckedChange={(checked) => {
+                                    void persistSettings({
+                                        commandHistoryEnabled: checked,
+                                    }).catch(handleAppError);
+                                }}
+                            />
+                        </div>
+
+                        {settings?.commandHistoryEnabled !== false && (
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="text-sm text-muted-foreground">
+                                    {t("commandHistory:clear_all")}
+                                </span>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setIsClearHistoryModalOpen(true)}
+                                >
+                                    {t("commandHistory:clear_all")}
+                                </Button>
+                            </div>
+                        )}
+
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex flex-col">
+                                <span className="font-medium text-foreground">
                                     {t("session_restore_label")}
                                 </span>
                                 <span className="text-xs text-muted-foreground">
@@ -736,6 +775,22 @@ export function SettingsPage() {
                 description={t("wipe_confirm_desc")}
                 confirmText={t("nuke_it")}
                 isDestructive={true}
+            />
+
+            <ConfirmModal
+                isOpen={isClearHistoryModalOpen}
+                onClose={() => setIsClearHistoryModalOpen(false)}
+                onConfirm={() => {
+                    void CommandHistoryService.Clear()
+                        .then(() => {
+                            toast.success(t("commandHistory:cleared_toast"));
+                            setIsClearHistoryModalOpen(false);
+                        })
+                        .catch(handleAppError);
+                }}
+                title={t("commandHistory:clear_all_confirm_title")}
+                description={t("commandHistory:clear_all_confirm_desc")}
+                isDestructive
             />
 
         </div>

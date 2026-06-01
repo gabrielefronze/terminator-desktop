@@ -26,6 +26,7 @@ void i18n
                 "tabgroups",
                 "palette",
                 "sessionRestore",
+                "commandHistory",
             ],
         defaultNS: "common",
         interpolation: {

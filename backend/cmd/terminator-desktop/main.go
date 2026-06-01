@@ -22,6 +22,7 @@ import (
 	"terminator-desktop/backend/internal/services/knownhosts"
 	"terminator-desktop/backend/internal/services/localfs"
 	"terminator-desktop/backend/internal/services/reachability"
+	"terminator-desktop/backend/internal/services/commandhistory"
 	"terminator-desktop/backend/internal/services/sessionrestore"
 	"terminator-desktop/backend/internal/services/settings"
 	"terminator-desktop/backend/internal/services/ssh"
@@ -191,6 +192,7 @@ func main() {
 	tabGroupService := blob.NewTabGroupService(queries, v)
 	settingsService := settings.NewSettingsService(appDir)
 	sessionRestoreService := sessionrestore.NewService(appDir)
+	commandHistoryService := commandhistory.NewService(queries, v)
 	updaterService := updater.NewUpdaterService(updateUrl, updaterEmitter)
 	reachabilityService := reachability.NewReachabilityService()
 	localFsService := localfs.NewService()
@@ -208,6 +210,7 @@ func main() {
 	app.RegisterService(application.NewService(knownHostsService))
 	app.RegisterService(application.NewService(settingsService))
 	app.RegisterService(application.NewService(sessionRestoreService))
+	app.RegisterService(application.NewService(commandHistoryService))
 	app.RegisterService(application.NewService(reachabilityService))
 	app.RegisterService(application.NewService(updaterService))
 	app.RegisterService(application.NewService(localFsService))

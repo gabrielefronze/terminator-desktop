@@ -17,6 +17,7 @@ export class AppSettings {
     "vaultAutoLockMinutes": number;
     "vaultAutoLockOnSleep": boolean;
     "sessionRestoreEnabled": boolean;
+    "commandHistoryEnabled": boolean;
 
     /** Creates a new AppSettings instance. */
     constructor($$source: Partial<AppSettings> = {}) {
@@ -52,6 +53,9 @@ export class AppSettings {
         }
         if (!("sessionRestoreEnabled" in $$source)) {
             this["sessionRestoreEnabled"] = false;
+        }
+        if (!("commandHistoryEnabled" in $$source)) {
+            this["commandHistoryEnabled"] = false;
         }
 
         Object.assign(this, $$source);

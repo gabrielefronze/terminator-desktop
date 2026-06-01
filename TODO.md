@@ -19,7 +19,7 @@ Quick wins and features that unblock adoption or daily use.
   - Connect to host, open tab group, insert snippet, navigate views, open settings.
   - *Touches:* new palette component, `useConnectHost`, `sessionStore`, `uiStore`.
 
-- [ ] **Encrypted command history**
+- [x] **Encrypted command history**
   - Capture commands per session (or globally), store encrypted in vault, searchable from palette or terminal toolbar.
   - *Touches:* new blob type or SQLite table, terminal input hook in `TerminalInstance.tsx`, crypto via vault.
 
