@@ -62,7 +62,7 @@ Completes the SSH/networking story and improves power-user workflows.
   - Document in a shortcuts cheatsheet (Settings or `?` overlay).
   - *Touches:* `frontend/src/lib/keyboardShortcuts.ts`, hooks in `App.tsx`.
 
-- [ ] **SFTP file management**
+- [x] **SFTP file management**
   - Remote rename, delete, mkdir; optional chmod and “edit remote file” (download → edit → upload).
   - *Touches:* `SshService` SFTP methods, `SftpDualPane.tsx`.
 

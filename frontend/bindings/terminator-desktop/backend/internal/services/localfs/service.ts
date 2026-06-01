@@ -19,6 +19,14 @@ export function ListDir(dirPath: string): $CancellablePromise<$models.LocalEntry
     });
 }
 
+export function OpenPath(path: string): $CancellablePromise<void> {
+    return $Call.ByID(788934990, path);
+}
+
+export function RemovePath(path: string): $CancellablePromise<void> {
+    return $Call.ByID(3006857546, path);
+}
+
 // Private type creation functions
 const $$createType0 = $models.LocalEntry.createFrom;
 const $$createType1 = $Create.Array($$createType0);

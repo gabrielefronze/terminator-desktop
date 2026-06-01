@@ -45,6 +45,10 @@ export function Resize(sessionID: string, rows: number, cols: number): $Cancella
     return $Call.ByID(639676773, sessionID, rows, cols);
 }
 
+export function SftpChmod(sessionID: string, remotePath: string, mode: number): $CancellablePromise<void> {
+    return $Call.ByID(911228333, sessionID, remotePath, mode);
+}
+
 export function SftpDownload(sessionID: string, remotePath: string, localPath: string): $CancellablePromise<void> {
     return $Call.ByID(2112044164, sessionID, remotePath, localPath);
 }
@@ -53,6 +57,25 @@ export function SftpList(sessionID: string, remotePath: string): $CancellablePro
     return $Call.ByID(417381892, sessionID, remotePath).then(($result: any) => {
         return $$createType3($result);
     });
+}
+
+export function SftpMkdir(sessionID: string, remotePath: string): $CancellablePromise<void> {
+    return $Call.ByID(1399921231, sessionID, remotePath);
+}
+
+/**
+ * SftpPrepareEdit downloads a remote file to a temp path for external editing.
+ */
+export function SftpPrepareEdit(sessionID: string, remotePath: string): $CancellablePromise<string> {
+    return $Call.ByID(1235543291, sessionID, remotePath);
+}
+
+export function SftpRemove(sessionID: string, remotePath: string): $CancellablePromise<void> {
+    return $Call.ByID(984273452, sessionID, remotePath);
+}
+
+export function SftpRename(sessionID: string, oldPath: string, newPath: string): $CancellablePromise<void> {
+    return $Call.ByID(569627294, sessionID, oldPath, newPath);
 }
 
 export function SftpUpload(sessionID: string, localPath: string, remotePath: string): $CancellablePromise<void> {
