@@ -97,8 +97,47 @@ Missing something? [Open an issue](https://github.com/gabrielefronze/terminator-
 
 ## Screenshots
 
-<img src="assets/term-en-white.png" width="1600" alt="Elemento Nexus hosts view"/>
-<img src="assets/term-t-white.png" width="1600" alt="Elemento Nexus terminal with splits"/>
+### Connection management
+
+**Hosts & groups**
+
+<img src="assets/hosts.webp" width="1325" alt="Hosts list with groups, icons, and reachability indicators"/>
+
+**Identities**
+
+<img src="assets/identities.webp" width="1325" alt="Reusable SSH identities linked to hosts"/>
+
+**SSH keys**
+
+<img src="assets/keys.webp" width="1325" alt="SSH key import and in-app key generation"/>
+
+### Terminal & sessions
+
+**Terminal session**
+
+<img src="assets/terminal-session.webp" width="1325" alt="Multi-tab SSH terminal session"/>
+
+**Split panes**
+
+<img src="assets/terminal-splits.webp" width="1325" alt="Split terminal panes in one tab"/>
+
+**Tab groups**
+
+<img src="assets/tab-groups.webp" width="1325" alt="Saved tab groups to open multiple hosts at once"/>
+
+**Snippets**
+
+<img src="assets/snippets.webp" width="1325" alt="Command snippets in the terminal toolbar"/>
+
+### Files & networking
+
+**SFTP browser**
+
+<img src="assets/sftp.webp" width="1325" alt="Dual-pane SFTP file browser with local and remote paths"/>
+
+**Port forwarding**
+
+<img src="assets/forwards.webp" width="1325" alt="Local port forwards and saved forward library"/>
 
 ## Development
 
