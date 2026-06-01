@@ -25,6 +25,7 @@ import (
 	"terminator-desktop/backend/internal/services/ssh"
 	"terminator-desktop/backend/internal/services/sync"
 	"terminator-desktop/backend/internal/services/updater"
+	"terminator-desktop/backend/internal/services/vaulttransfer"
 	"terminator-desktop/backend/internal/vault"
 	"terminator-desktop/backend/internal/windowstate"
 
@@ -228,6 +229,9 @@ func main() {
 
 	mainWindow = app.Window.NewWithOptions(windowOpts)
 	newWindowLayoutStore(appDir, mainWindow).attach()
+
+	vaultTransferService := vaulttransfer.NewService(queries, v, knownHostsService, app, mainWindow)
+	app.RegisterService(application.NewService(vaultTransferService))
 
 	defer v.Lock() // eh why not
 	defer syncService.StopAutoSync()

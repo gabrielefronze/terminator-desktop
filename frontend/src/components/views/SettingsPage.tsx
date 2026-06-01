@@ -54,6 +54,7 @@ import {
     DEFAULT_ACCENT_COLOR,
     normalizeAccentColor,
 } from "@/lib/accentTheme";
+import { VaultDataSection } from "@/components/views/VaultDataSection";
 
 export function SettingsPage() {
     const {t, i18n} = useTranslation(["settings", "common", "errors"]);
@@ -311,6 +312,8 @@ export function SettingsPage() {
                         </div>
                     )}
                 </SettingsCard>
+
+                <VaultDataSection />
 
                 <SettingsCard title={t("preferences_title")}>
                     <div className="flex items-center justify-between">

@@ -7,6 +7,7 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/google/uuid v1.6.0
+	github.com/kevinburke/ssh_config v1.4.0
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/pkg/sftp v1.13.10
 	github.com/quaadgras/velopack-go v0.0.1358
@@ -36,7 +37,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jchv/go-winloader v0.0.0-20250406163304-c1995be93bd1 // indirect
-	github.com/kevinburke/ssh_config v1.4.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/leaanthony/go-ansi-parser v1.6.1 // indirect

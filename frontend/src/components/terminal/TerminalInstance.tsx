@@ -356,15 +356,16 @@ export function TerminalInstance({
                 sendInput(data);
             });
 
-            const onFocusDisposable = term.onFocus(() => {
+            const handleFocusIn = () => {
                 onActivateRef.current?.();
-            });
+            };
+            container.addEventListener("focusin", handleFocusIn);
 
             return () => {
                 container.removeEventListener("contextmenu", handleContextMenu);
                 container.removeEventListener("mousemove", handleMouseMove);
+                container.removeEventListener("focusin", handleFocusIn);
                 onDataDisposable.dispose();
-                onFocusDisposable.dispose();
             };
         };
 

@@ -25,6 +25,14 @@ export function List(): $CancellablePromise<$models.Entry[]> {
     });
 }
 
+/**
+ * MergeFromFile imports entries from an OpenSSH known_hosts file.
+ * Hashed host lines are skipped.
+ */
+export function MergeFromFile(path: string): $CancellablePromise<number> {
+    return $Call.ByID(392380347, path);
+}
+
 export function RemoveHost(host: string, port: number): $CancellablePromise<void> {
     return $Call.ByID(2731370981, host, port);
 }

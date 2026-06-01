@@ -10,7 +10,7 @@ Items are grouped by suggested priority. Check boxes off as work lands.
 
 Quick wins and features that unblock adoption or daily use.
 
-- [ ] **Import / export vault data**
+- [x] **Import / export vault data**
   - Export hosts, keys, identities, snippets, forwards, tab groups as encrypted or plaintext bundle (user choice).
   - Import from bundle and from `~/.ssh/config` (+ optional `known_hosts` merge).
   - *Touches:* `backend/internal/services/blob/`, new import/export service, Settings UI.
