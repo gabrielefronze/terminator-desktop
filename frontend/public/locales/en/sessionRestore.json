@@ -1,0 +1,9 @@
+{
+  "title": "Restore previous session?",
+  "description": "Reconnect {{count}} tab(s) from your last session, including split panes.",
+  "restore": "Restore session",
+  "start_fresh": "Start fresh",
+  "restoring": "Restoring…",
+  "restore_success": "Restored {{count}} tab(s)",
+  "restore_none_available": "No saved hosts are available to restore"
+}

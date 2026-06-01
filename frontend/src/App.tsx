@@ -32,6 +32,11 @@ import { useVaultAutoLock } from "@/hooks/useVaultAutoLock";
 import { useCommandPaletteShortcut } from "@/hooks/useCommandPaletteShortcut";
 import { useTerminalFindShortcut } from "@/hooks/useTerminalFindShortcut";
 import { CommandPalette } from "@/components/command-palette/CommandPalette";
+import { SessionRestorePrompt } from "@/components/session-restore/SessionRestorePrompt";
+import {
+    useSessionRestoreOffer,
+    useSessionRestorePersistence,
+} from "@/hooks/useSessionRestore";
 
 export default function App() {
     const {isUnlocked} = useAuthStore();
@@ -48,6 +53,8 @@ export default function App() {
     useVaultAutoLock();
     useCommandPaletteShortcut();
     useTerminalFindShortcut();
+    useSessionRestorePersistence();
+    const sessionRestore = useSessionRestoreOffer();
 
     useEffect(() => {
         queryClient
@@ -139,6 +146,13 @@ export default function App() {
                     <>
                         <NewTabHostPickerModal />
                         <CommandPalette />
+                        <SessionRestorePrompt
+                            open={sessionRestore.promptOpen}
+                            tabCount={sessionRestore.tabCount}
+                            restoring={sessionRestore.restoring}
+                            onRestore={() => void sessionRestore.acceptRestore()}
+                            onDismiss={sessionRestore.dismissRestore}
+                        />
                     </>
                 )}
             </div>

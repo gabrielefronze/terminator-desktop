@@ -27,7 +27,7 @@ Quick wins and features that unblock adoption or daily use.
   - Lock after configurable idle timeout; optional lock on system sleep.
   - *Touches:* `AuthService`, `LockScreen`, settings JSON in `SettingsService`.
 
-- [ ] **Session restore**
+- [x] **Session restore**
   - Persist open tabs (host IDs, split layout, active tab) across app restarts; offer reconnect on launch.
   - *Touches:* `sessionStore`, disk persistence (settings or encrypted blob), `TerminalStack` / `TitleBar`.
 

@@ -29,6 +29,7 @@ type AppSettings struct {
 	VaultAutoLockEnabled   bool   `json:"vaultAutoLockEnabled"`
 	VaultAutoLockMinutes   int    `json:"vaultAutoLockMinutes"`
 	VaultAutoLockOnSleep   bool   `json:"vaultAutoLockOnSleep"`
+	SessionRestoreEnabled  bool   `json:"sessionRestoreEnabled"`
 }
 
 func normalizeSettings(settings AppSettings) AppSettings {
@@ -83,6 +84,7 @@ func (s *SettingsService) GetSettings() (AppSettings, error) {
 		ShowLocalhostHost:       true,
 		AppBackgroundColor:      DefaultAppBackgroundColor,
 		AccentColor:             DefaultAccentColor,
+		SessionRestoreEnabled:   true,
 	}
 
 	data, err := os.ReadFile(s.configPath)

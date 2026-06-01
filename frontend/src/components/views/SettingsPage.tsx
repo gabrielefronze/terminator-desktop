@@ -595,6 +595,26 @@ export function SettingsPage() {
                         <div className="flex items-center justify-between gap-4">
                             <div className="flex flex-col">
                                 <span className="font-medium text-foreground">
+                                    {t("session_restore_label")}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("session_restore_desc")}
+                                </span>
+                            </div>
+                            <Switch
+                                checked={settings?.sessionRestoreEnabled ?? true}
+                                disabled={saveSettingsMutation.isPending}
+                                onCheckedChange={(checked) => {
+                                    void persistSettings({
+                                        sessionRestoreEnabled: checked,
+                                    }).catch(handleAppError);
+                                }}
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex flex-col">
+                                <span className="font-medium text-foreground">
                                     {t("vault_auto_lock_label")}
                                 </span>
                                 <span className="text-xs text-muted-foreground">

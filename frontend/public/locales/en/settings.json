@@ -30,6 +30,8 @@
   "lock_vault_title": "Lock vault",
   "lock_vault_desc": "Require your password to open the app again.",
   "lock_btn": "Lock",
+  "session_restore_label": "Restore session on launch",
+  "session_restore_desc": "Remember open tabs and split layouts across restarts. You can reconnect when the app starts.",
   "vault_auto_lock_label": "Auto-lock vault",
   "vault_auto_lock_desc": "Require your password again after a period without activity.",
   "vault_auto_lock_minutes_label": "Idle timeout",
