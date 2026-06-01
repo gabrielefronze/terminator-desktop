@@ -4,7 +4,7 @@ import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { Browser, Events } from "@wailsio/runtime";
-import { buildTerminalOptions } from "@/lib/terminalTheme";
+import { buildTerminalOptions, TERMINAL_BACKGROUND } from "@/lib/terminalTheme";
 import { ErrorCode } from "@/lib/errorCodes";
 import { PassphrasePromptModal } from "@/components/terminal/PassphrasePromptModal";
 import { useSettings } from "@/hooks/useSettings";
@@ -507,13 +507,15 @@ export function TerminalInstance({
     return (
         <div
             className={cn(
-                "absolute inset-0 overflow-hidden bg-background pl-2",
+                "absolute inset-0 overflow-hidden pl-2",
                 isActive ? "block" : "hidden",
             )}
+            style={{ backgroundColor: TERMINAL_BACKGROUND }}
         >
             <div
                 ref={containerRef}
                 className="terminal-host h-full min-h-0 w-full"
+                style={{ backgroundColor: TERMINAL_BACKGROUND }}
             />
             {isConnecting && !showPassphraseModal && (
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background">

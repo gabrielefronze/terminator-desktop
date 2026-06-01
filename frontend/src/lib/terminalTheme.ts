@@ -16,6 +16,9 @@ const BASE_TERMINAL_OPTIONS = {
     allowProposedApi: true,
 } satisfies Partial<ITerminalOptions>;
 
+export const TERMINAL_BACKGROUND =
+    BASE_TERMINAL_OPTIONS.theme.background ?? "#09090b";
+
 export function resolveTerminalFontFamily(
     settings?: AppSettings | null,
 ): string {
