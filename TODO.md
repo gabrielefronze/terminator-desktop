@@ -66,7 +66,7 @@ Completes the SSH/networking story and improves power-user workflows.
   - Remote rename, delete, mkdir; optional chmod and “edit remote file” (download → edit → upload).
   - *Touches:* `SshService` SFTP methods, `SftpDualPane.tsx`.
 
-- [ ] **Host notes & tags**
+- [x] **Host notes & tags**
   - Free-text notes and/or tag list on hosts; filter hosts by tag.
   - *Touches:* `Host` in `models.go`, `HostModal`, `HostsPage` search/filter.
 

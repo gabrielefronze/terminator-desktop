@@ -1,4 +1,5 @@
 import { Host, HostGroup } from "../../bindings/terminator-desktop/backend/internal/services/blob";
+import { hostMatchesSearch, type HostSearchOptions } from "@/lib/hostSearch";
 
 export interface HostTreeNode {
     group: HostGroup;
@@ -66,25 +67,25 @@ export function buildHostTree(hosts: Host[], groups: HostGroup[]): HostTreeResul
     return { roots, uncategorized };
 }
 
-function hostMatchesQuery(host: Host, query: string): boolean {
-    return (
-        host.name?.toLowerCase().includes(query) ||
-        host.host.toLowerCase().includes(query) ||
-        host.username.toLowerCase().includes(query)
-    );
+function hostMatchesQuery(host: Host, search: HostSearchOptions): boolean {
+    return hostMatchesSearch(host, search);
 }
 
 function groupMatchesQuery(group: HostGroup, query: string): boolean {
     return group.name.toLowerCase().includes(query);
 }
 
-function filterNode(node: HostTreeNode, query: string): HostTreeNode | null {
-    const filteredHosts = node.hosts.filter((h) => hostMatchesQuery(h, query));
+function filterNode(
+    node: HostTreeNode,
+    search: HostSearchOptions,
+    groupQuery: string,
+): HostTreeNode | null {
+    const filteredHosts = node.hosts.filter((h) => hostMatchesQuery(h, search));
     const filteredChildren = node.children
-        .map((child) => filterNode(child, query))
+        .map((child) => filterNode(child, search, groupQuery))
         .filter((child): child is HostTreeNode => child !== null);
 
-    const groupMatches = groupMatchesQuery(node.group, query);
+    const groupMatches = groupMatchesQuery(node.group, groupQuery);
     if (
         groupMatches ||
         filteredHosts.length > 0 ||
@@ -99,25 +100,45 @@ function filterNode(node: HostTreeNode, query: string): HostTreeNode | null {
     return null;
 }
 
-export function filterHosts(hosts: Host[], searchQuery: string): Host[] {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return hosts;
-    return hosts.filter((h) => hostMatchesQuery(h, query));
+export function filterHosts(
+    hosts: Host[],
+    searchQuery: string,
+    tagFilter?: string | null,
+): Host[] {
+    const search: HostSearchOptions = {
+        query: searchQuery,
+        tag: tagFilter,
+    };
+    const hasQuery = Boolean(searchQuery.trim());
+    const hasTag = Boolean(tagFilter?.trim());
+    if (!hasQuery && !hasTag) {
+        return hosts;
+    }
+    return hosts.filter((h) => hostMatchesQuery(h, search));
 }
 
 export function filterHostTree(
     tree: HostTreeResult,
     searchQuery: string,
+    tagFilter?: string | null,
 ): HostTreeResult {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return tree;
+    const groupQuery = searchQuery.trim().toLowerCase();
+    const search: HostSearchOptions = {
+        query: searchQuery,
+        tag: tagFilter,
+    };
+    const hasQuery = Boolean(groupQuery);
+    const hasTag = Boolean(tagFilter?.trim());
+    if (!hasQuery && !hasTag) {
+        return tree;
+    }
 
     const roots = tree.roots
-        .map((node) => filterNode(node, query))
+        .map((node) => filterNode(node, search, groupQuery))
         .filter((node): node is HostTreeNode => node !== null);
 
     const uncategorized = tree.uncategorized.filter((h) =>
-        hostMatchesQuery(h, query),
+        hostMatchesQuery(h, search),
     );
 
     return { roots, uncategorized };

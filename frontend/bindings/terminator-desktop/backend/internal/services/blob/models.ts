@@ -82,6 +82,8 @@ export class Host {
     "environment"?: { [_ in string]?: string };
     "terminalFontFamily"?: string;
     "terminalFontSize"?: number;
+    "notes"?: string;
+    "tags"?: string[];
 
     /** Creates a new Host instance. */
     constructor($$source: Partial<Host> = {}) {
@@ -113,12 +115,16 @@ export class Host {
     static createFrom($$source: any = {}): Host {
         const $$createField9_0 = $$createType0;
         const $$createField15_0 = $$createType1;
+        const $$createField19_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("userpassIdentityIds" in $$parsedSource) {
             $$parsedSource["userpassIdentityIds"] = $$createField9_0($$parsedSource["userpassIdentityIds"]);
         }
         if ("environment" in $$parsedSource) {
             $$parsedSource["environment"] = $$createField15_0($$parsedSource["environment"]);
+        }
+        if ("tags" in $$parsedSource) {
+            $$parsedSource["tags"] = $$createField19_0($$parsedSource["tags"]);
         }
         return new Host($$parsedSource as Partial<Host>);
     }

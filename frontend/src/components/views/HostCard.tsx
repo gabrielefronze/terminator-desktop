@@ -18,6 +18,7 @@ import {
 import { Host } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import { HostPingResult } from "../../../bindings/terminator-desktop/backend/internal/services/reachability";
 import { HostReachabilityIndicator } from "@/components/views/HostReachabilityIndicator";
+import { HostTagList } from "@/components/views/HostTagList";
 import {
     RESOURCE_ROW_CARD_ACTIONS_CLASS,
     RESOURCE_ROW_CARD_BODY_CLASS,
@@ -119,13 +120,17 @@ export function HostCard({
                                 className="absolute -right-0.5 -top-0.5"
                             />
                         </div>
-                        <div className={RESOURCE_ROW_CARD_TEXT_CLASS}>
+                        <div
+                            className={RESOURCE_ROW_CARD_TEXT_CLASS}
+                            title={host.notes?.trim() || undefined}
+                        >
                             <h3 className="truncate font-semibold text-card-foreground">
                                 {host.name || host.host}
                             </h3>
                             <p className="truncate text-xs text-muted-foreground">
                                 {host.username}
                             </p>
+                            <HostTagList tags={host.tags} className="mt-1" />
                         </div>
                     </div>
 

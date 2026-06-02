@@ -33,7 +33,9 @@ import {
 import { useKeys } from "@/hooks/useKeys";
 import { useIdentities } from "@/hooks/useIdentities";
 import { Host, HostGroup } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
+import { collectAllHostTags } from "@/lib/hostSearch";
 import { buildHostTree, filterHostTree } from "@/lib/hostTree";
+import { cn } from "@/lib/utils";
 import { useHostReachability } from "@/hooks/useHostReachability";
 
 export function HostsPage() {
@@ -65,6 +67,7 @@ export function HostsPage() {
     const [hostToDelete, setHostToDelete] = useState<Host | null>(null);
     const [groupToDelete, setGroupToDelete] = useState<HostGroup | null>(null);
     const [searchQuery, setSearchQuery] = useState("");
+    const [tagFilter, setTagFilter] = useState<string | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -75,8 +78,13 @@ export function HostsPage() {
     const hostTree = useMemo(() => {
         if (!hosts || !groups) return null;
         const tree = buildHostTree(hosts, groups);
-        return filterHostTree(tree, searchQuery);
-    }, [hosts, groups, searchQuery]);
+        return filterHostTree(tree, searchQuery, tagFilter);
+    }, [hosts, groups, searchQuery, tagFilter]);
+
+    const allTags = useMemo(
+        () => (hosts ? collectAllHostTags(hosts) : []),
+        [hosts],
+    );
 
     const hasAnyVisibleHosts = useMemo(() => {
         if (!hostTree) return false;
@@ -259,6 +267,45 @@ export function HostsPage() {
                 </Button>
             </div>
 
+            {allTags.length > 0 && (
+                <div className="mb-6 flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                        {t("filter_by_tag")}
+                    </span>
+                    <button
+                        type="button"
+                        onClick={() => setTagFilter(null)}
+                        className={cn(
+                            "rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
+                            tagFilter === null
+                                ? "border-primary bg-primary/10 text-primary"
+                                : "border-border text-muted-foreground hover:bg-muted/60",
+                        )}
+                    >
+                        {t("tag_filter_all")}
+                    </button>
+                    {allTags.map((tag) => (
+                        <button
+                            key={tag}
+                            type="button"
+                            onClick={() =>
+                                setTagFilter((current) =>
+                                    current === tag ? null : tag,
+                                )
+                            }
+                            className={cn(
+                                "rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
+                                tagFilter === tag
+                                    ? "border-primary bg-primary/10 text-primary"
+                                    : "border-border text-muted-foreground hover:bg-muted/60",
+                            )}
+                        >
+                            {tag}
+                        </button>
+                    ))}
+                </div>
+            )}
+
             {isLoading && (
                 <div className="text-sm text-muted-foreground">
                     {t("loading_hosts")}
@@ -314,7 +361,8 @@ export function HostsPage() {
                             renderHostCard={renderHostCard}
                         />
 
-                        {!hasAnyVisibleHosts && searchQuery && (
+                        {!hasAnyVisibleHosts &&
+                            (searchQuery || tagFilter) && (
                             <p className="text-center text-sm text-muted-foreground">
                                 {t("no_search_results")}
                             </p>

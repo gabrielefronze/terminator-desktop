@@ -35,6 +35,8 @@ type Host struct {
 	Environment         map[string]string `json:"environment,omitempty"`
 	TerminalFontFamily  string            `json:"terminalFontFamily,omitempty"`
 	TerminalFontSize    int               `json:"terminalFontSize,omitempty"`
+	Notes               string            `json:"notes,omitempty"`
+	Tags                []string          `json:"tags,omitempty"`
 }
 
 type SavedSnippet struct {

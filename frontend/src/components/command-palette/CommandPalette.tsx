@@ -55,6 +55,7 @@ import { useTerminalHistoryStore } from "@/store/terminalHistoryStore";
 import { lockVaultFromUI } from "@/lib/vaultLock";
 import { useSessionStore } from "@/store/sessionStore";
 import { useUIStore, ViewType } from "@/store/uiStore";
+import { normalizeHostTags } from "@/lib/hostSearch";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -242,10 +243,15 @@ export function CommandPalette() {
 
     const allEntries = useMemo(() => {
         const entries: PaletteEntry[] = [];
-        const push = (entry: Omit<PaletteEntry, "searchText">) => {
+        const push = (
+            entry: Omit<PaletteEntry, "searchText"> & { searchText?: string },
+        ) => {
+            const { searchText: customSearchText, ...rest } = entry;
             entries.push({
-                ...entry,
-                searchText: `${entry.label} ${entry.description ?? ""} ${entry.sectionLabel}`.toLowerCase(),
+                ...rest,
+                searchText:
+                    customSearchText ??
+                    `${entry.label} ${entry.description ?? ""} ${entry.sectionLabel}`.toLowerCase(),
             });
         };
 
@@ -367,6 +373,8 @@ export function CommandPalette() {
 
         for (const host of connectableHosts) {
             const isLocal = isBuiltinLocalhostHost(host);
+            const tagText = normalizeHostTags(host.tags).join(" ");
+            const notesText = host.notes?.trim() ?? "";
             push({
                 id: `host-${host.id}`,
                 sectionId: "hosts",
@@ -375,6 +383,16 @@ export function CommandPalette() {
                 description: isLocal
                     ? t("hosts:reachability_local")
                     : `${host.username} · ${host.host}:${host.port || 22}`,
+                searchText: [
+                    host.name,
+                    host.host,
+                    host.username,
+                    tagText,
+                    notesText,
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase(),
                 icon: (
                     <HostIconBadge
                         icon={host.icon}

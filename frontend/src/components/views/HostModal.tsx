@@ -33,6 +33,9 @@ import {
 } from "@/lib/hostAppearance";
 import { BUILTIN_LOCALHOST_HOST_ID } from "@/lib/defaultLocalhost";
 import { validateRelayHostId } from "@/lib/relayHost";
+import { Textarea } from "@/components/ui/textarea";
+import { HostTagsInput } from "@/components/views/HostTagsInput";
+import { normalizeHostTags } from "@/lib/hostSearch";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -268,6 +271,8 @@ export function HostModal({
             relayHostId: localShellOnly ? undefined : relayHostId,
             icon: normalizeHostIcon(formData.icon),
             color: normalizeHostColor(formData.color),
+            notes: formData.notes?.trim() || undefined,
+            tags: normalizeHostTags(formData.tags),
         });
 
         onSave(finalHost);
@@ -685,6 +690,44 @@ export function HostModal({
                                 </HostFormSection>
                             </>
                         )}
+
+                        <HostFormSection
+                            title={t("form_section_metadata")}
+                            description={t("form_section_metadata_desc")}
+                        >
+                            <FieldGroup
+                                label={t("host_tags_label")}
+                                hint={t("host_tags_hint")}
+                            >
+                                <HostTagsInput
+                                    tags={formData.tags ?? []}
+                                    onChange={(tags) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            tags,
+                                        }))
+                                    }
+                                    placeholder={t("host_tags_placeholder")}
+                                />
+                            </FieldGroup>
+                            <FieldGroup
+                                label={t("host_notes_label")}
+                                hint={t("host_notes_hint")}
+                            >
+                                <Textarea
+                                    id="notes"
+                                    rows={3}
+                                    value={formData.notes ?? ""}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            notes: e.target.value,
+                                        })
+                                    }
+                                    placeholder={t("host_notes_placeholder")}
+                                />
+                            </FieldGroup>
+                        </HostFormSection>
 
                         <HostFormSection title={t("form_section_organization")}>
                             <FieldGroup label={t("host_group_label")}>
