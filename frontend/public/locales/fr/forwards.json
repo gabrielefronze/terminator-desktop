@@ -7,6 +7,7 @@
   "name_label": "Nom",
   "host_label": "Hôte",
   "host_placeholder": "Choisir un hôte…",
+  "mode_label": "Direction",
   "local_host_label": "Hôte local",
   "empty": "Aucune redirection enregistrée.",
   "missing_host": "Hôte manquant",

@@ -24,6 +24,10 @@ import {
 } from "../../../bindings/terminator-desktop/backend/internal/services/blob/models";
 import { HostIconBadge } from "@/components/views/HostIconBadge";
 import { isBuiltinLocalhostHost } from "@/lib/defaultLocalhost";
+import {
+    normalizeForwardMode,
+    type PortForwardMode,
+} from "@/lib/portForward";
 
 interface ForwardModalProps {
     isOpen: boolean;
@@ -45,6 +49,7 @@ export function ForwardModal({
     const { t } = useTranslation(["forwards", "terminal", "common"]);
     const [name, setName] = useState("");
     const [hostId, setHostId] = useState("");
+    const [mode, setMode] = useState<PortForwardMode>("local");
     const [localHost, setLocalHost] = useState("127.0.0.1");
     const [localPort, setLocalPort] = useState("8080");
     const [remoteHost, setRemoteHost] = useState("127.0.0.1");
@@ -55,9 +60,12 @@ export function ForwardModal({
         [hosts],
     );
 
+    const isRemote = mode === "remote";
+
     useEffect(() => {
         setName(initialData?.name ?? "");
         setHostId(initialData?.hostId ?? remoteHosts[0]?.id ?? "");
+        setMode(normalizeForwardMode(initialData?.mode));
         setLocalHost(initialData?.localHost || "127.0.0.1");
         setLocalPort(String(initialData?.localPort ?? 8080));
         setRemoteHost(initialData?.remoteHost || "127.0.0.1");
@@ -72,6 +80,7 @@ export function ForwardModal({
                 type: ItemType.TypeForward,
                 name: name.trim(),
                 hostId,
+                mode,
                 localHost: localHost.trim() || "127.0.0.1",
                 localPort: Number(localPort),
                 remoteHost: remoteHost.trim() || "127.0.0.1",
@@ -79,6 +88,28 @@ export function ForwardModal({
             }),
         );
     };
+
+    const listenHostLabel = isRemote
+        ? t("port_forward_listen_remote", { ns: "terminal" })
+        : t("local_host_label");
+    const listenPortLabel = isRemote
+        ? t("port_forward_remote_port", { ns: "terminal" })
+        : t("port_forward_local", { ns: "terminal" });
+    const targetHostLabel = isRemote
+        ? t("local_host_label")
+        : t("port_forward_remote_host", { ns: "terminal" });
+    const targetPortLabel = isRemote
+        ? t("port_forward_local", { ns: "terminal" })
+        : t("port_forward_remote_port", { ns: "terminal" });
+
+    const listenHost = isRemote ? remoteHost : localHost;
+    const setListenHost = isRemote ? setRemoteHost : setLocalHost;
+    const listenPort = isRemote ? remotePort : localPort;
+    const setListenPort = isRemote ? setRemotePort : setLocalPort;
+    const targetHost = isRemote ? localHost : remoteHost;
+    const setTargetHost = isRemote ? setLocalHost : setRemoteHost;
+    const targetPort = isRemote ? localPort : remotePort;
+    const setTargetPort = isRemote ? setLocalPort : setRemotePort;
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -128,50 +159,84 @@ export function ForwardModal({
                             </Select>
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="forward-local-host">
-                                {t("local_host_label")}
+                            <Label htmlFor="forward-mode">{t("mode_label")}</Label>
+                            <Select
+                                value={mode}
+                                onValueChange={(value) =>
+                                    setMode(value as PortForwardMode)
+                                }
+                            >
+                                <SelectTrigger id="forward-mode">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="local">
+                                        {t("port_forward_mode_local", {
+                                            ns: "terminal",
+                                        })}
+                                    </SelectItem>
+                                    <SelectItem value="remote">
+                                        {t("port_forward_mode_remote", {
+                                            ns: "terminal",
+                                        })}
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-muted-foreground">
+                                {isRemote
+                                    ? t("port_forward_remote_hint", {
+                                          ns: "terminal",
+                                      })
+                                    : t("port_forward_local_hint", {
+                                          ns: "terminal",
+                                      })}
+                            </p>
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="forward-listen-host">
+                                {listenHostLabel}
                             </Label>
                             <Input
-                                id="forward-local-host"
-                                value={localHost}
-                                onChange={(e) => setLocalHost(e.target.value)}
+                                id="forward-listen-host"
+                                value={listenHost}
+                                onChange={(e) => setListenHost(e.target.value)}
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="forward-local-port">
-                                {t("port_forward_local", { ns: "terminal" })}
+                            <Label htmlFor="forward-listen-port">
+                                {listenPortLabel}
                             </Label>
                             <Input
-                                id="forward-local-port"
+                                id="forward-listen-port"
                                 type="number"
                                 min={1}
                                 max={65535}
-                                value={localPort}
-                                onChange={(e) => setLocalPort(e.target.value)}
+                                value={listenPort}
+                                onChange={(e) => setListenPort(e.target.value)}
                                 required
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="forward-remote-host">
-                                {t("port_forward_remote_host", { ns: "terminal" })}
+                            <Label htmlFor="forward-target-host">
+                                {targetHostLabel}
                             </Label>
                             <Input
-                                id="forward-remote-host"
-                                value={remoteHost}
-                                onChange={(e) => setRemoteHost(e.target.value)}
+                                id="forward-target-host"
+                                value={targetHost}
+                                onChange={(e) => setTargetHost(e.target.value)}
                             />
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="forward-remote-port">
-                                {t("port_forward_remote_port", { ns: "terminal" })}
+                            <Label htmlFor="forward-target-port">
+                                {targetPortLabel}
                             </Label>
                             <Input
-                                id="forward-remote-port"
+                                id="forward-target-port"
                                 type="number"
                                 min={1}
                                 max={65535}
-                                value={remotePort}
-                                onChange={(e) => setRemotePort(e.target.value)}
+                                value={targetPort}
+                                onChange={(e) => setTargetPort(e.target.value)}
                                 required
                             />
                         </div>

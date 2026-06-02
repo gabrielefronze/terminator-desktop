@@ -111,6 +111,83 @@ func (s *SshService) StartLocalForward(sessionID, id, localHost string, localPor
 	return nil
 }
 
+func (s *SshService) StartRemoteForward(sessionID, id, localHost string, localPort int, remoteHost string, remotePort int) error {
+	if id == "" {
+		return apperror.Validation("forward id is required")
+	}
+	s.mu.RLock()
+	active, exists := s.sessions[sessionID]
+	s.mu.RUnlock()
+	if !exists || active.local || active.client == nil {
+		return apperror.SSHSessionNotFound()
+	}
+
+	if localHost == "" {
+		localHost = "127.0.0.1"
+	}
+	if remoteHost == "" {
+		remoteHost = "127.0.0.1"
+	}
+
+	remoteAddr := fmt.Sprintf("%s:%d", remoteHost, remotePort)
+	listener, err := active.client.Listen("tcp", remoteAddr)
+	if err != nil {
+		return apperror.SSHConnectionFailed("failed to listen on remote", err)
+	}
+
+	ctx, cancel := contextWithCancel()
+	state := &portForwardState{
+		forward: PortForward{
+			ID:         id,
+			SessionID:  sessionID,
+			Mode:       "remote",
+			LocalHost:  localHost,
+			LocalPort:  localPort,
+			RemoteHost: remoteHost,
+			RemotePort: remotePort,
+		},
+		cancel:   cancel,
+		listener: listener,
+	}
+
+	s.forwardMu.Lock()
+	if s.forwards == nil {
+		s.forwards = make(map[string]*portForwardState)
+	}
+	if _, exists := s.forwards[id]; exists {
+		s.forwardMu.Unlock()
+		_ = listener.Close()
+		cancel()
+		return apperror.Validation("forward id already exists")
+	}
+	s.forwards[id] = state
+	s.forwardMu.Unlock()
+
+	go func() {
+		defer listener.Close()
+		for {
+			remoteConn, err := listener.Accept()
+			if err != nil {
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
+				return
+			}
+			localAddr := fmt.Sprintf("%s:%d", localHost, localPort)
+			localConn, err := net.Dial("tcp", localAddr)
+			if err != nil {
+				_ = remoteConn.Close()
+				continue
+			}
+			go copyBoth(remoteConn, localConn)
+		}
+	}()
+
+	return nil
+}
+
 func (s *SshService) StopPortForward(id string) error {
 	s.forwardMu.Lock()
 	state, ok := s.forwards[id]

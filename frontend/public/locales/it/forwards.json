@@ -7,6 +7,7 @@
   "name_label": "Nome",
   "host_label": "Host",
   "host_placeholder": "Scegli un host…",
+  "mode_label": "Direzione",
   "local_host_label": "Host locale",
   "empty": "Nessun inoltro salvato.",
   "missing_host": "Host mancante",

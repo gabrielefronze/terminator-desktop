@@ -86,6 +86,10 @@ export function StartLocalForward(sessionID: string, id: string, localHost: stri
     return $Call.ByID(3842866583, sessionID, id, localHost, localPort, remoteHost, remotePort);
 }
 
+export function StartRemoteForward(sessionID: string, id: string, localHost: string, localPort: number, remoteHost: string, remotePort: number): $CancellablePromise<void> {
+    return $Call.ByID(1470280926, sessionID, id, localHost, localPort, remoteHost, remotePort);
+}
+
 export function StopPortForward(id: string): $CancellablePromise<void> {
     return $Call.ByID(302194887, id);
 }

@@ -1,7 +1,14 @@
 import { SshService } from "../../bindings/terminator-desktop/backend/internal/services/ssh";
 import { SavedForward } from "../../bindings/terminator-desktop/backend/internal/services/blob/models";
 import { parseAppError } from "@/lib/error";
+import {
+    formatForwardRoute,
+    normalizeForwardMode,
+    type PortForwardMode,
+} from "@/lib/portForward";
 import type { TerminalSession } from "@/store/sessionStore";
+
+export { formatForwardRoute, normalizeForwardMode, type PortForwardMode };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -31,23 +38,35 @@ export async function waitForRemoteSession(
     throw new Error("SSH session not available");
 }
 
-export async function startSavedForward(
+async function startForwardOnSession(
     sessionId: string,
     forward: SavedForward,
+    mode: PortForwardMode,
 ): Promise<void> {
     const localHost = forward.localHost || "127.0.0.1";
     const remoteHost = forward.remoteHost || "127.0.0.1";
 
     for (let attempt = 0; attempt < 60; attempt++) {
         try {
-            await SshService.StartLocalForward(
-                sessionId,
-                forward.id,
-                localHost,
-                forward.localPort,
-                remoteHost,
-                forward.remotePort,
-            );
+            if (mode === "remote") {
+                await SshService.StartRemoteForward(
+                    sessionId,
+                    forward.id,
+                    localHost,
+                    forward.localPort,
+                    remoteHost,
+                    forward.remotePort,
+                );
+            } else {
+                await SshService.StartLocalForward(
+                    sessionId,
+                    forward.id,
+                    localHost,
+                    forward.localPort,
+                    remoteHost,
+                    forward.remotePort,
+                );
+            }
             return;
         } catch (error) {
             const appError = parseAppError(error);
@@ -62,23 +81,27 @@ export async function startSavedForward(
     throw new Error("SSH session not ready");
 }
 
+export async function startSavedForward(
+    sessionId: string,
+    forward: SavedForward,
+): Promise<void> {
+    await startForwardOnSession(
+        sessionId,
+        forward,
+        normalizeForwardMode(forward.mode),
+    );
+}
+
 export async function stopSavedForward(forwardId: string): Promise<void> {
     await SshService.StopPortForward(forwardId);
 }
 
-export function formatForwardRoute(forward: SavedForward): string {
-    const localHost = forward.localHost || "127.0.0.1";
-    const remoteHost = forward.remoteHost || "127.0.0.1";
-    return `${localHost}:${forward.localPort} → ${remoteHost}:${forward.remotePort}`;
-}
-
 export function formatPortForwardRoute(forward: {
+    mode?: string;
     localHost?: string;
     localPort: number;
     remoteHost?: string;
     remotePort: number;
 }): string {
-    const localHost = forward.localHost || "127.0.0.1";
-    const remoteHost = forward.remoteHost || "127.0.0.1";
-    return `${localHost}:${forward.localPort} → ${remoteHost}:${forward.remotePort}`;
+    return formatForwardRoute(forward);
 }

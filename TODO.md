@@ -37,7 +37,7 @@ Quick wins and features that unblock adoption or daily use.
 
 Completes the SSH/networking story and improves power-user workflows.
 
-- [ ] **Remote port forwarding**
+- [x] **Remote port forwarding**
   - `-R` style forwards on live sessions; saved remote forwards in the forwards library.
   - *Touches:* `backend/internal/services/ssh/`, `SavedForward` model, `ForwardsPage`, `PortForwardPanel`.
 
@@ -127,6 +127,6 @@ From the public roadmap and longer-horizon platform work.
 2. Command palette + terminal find  
 3. Auto-lock + session restore  
 4. Encrypted command history  
-5. Remote / dynamic forwarding + agent forwarding  
+5. Dynamic forwarding (SOCKS) + agent forwarding  
 
 Adjust based on user feedback — migration pain → prioritize import; ops-heavy users → history and forwards first.

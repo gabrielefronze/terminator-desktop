@@ -51,6 +51,7 @@ type SavedForward struct {
 	Type       ItemType `json:"type"`
 	Name       string   `json:"name"`
 	HostID     string   `json:"hostId"`
+	Mode       string   `json:"mode"` // "local" (default) or "remote"
 	LocalHost  string   `json:"localHost"`
 	LocalPort  int      `json:"localPort"`
 	RemoteHost string   `json:"remoteHost"`

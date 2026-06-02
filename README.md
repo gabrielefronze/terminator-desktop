@@ -44,7 +44,7 @@ Your vault (hosts, keys, snippets, and more) stays on your machine and is encryp
 ### Files & networking
 
 - **SFTP dual-pane browser** — Browse local and remote paths; upload and download files.
-- **Port forwarding** — Local forwards on live sessions, plus a library of saved forwards you can start on demand.
+- **Port forwarding** — Local and remote (`-L` / `-R`) forwards on live sessions, plus a library of saved forwards you can start on demand.
 
 ### App experience
 
@@ -86,7 +86,8 @@ For multi-device sync, run a compatible self-hosted sync API and point the deskt
 - [x] Custom accent & background theme
 - [x] Host reachability indicators
 - [x] Touch ID vault unlock (macOS)
-- [ ] Remote / dynamic port forwarding
+- [x] Remote port forwarding
+- [ ] Dynamic port forwarding (SOCKS)
 - [x] Encrypted command history (searchable)
 - [ ] Import / export hosts
 - [ ] Multiple profiles / teams

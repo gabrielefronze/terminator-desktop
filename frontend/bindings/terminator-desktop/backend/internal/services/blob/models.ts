@@ -183,6 +183,11 @@ export class SavedForward {
     "type": ItemType;
     "name": string;
     "hostId": string;
+
+    /**
+     * "local" (default) or "remote"
+     */
+    "mode": string;
     "localHost": string;
     "localPort": number;
     "remoteHost": string;
@@ -201,6 +206,9 @@ export class SavedForward {
         }
         if (!("hostId" in $$source)) {
             this["hostId"] = "";
+        }
+        if (!("mode" in $$source)) {
+            this["mode"] = "";
         }
         if (!("localHost" in $$source)) {
             this["localHost"] = "";

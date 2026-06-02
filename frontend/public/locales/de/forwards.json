@@ -7,6 +7,7 @@
   "name_label": "Name",
   "host_label": "Host",
   "host_placeholder": "Host wählen…",
+  "mode_label": "Richtung",
   "local_host_label": "Lokaler Host",
   "empty": "Noch keine gespeicherten Weiterleitungen.",
   "missing_host": "Host fehlt",

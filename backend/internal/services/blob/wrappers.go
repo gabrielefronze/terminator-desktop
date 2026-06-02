@@ -2,6 +2,7 @@ package blob
 
 import (
 	"context"
+	"terminator-desktop/backend/internal/apperror"
 	"terminator-desktop/backend/internal/dbgen"
 	"terminator-desktop/backend/internal/vault"
 
@@ -124,6 +125,12 @@ func NewForwardService(q *dbgen.Queries, v *vault.Vault) *ForwardService {
 func (s *ForwardService) Save(ctx context.Context, forward SavedForward) (string, error) {
 	if forward.ID == "" {
 		forward.ID = uuid.New().String()
+	}
+	if forward.Mode == "" {
+		forward.Mode = "local"
+	}
+	if forward.Mode != "local" && forward.Mode != "remote" {
+		return "", apperror.Validation("forward mode must be local or remote")
 	}
 	forward.Type = TypeForward
 	return saveItem(ctx, s.q, s.v, forward.ID, forward)

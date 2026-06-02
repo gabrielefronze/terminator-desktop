@@ -16,7 +16,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { HostIconBadge } from "@/components/views/HostIconBadge";
-import { formatForwardRoute } from "@/lib/savedForwardRuntime";
+import { formatForwardRoute, normalizeForwardMode } from "@/lib/savedForwardRuntime";
 import {
     RESOURCE_ROW_CARD_ACTIONS_CLASS,
     RESOURCE_ROW_CARD_BODY_CLASS,
@@ -50,7 +50,7 @@ export function ForwardCard({
     onEdit,
     onDelete,
 }: ForwardCardProps) {
-    const { t } = useTranslation(["forwards", "common"]);
+    const { t } = useTranslation(["forwards", "terminal", "common"]);
 
     const actionDisabled = isStarting || isStopping;
     const hostLabel = host?.name || host?.host || t("missing_host");
@@ -75,6 +75,11 @@ export function ForwardCard({
                         {forward.name}
                     </h3>
                     <p className="truncate font-mono text-xs text-muted-foreground">
+                        <span className="mr-1.5 text-[10px] uppercase tracking-wide text-muted-foreground/80">
+                            {normalizeForwardMode(forward.mode) === "remote"
+                                ? t("port_forward_mode_remote", { ns: "terminal" })
+                                : t("port_forward_mode_local", { ns: "terminal" })}
+                        </span>
                         {formatForwardRoute(forward)}
                     </p>
                     <p className="truncate text-xs text-muted-foreground">
