@@ -118,6 +118,11 @@ export class SSHConnectionConfig {
      */
     "keepAliveIntervalSeconds"?: number;
 
+    /**
+     * ForwardAgent exposes the local SSH agent to the remote shell (OpenSSH ForwardAgent).
+     */
+    "forwardAgent"?: boolean;
+
     /** Creates a new SSHConnectionConfig instance. */
     constructor($$source: Partial<SSHConnectionConfig> = {}) {
         if (!("id" in $$source)) {

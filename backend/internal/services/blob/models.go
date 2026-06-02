@@ -37,6 +37,7 @@ type Host struct {
 	TerminalFontSize    int               `json:"terminalFontSize,omitempty"`
 	Notes               string            `json:"notes,omitempty"`
 	Tags                []string          `json:"tags,omitempty"`
+	ForwardAgent        bool              `json:"forwardAgent,omitempty"`
 }
 
 type SavedSnippet struct {

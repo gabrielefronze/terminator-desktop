@@ -1,0 +1,28 @@
+{
+  "title": "Keyboard shortcuts",
+  "description": "Global shortcuts work when focus is not in a text field.",
+  "open_cheatsheet": "Keyboard shortcuts",
+  "open_cheatsheet_hint": "Press ? anywhere in the app to open this list.",
+  "view_shortcuts_btn": "View shortcuts",
+  "categories": {
+    "general": "General",
+    "tabs": "Tabs & sessions",
+    "terminal": "Terminal",
+    "hosts": "Hosts"
+  },
+  "actions": {
+    "command_palette": "Command palette",
+    "shortcuts_help": "Show shortcuts",
+    "toggle_sidebar": "Toggle sidebar",
+    "new_tab": "New tab",
+    "close_tab": "Close tab",
+    "next_tab": "Next tab",
+    "prev_tab": "Previous tab",
+    "disconnect": "Disconnect session",
+    "find": "Find in terminal",
+    "command_history": "Command history",
+    "zoom_in": "Increase terminal font size",
+    "zoom_out": "Decrease terminal font size",
+    "quick_connect": "Connect to first search result (hosts page)"
+  }
+}

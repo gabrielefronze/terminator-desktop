@@ -1,0 +1,28 @@
+{
+  "title": "Tastenkürzel",
+  "description": "Globale Kürzel funktionieren, wenn der Fokus nicht in einem Textfeld liegt.",
+  "open_cheatsheet": "Tastenkürzel",
+  "open_cheatsheet_hint": "Drücken Sie ? in der App, um diese Liste zu öffnen.",
+  "view_shortcuts_btn": "Kürzel anzeigen",
+  "categories": {
+    "general": "Allgemein",
+    "tabs": "Tabs & Sitzungen",
+    "terminal": "Terminal",
+    "hosts": "Hosts"
+  },
+  "actions": {
+    "command_palette": "Befehlspalette",
+    "shortcuts_help": "Kürzel anzeigen",
+    "toggle_sidebar": "Seitenleiste umschalten",
+    "new_tab": "Neuer Tab",
+    "close_tab": "Tab schließen",
+    "next_tab": "Nächster Tab",
+    "prev_tab": "Vorheriger Tab",
+    "disconnect": "Sitzung trennen",
+    "find": "Im Terminal suchen",
+    "command_history": "Befehlsverlauf",
+    "zoom_in": "Terminal-Schrift vergrößern",
+    "zoom_out": "Terminal-Schrift verkleinern",
+    "quick_connect": "Erstes Suchergebnis verbinden (Hosts-Seite)"
+  }
+}

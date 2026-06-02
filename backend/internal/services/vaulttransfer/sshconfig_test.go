@@ -13,10 +13,8 @@ func TestParseSSHConfigFile(t *testing.T) {
   HostName prod.example.com
   User deploy
   Port 2222
-  IdentityFile ~/.ssh/id_ed25519
-
-Host *
   ForwardAgent yes
+  IdentityFile ~/.ssh/id_ed25519
 `
 	if err := os.WriteFile(path, []byte(content), 0600); err != nil {
 		t.Fatal(err)
@@ -47,6 +45,9 @@ Host *
 	host := payload.Hosts[0]
 	if host.Name != "prod" || host.Host != "prod.example.com" || host.Port != 2222 || host.Username != "deploy" {
 		t.Fatalf("unexpected host: %+v", host)
+	}
+	if !host.ForwardAgent {
+		t.Fatalf("expected ForwardAgent on prod host")
 	}
 
 	payload2, err := parseSSHConfigFile(path2)

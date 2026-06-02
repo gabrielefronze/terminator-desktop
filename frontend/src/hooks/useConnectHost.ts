@@ -56,6 +56,7 @@ function paramsToSshConfig(
         relayPassword: params.relayPassword,
         relayPrivateKey: params.relayPrivateKey,
         relayHops: params.relayHops,
+        forwardAgent: params.forwardAgent,
         ...sshKeepAliveConnectionFields(settings),
     });
 }

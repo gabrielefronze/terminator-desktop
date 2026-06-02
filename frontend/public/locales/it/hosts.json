@@ -58,6 +58,8 @@
   "relay_host_hint": "Host jump opzionale (bastion). SSH si connette prima al relay, poi a questo server. Un solo salto.",
   "relay_host_placeholder": "Connessione diretta (nessun relay)",
   "relay_host_none": "Nessuno — connessione diretta",
+  "forward_agent_label": "Inoltro agente SSH",
+  "forward_agent_hint": "Espone l'agente SSH locale sull'host remoto (es. git clone o ssh da un jump host). Abilitare solo su server attendibili.",
   "relay_error_relay_self": "Un host non può usare se stesso come relay.",
   "relay_error_relay_localhost": "La shell locale non può essere usata come relay.",
   "relay_error_relay_missing": "L'host relay selezionato non è stato trovato.",

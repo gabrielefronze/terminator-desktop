@@ -69,6 +69,7 @@ export interface CreateSessionParams {
     relayPassword?: string;
     relayPrivateKey?: string;
     relayHops?: RelayHopConfig[];
+    forwardAgent?: boolean;
     keyPassphrase?: string;
     keyboardInteractivePassword?: string;
     startupCommand?: string;
@@ -82,6 +83,8 @@ interface SessionState {
     activeSessionId: string | null;
     /** Incremented per session when the user requests a reconnect from the tab menu. */
     reconnectRequests: Record<string, number>;
+    /** Incremented when the user requests disconnect (keep tab, end SSH). */
+    disconnectRequests: Record<string, number>;
     addSession: (
         params: CreateSessionParams,
         options?: {
@@ -109,6 +112,7 @@ interface SessionState {
     syncSessionsFromHosts: (hosts: Host[]) => void;
     clearSessions: () => void;
     requestReconnect: (sessionId: string) => void;
+    requestDisconnect: (sessionId: string) => void;
 }
 
 function pickActiveSessionAfterClose(
@@ -210,6 +214,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     sessions: [],
     activeSessionId: null,
     reconnectRequests: {},
+    disconnectRequests: {},
 
     addSession: (params, options) => {
         const forwardOnly = options?.forwardOnly === true;
@@ -239,6 +244,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             relayPassword: params.relayPassword,
             relayPrivateKey: params.relayPrivateKey,
             relayHops: params.relayHops,
+            forwardAgent: params.forwardAgent,
         });
 
         const newSession: TerminalSession = {
@@ -298,6 +304,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             relayPassword: remoteParams.relayPassword,
             relayPrivateKey: remoteParams.relayPrivateKey,
             relayHops: remoteParams.relayHops,
+            forwardAgent: remoteParams.forwardAgent,
         });
 
         const localSession: TerminalSession = {
@@ -700,6 +707,20 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         });
     },
 
+    requestDisconnect: (sessionId) => {
+        const session = get().sessions.find((item) => item.id === sessionId);
+        if (!session || session.forwardOnly || session.config.local) {
+            return;
+        }
+
+        set((current) => ({
+            disconnectRequests: {
+                ...current.disconnectRequests,
+                [sessionId]: (current.disconnectRequests[sessionId] ?? 0) + 1,
+            },
+        }));
+    },
+
     clearSessions: () => {
         const {sessions} = get();
         sessions.forEach((session) => {
@@ -708,6 +729,11 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
         // Wipe the local state and return to hosts
         useUIStore.getState().setActiveView(ViewType.Hosts);
-        set({sessions: [], activeSessionId: null, reconnectRequests: {}});
+        set({
+            sessions: [],
+            activeSessionId: null,
+            reconnectRequests: {},
+            disconnectRequests: {},
+        });
     }
 }));

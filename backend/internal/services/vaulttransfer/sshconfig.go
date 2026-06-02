@@ -84,6 +84,13 @@ func parseSSHConfigFile(path string) (VaultPayload, error) {
 				Username: username,
 			}
 
+			if forwardAgent, _ := cfg.Get(alias, "ForwardAgent"); strings.EqualFold(
+				strings.TrimSpace(forwardAgent),
+				"yes",
+			) {
+				host.ForwardAgent = true
+			}
+
 			identityFiles, _ := cfg.GetAll(alias, "IdentityFile")
 			if len(identityFiles) > 0 {
 				keyPath := expandSSHPath(strings.TrimSpace(identityFiles[0]))

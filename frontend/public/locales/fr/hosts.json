@@ -58,6 +58,8 @@
   "relay_host_hint": "Hôte de rebond optionnel (bastion). SSH se connecte d'abord au relais, puis à ce serveur. Un seul saut.",
   "relay_host_placeholder": "Connexion directe (sans relais)",
   "relay_host_none": "Aucun — connexion directe",
+  "forward_agent_label": "Transfert d'agent SSH",
+  "forward_agent_hint": "Expose votre agent SSH local sur l'hôte distant (ex. git clone ou ssh depuis un bastion). À activer uniquement sur des serveurs de confiance.",
   "relay_error_relay_self": "Un hôte ne peut pas se servir de lui-même comme relais.",
   "relay_error_relay_localhost": "Le shell local ne peut pas servir de relais.",
   "relay_error_relay_missing": "L'hôte relais sélectionné est introuvable.",

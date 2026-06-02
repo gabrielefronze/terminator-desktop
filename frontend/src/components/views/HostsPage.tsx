@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Plus, FolderPlus } from "lucide-react";
 import {
@@ -34,7 +34,11 @@ import { useKeys } from "@/hooks/useKeys";
 import { useIdentities } from "@/hooks/useIdentities";
 import { Host, HostGroup } from "../../../bindings/terminator-desktop/backend/internal/services/blob";
 import { collectAllHostTags } from "@/lib/hostSearch";
-import { buildHostTree, filterHostTree } from "@/lib/hostTree";
+import {
+    buildHostTree,
+    collectHostsFromTree,
+    filterHostTree,
+} from "@/lib/hostTree";
 import { cn } from "@/lib/utils";
 import { useHostReachability } from "@/hooks/useHostReachability";
 
@@ -187,6 +191,24 @@ export function HostsPage() {
         void connect(host);
     };
 
+    const quickConnectFirstMatch = () => {
+        if (!hostTree || !searchQuery.trim()) {
+            return;
+        }
+        const first = collectHostsFromTree(hostTree)[0];
+        if (first) {
+            void connect(first);
+        }
+    };
+
+    const handleSearchKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key !== "Enter" || e.nativeEvent.isComposing) {
+            return;
+        }
+        e.preventDefault();
+        quickConnectFirstMatch();
+    };
+
     const handleSplitWithLocal = (host: Host) => {
         void connectSplitWithLocal(host);
     };
@@ -252,6 +274,8 @@ export function HostsPage() {
                     placeholder={t("search_hosts")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleSearchKeyDown}
+                    aria-keyshortcuts="Enter"
                 />
                 <Button
                     variant="outline"

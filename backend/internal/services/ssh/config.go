@@ -35,4 +35,6 @@ type SSHConnectionConfig struct {
 	KeepAliveEnabled *bool `json:"keepAliveEnabled,omitempty"`
 	// KeepAliveIntervalSeconds is the interval between keep-alives (0 = 30s default).
 	KeepAliveIntervalSeconds int `json:"keepAliveIntervalSeconds,omitempty"`
+	// ForwardAgent exposes the local SSH agent to the remote shell (OpenSSH ForwardAgent).
+	ForwardAgent bool `json:"forwardAgent,omitempty"`
 }

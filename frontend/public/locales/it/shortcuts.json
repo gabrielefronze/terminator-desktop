@@ -1,0 +1,28 @@
+{
+  "title": "Scorciatoie da tastiera",
+  "description": "Le scorciatoie globali funzionano quando il focus non è in un campo di testo.",
+  "open_cheatsheet": "Scorciatoie da tastiera",
+  "open_cheatsheet_hint": "Premi ? ovunque nell'app per aprire questo elenco.",
+  "view_shortcuts_btn": "Mostra scorciatoie",
+  "categories": {
+    "general": "Generale",
+    "tabs": "Schede e sessioni",
+    "terminal": "Terminale",
+    "hosts": "Host"
+  },
+  "actions": {
+    "command_palette": "Palette comandi",
+    "shortcuts_help": "Mostra scorciatoie",
+    "toggle_sidebar": "Mostra/nascondi barra laterale",
+    "new_tab": "Nuova scheda",
+    "close_tab": "Chiudi scheda",
+    "next_tab": "Scheda successiva",
+    "prev_tab": "Scheda precedente",
+    "disconnect": "Disconnetti sessione",
+    "find": "Cerca nel terminale",
+    "command_history": "Cronologia comandi",
+    "zoom_in": "Ingrandisci carattere terminale",
+    "zoom_out": "Riduci carattere terminale",
+    "quick_connect": "Connetti al primo risultato (pagina Host)"
+  }
+}

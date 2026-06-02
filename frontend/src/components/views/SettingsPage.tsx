@@ -12,6 +12,7 @@ import {
     Paintbrush,
     Fingerprint,
     Sparkles,
+    Keyboard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SwitchServerModal } from "@/components/views/SwitchServerModal";
@@ -58,11 +59,19 @@ import { VaultDataSection } from "@/components/views/VaultDataSection";
 import { lockVaultFromUI } from "@/lib/vaultLock";
 import { Service as CommandHistoryService } from "../../../bindings/terminator-desktop/backend/internal/services/commandhistory";
 import { toast } from "sonner";
+import { useUIStore } from "@/store/uiStore";
 
 export function SettingsPage() {
-    const {t, i18n} = useTranslation(["settings", "common", "errors", "commandHistory"]);
+    const {t, i18n} = useTranslation([
+        "settings",
+        "common",
+        "errors",
+        "commandHistory",
+        "shortcuts",
+    ]);
     const {data: user, refetch} = useCurrentUser();
     const {setUnlocked, setHasUser} = useAuthStore();
+    const openShortcutsOverlay = useUIStore((s) => s.openShortcutsOverlay);
     const {clearSessions} = useSessionStore();
     const {lastError} = useSyncStore();
 
@@ -316,6 +325,38 @@ export function SettingsPage() {
                 </SettingsCard>
 
                 <VaultDataSection />
+
+                <SettingsCard
+                    title={t("shortcuts_title")}
+                    description={t("shortcuts_desc")}
+                >
+                    <div
+                        className="flex items-center justify-between rounded-lg border border-border bg-background p-4"
+                    >
+                        <div className="flex items-center gap-4">
+                            <div
+                                className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+                            >
+                                <Keyboard className="size-5" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-sm font-medium text-foreground">
+                                    {t("shortcuts:open_cheatsheet")}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("shortcuts:open_cheatsheet_hint")}
+                                </span>
+                            </div>
+                        </div>
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={openShortcutsOverlay}
+                        >
+                            {t("shortcuts:view_shortcuts_btn")}
+                        </Button>
+                    </div>
+                </SettingsCard>
 
                 <SettingsCard title={t("preferences_title")}>
                     <div className="flex items-center justify-between">

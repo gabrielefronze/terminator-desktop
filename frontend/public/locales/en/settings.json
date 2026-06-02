@@ -7,6 +7,8 @@
   "switch_server_btn": "Switch server",
   "connect_btn": "Connect",
   "sync_offline": "Sync offline",
+  "shortcuts_title": "Keyboard shortcuts",
+  "shortcuts_desc": "Quick reference for navigation and terminal actions.",
   "preferences_title": "Preferences",
   "language_label": "Language",
   "select_language": "Select language",

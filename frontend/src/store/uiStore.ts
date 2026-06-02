@@ -18,6 +18,7 @@ interface UIState {
     updateVersionReady: string | null;
     isNewTabHostPickerOpen: boolean;
     isCommandPaletteOpen: boolean;
+    isShortcutsOverlayOpen: boolean;
     commandBroadcastEnabled: boolean;
     setActiveView: (view: ViewType) => void;
     toggleSidebar: () => void;
@@ -27,6 +28,9 @@ interface UIState {
     openCommandPalette: () => void;
     closeCommandPalette: () => void;
     toggleCommandPalette: () => void;
+    openShortcutsOverlay: () => void;
+    closeShortcutsOverlay: () => void;
+    toggleShortcutsOverlay: () => void;
     toggleCommandBroadcast: () => void;
     setCommandBroadcastEnabled: (enabled: boolean) => void;
 }
@@ -37,6 +41,7 @@ export const useUIStore = create<UIState>((set) => ({
     updateVersionReady: null,
     isNewTabHostPickerOpen: false,
     isCommandPaletteOpen: false,
+    isShortcutsOverlayOpen: false,
     commandBroadcastEnabled: false,
     setActiveView: (view) => set({activeView: view}),
     toggleSidebar: () => set((state) => ({isSidebarVisible: !state.isSidebarVisible})),
@@ -47,6 +52,12 @@ export const useUIStore = create<UIState>((set) => ({
     closeCommandPalette: () => set({ isCommandPaletteOpen: false }),
     toggleCommandPalette: () =>
         set((state) => ({ isCommandPaletteOpen: !state.isCommandPaletteOpen })),
+    openShortcutsOverlay: () => set({ isShortcutsOverlayOpen: true }),
+    closeShortcutsOverlay: () => set({ isShortcutsOverlayOpen: false }),
+    toggleShortcutsOverlay: () =>
+        set((state) => ({
+            isShortcutsOverlayOpen: !state.isShortcutsOverlayOpen,
+        })),
     toggleCommandBroadcast: () =>
         set((state) => ({
             commandBroadcastEnabled: !state.commandBroadcastEnabled,

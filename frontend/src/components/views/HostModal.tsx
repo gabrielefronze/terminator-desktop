@@ -9,6 +9,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -568,6 +569,26 @@ export function HostModal({
                                             </SelectContent>
                                         </Select>
                                     </FieldGroup>
+
+                                    <div className="flex items-center justify-between gap-4 rounded-md border border-border bg-background/50 px-3 py-2">
+                                        <div className="min-w-0 space-y-0.5">
+                                            <span className="text-sm font-medium">
+                                                {t("forward_agent_label")}
+                                            </span>
+                                            <p className="text-xs text-muted-foreground">
+                                                {t("forward_agent_hint")}
+                                            </p>
+                                        </div>
+                                        <Switch
+                                            checked={formData.forwardAgent ?? false}
+                                            onCheckedChange={(checked) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    forwardAgent: checked,
+                                                })
+                                            }
+                                        />
+                                    </div>
                                 </HostFormSection>
 
                                 <HostFormSection

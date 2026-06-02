@@ -29,6 +29,7 @@ void i18n
                 "palette",
                 "sessionRestore",
                 "commandHistory",
+                "shortcuts",
             ],
         defaultNS: "common",
         interpolation: {

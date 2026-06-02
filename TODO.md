@@ -45,7 +45,7 @@ Completes the SSH/networking story and improves power-user workflows.
   - Local SOCKS listener on a session; optional saved proxy profiles.
   - *Touches:* SSH layer, forwards UI, tunnel indicator in title bar.
 
-- [ ] **SSH agent forwarding**
+- [x] **SSH agent forwarding**
   - Per-host toggle; forward local agent through jump chains.
   - *Touches:* `Host` model, `SSHConnectionConfig`, connect path in `ssh.go`.
 
@@ -57,7 +57,7 @@ Completes the SSH/networking story and improves power-user workflows.
   - xterm.js SearchAddon in active pane.
   - *Touches:* `TerminalInstance.tsx`, `@xterm/addon-search`.
 
-- [ ] **Keyboard shortcuts expansion**
+- [x] **Keyboard shortcuts expansion**
   - Close tab, next/prev tab, disconnect, quick-connect from host search.
   - Document in a shortcuts cheatsheet (Settings or `?` overlay).
   - *Touches:* `frontend/src/lib/keyboardShortcuts.ts`, hooks in `App.tsx`.

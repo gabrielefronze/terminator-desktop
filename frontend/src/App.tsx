@@ -34,7 +34,10 @@ import { useVaultAutoLock } from "@/hooks/useVaultAutoLock";
 import { useCommandPaletteShortcut } from "@/hooks/useCommandPaletteShortcut";
 import { useTerminalFindShortcut } from "@/hooks/useTerminalFindShortcut";
 import { useTerminalHistoryShortcut } from "@/hooks/useTerminalHistoryShortcut";
+import { useTabShortcuts } from "@/hooks/useTabShortcuts";
+import { useShortcutsHelpShortcut } from "@/hooks/useShortcutsHelpShortcut";
 import { CommandPalette } from "@/components/command-palette/CommandPalette";
+import { ShortcutsOverlay } from "@/components/shortcuts/ShortcutsOverlay";
 import { SessionRestorePrompt } from "@/components/session-restore/SessionRestorePrompt";
 import {
     useSessionRestoreOffer,
@@ -57,6 +60,8 @@ export default function App() {
     useCommandPaletteShortcut();
     useTerminalFindShortcut();
     useTerminalHistoryShortcut();
+    useTabShortcuts();
+    useShortcutsHelpShortcut();
     useSessionRestorePersistence();
     const sessionRestore = useSessionRestoreOffer();
 
@@ -162,6 +167,7 @@ export default function App() {
                     <>
                         <NewTabHostPickerModal />
                         <CommandPalette />
+                        <ShortcutsOverlay />
                         <SessionRestorePrompt
                             open={sessionRestore.promptOpen}
                             tabCount={sessionRestore.tabCount}

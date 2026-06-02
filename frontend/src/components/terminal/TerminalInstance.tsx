@@ -104,6 +104,9 @@ export function TerminalInstance({
     const reconnectRequest = useSessionStore(
         (s) => s.reconnectRequests[sessionId] ?? 0,
     );
+    const disconnectRequest = useSessionStore(
+        (s) => s.disconnectRequests[sessionId] ?? 0,
+    );
 
     const containerRef = useRef<HTMLDivElement>(null);
     const terminalRef = useRef<Terminal | null>(null);
@@ -204,12 +207,32 @@ export function TerminalInstance({
         await attemptConnect();
     }, [attemptConnect, sessionId]);
 
+    const disconnectSession = useCallback(async () => {
+        if (config.local) {
+            return;
+        }
+        setIsConnecting(false);
+        isReadyRef.current = false;
+        await SshService.Disconnect(sessionId).catch(() => {});
+        setIsDisconnected(true);
+        terminalRef.current?.write(
+            `\r\n\x1b[33m${t("connection_lost")}\x1b[0m\r\n`,
+        );
+    }, [config.local, sessionId, t]);
+
     useEffect(() => {
         if (reconnectRequest === 0) {
             return;
         }
         void reconnectSession();
     }, [reconnectRequest, reconnectSession]);
+
+    useEffect(() => {
+        if (disconnectRequest === 0) {
+            return;
+        }
+        void disconnectSession();
+    }, [disconnectRequest, disconnectSession]);
 
     const submitSelectedPassword = (password: string) => {
         if (!isReadyRef.current || !password) {

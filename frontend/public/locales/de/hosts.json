@@ -58,6 +58,8 @@
   "relay_host_hint": "Optionaler Jump-Host (Bastion). SSH verbindet zuerst mit dem Relay, dann mit diesem Server. Nur ein Hop.",
   "relay_host_placeholder": "Direktverbindung (kein Relay)",
   "relay_host_none": "Keiner — Direktverbindung",
+  "forward_agent_label": "SSH-Agent-Weiterleitung",
+  "forward_agent_hint": "Stellt Ihren lokalen SSH-Agent auf dem Remote-Host bereit (z. B. git clone oder ssh über einen Jump-Host). Nur auf vertrauenswürdigen Servern aktivieren.",
   "relay_error_relay_self": "Ein Host kann sich nicht selbst als Relay verwenden.",
   "relay_error_relay_localhost": "Lokale Shell kann nicht als Relay verwendet werden.",
   "relay_error_relay_missing": "Ausgewählter Relay-Host wurde nicht gefunden.",

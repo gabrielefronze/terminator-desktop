@@ -1,0 +1,28 @@
+{
+  "title": "Raccourcis clavier",
+  "description": "Les raccourcis globaux fonctionnent lorsque le focus n'est pas dans un champ texte.",
+  "open_cheatsheet": "Raccourcis clavier",
+  "open_cheatsheet_hint": "Appuyez sur ? n'importe où dans l'app pour ouvrir cette liste.",
+  "view_shortcuts_btn": "Voir les raccourcis",
+  "categories": {
+    "general": "Général",
+    "tabs": "Onglets et sessions",
+    "terminal": "Terminal",
+    "hosts": "Hôtes"
+  },
+  "actions": {
+    "command_palette": "Palette de commandes",
+    "shortcuts_help": "Afficher les raccourcis",
+    "toggle_sidebar": "Basculer la barre latérale",
+    "new_tab": "Nouvel onglet",
+    "close_tab": "Fermer l'onglet",
+    "next_tab": "Onglet suivant",
+    "prev_tab": "Onglet précédent",
+    "disconnect": "Déconnecter la session",
+    "find": "Rechercher dans le terminal",
+    "command_history": "Historique des commandes",
+    "zoom_in": "Augmenter la police du terminal",
+    "zoom_out": "Diminuer la police du terminal",
+    "quick_connect": "Connexion au premier résultat (page Hôtes)"
+  }
+}

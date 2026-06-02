@@ -144,6 +144,23 @@ export function filterHostTree(
     return { roots, uncategorized };
 }
 
+export function collectHostsFromTree(tree: HostTreeResult): Host[] {
+    const hosts: Host[] = [];
+
+    const walkNode = (node: HostTreeNode) => {
+        hosts.push(...node.hosts);
+        for (const child of node.children) {
+            walkNode(child);
+        }
+    };
+
+    for (const root of tree.roots) {
+        walkNode(root);
+    }
+    hosts.push(...tree.uncategorized);
+    return hosts;
+}
+
 export function flattenGroupsForSelect(
     groups: HostGroup[],
     excludeId?: string,

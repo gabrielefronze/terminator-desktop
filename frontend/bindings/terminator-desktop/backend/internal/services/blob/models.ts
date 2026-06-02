@@ -84,6 +84,7 @@ export class Host {
     "terminalFontSize"?: number;
     "notes"?: string;
     "tags"?: string[];
+    "forwardAgent"?: boolean;
 
     /** Creates a new Host instance. */
     constructor($$source: Partial<Host> = {}) {

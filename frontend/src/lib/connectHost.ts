@@ -109,6 +109,7 @@ export function buildSessionFromHost(
         terminalFontFamily: host.terminalFontFamily,
         terminalFontSize: host.terminalFontSize,
         relayHops: relay?.relayHops,
+        forwardAgent: host.forwardAgent,
         relayHost: legacyRelay?.host,
         relayPort: legacyRelay?.port,
         relayUsername: legacyRelay?.username,

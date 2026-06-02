@@ -28,6 +28,7 @@ type activeSession struct {
 	localCmd       *exec.Cmd
 	ptyFile        *os.File
 	keepAliveStop  chan struct{}
+	agentConn      io.Closer
 }
 
 type SshService struct {
@@ -107,6 +108,17 @@ func (s *SshService) Connect(config *SSHConnectionConfig) error {
 
 	session.Stderr = session.Stdout
 
+	var agentConn io.Closer
+	if config.ForwardAgent {
+		agentConn, err = setupAgentForwarding(session, client, jumpClients)
+		if err != nil {
+			_ = session.Close()
+			_ = client.Close()
+			closeClients(jumpClients)
+			return err
+		}
+	}
+
 	for key, value := range config.Environment {
 		_ = session.Setenv(key, value)
 	}
@@ -138,6 +150,7 @@ func (s *SshService) Connect(config *SSHConnectionConfig) error {
 		session:     session,
 		stdin:       stdin,
 		stdout:      stdout,
+		agentConn:   agentConn,
 	}
 	s.sessions[config.ID] = currentSession
 	s.mu.Unlock()
@@ -263,6 +276,7 @@ func (s *SshService) Disconnect(sessionID string) {
 			_ = active.session.Close()
 			_ = active.client.Close()
 			closeClients(active.jumpClients)
+			closeAgentConn(active)
 		}
 		s.emitter.EmitClosed(sessionID, false)
 	}
@@ -362,6 +376,7 @@ func (s *SshService) cleanupSession(sessionID string, current *activeSession) {
 				_ = current.client.Close()
 			}
 			closeClients(current.jumpClients)
+			closeAgentConn(current)
 		}
 		s.emitter.EmitClosed(sessionID, true)
 	} else {

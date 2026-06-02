@@ -71,3 +71,74 @@ export function getTileGroupSessionIds(
     if (!root) return [session.id];
     return collectTileSessionIds(root);
 }
+
+/** Title-bar tab that owns the active pane (or the active tab itself). */
+export function resolveTitleBarLeaderId(
+    sessions: TerminalSession[],
+    activeSessionId: string | null,
+): string | null {
+    const titleBar = getTitleBarSessions(sessions);
+    if (titleBar.length === 0) {
+        return null;
+    }
+    if (!activeSessionId) {
+        return titleBar[0].id;
+    }
+
+    const active = sessions.find((session) => session.id === activeSessionId);
+    if (!active) {
+        return titleBar[0].id;
+    }
+
+    if (active.splitMotherId) {
+        return active.splitMotherId;
+    }
+
+    if (!active.forwardOnly) {
+        return active.id;
+    }
+
+    return titleBar[0]?.id ?? null;
+}
+
+export function getAdjacentTitleBarSessionId(
+    sessions: TerminalSession[],
+    activeSessionId: string | null,
+    direction: "next" | "prev",
+): string | null {
+    const titleBar = getTitleBarSessions(sessions);
+    if (titleBar.length === 0) {
+        return null;
+    }
+
+    const leaderId = resolveTitleBarLeaderId(sessions, activeSessionId);
+    let index = titleBar.findIndex((session) => session.id === leaderId);
+    if (index < 0) {
+        index = 0;
+    }
+
+    const delta = direction === "next" ? 1 : -1;
+    const nextIndex =
+        (index + delta + titleBar.length) % titleBar.length;
+    return titleBar[nextIndex]?.id ?? null;
+}
+
+export function closeTitleBarTab(
+    sessions: TerminalSession[],
+    leaderId: string,
+    removeSession: (id: string) => void,
+    closeTileGroup: (id: string) => void,
+): void {
+    const leader = sessions.find((session) => session.id === leaderId);
+    if (!leader) {
+        return;
+    }
+
+    const paneCount = getTileGroupSessionIds(leader, sessions).length;
+    if (paneCount > 1) {
+        closeTileGroup(leader.id);
+        return;
+    }
+
+    removeSession(leader.id);
+}
