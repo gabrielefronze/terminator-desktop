@@ -18,6 +18,9 @@ export class AppSettings {
     "vaultAutoLockOnSleep": boolean;
     "sessionRestoreEnabled": boolean;
     "commandHistoryEnabled": boolean;
+    "sshKeepAliveEnabled": boolean;
+    "sshKeepAliveIntervalSeconds": number;
+    "sshReconnectPromptEnabled": boolean;
 
     /** Creates a new AppSettings instance. */
     constructor($$source: Partial<AppSettings> = {}) {
@@ -56,6 +59,15 @@ export class AppSettings {
         }
         if (!("commandHistoryEnabled" in $$source)) {
             this["commandHistoryEnabled"] = false;
+        }
+        if (!("sshKeepAliveEnabled" in $$source)) {
+            this["sshKeepAliveEnabled"] = false;
+        }
+        if (!("sshKeepAliveIntervalSeconds" in $$source)) {
+            this["sshKeepAliveIntervalSeconds"] = 0;
+        }
+        if (!("sshReconnectPromptEnabled" in $$source)) {
+            this["sshReconnectPromptEnabled"] = false;
         }
 
         Object.assign(this, $$source);

@@ -7,11 +7,15 @@ import { Create as $Create } from "@wailsio/runtime";
 
 export class SSHClosedPayload {
     "id": string;
+    "unexpected": boolean;
 
     /** Creates a new SSHClosedPayload instance. */
     constructor($$source: Partial<SSHClosedPayload> = {}) {
         if (!("id" in $$source)) {
             this["id"] = "";
+        }
+        if (!("unexpected" in $$source)) {
+            this["unexpected"] = false;
         }
 
         Object.assign(this, $$source);

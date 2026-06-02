@@ -654,6 +654,78 @@ export function SettingsPage() {
                         <div className="flex items-center justify-between gap-4">
                             <div className="flex flex-col">
                                 <span className="font-medium text-foreground">
+                                    {t("ssh_keep_alive_label")}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("ssh_keep_alive_desc")}
+                                </span>
+                            </div>
+                            <Switch
+                                checked={settings?.sshKeepAliveEnabled ?? true}
+                                disabled={saveSettingsMutation.isPending}
+                                onCheckedChange={(checked) => {
+                                    void persistSettings({
+                                        sshKeepAliveEnabled: checked,
+                                    }).catch(handleAppError);
+                                }}
+                            />
+                        </div>
+
+                        {settings?.sshKeepAliveEnabled !== false && (
+                            <div className="flex flex-wrap items-center justify-between gap-4">
+                                <Label
+                                    htmlFor="ssh-keep-alive-interval"
+                                    className="text-sm text-muted-foreground"
+                                >
+                                    {t("ssh_keep_alive_interval_label")}
+                                </Label>
+                                <Input
+                                    id="ssh-keep-alive-interval"
+                                    type="number"
+                                    min={5}
+                                    max={300}
+                                    className="w-24"
+                                    value={settings?.sshKeepAliveIntervalSeconds ?? 30}
+                                    disabled={saveSettingsMutation.isPending}
+                                    onChange={(event) => {
+                                        const parsed = Number.parseInt(
+                                            event.target.value,
+                                            10,
+                                        );
+                                        if (Number.isNaN(parsed)) {
+                                            return;
+                                        }
+                                        void persistSettings({
+                                            sshKeepAliveIntervalSeconds: parsed,
+                                        }).catch(handleAppError);
+                                    }}
+                                />
+                            </div>
+                        )}
+
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex flex-col">
+                                <span className="font-medium text-foreground">
+                                    {t("ssh_reconnect_prompt_label")}
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                    {t("ssh_reconnect_prompt_desc")}
+                                </span>
+                            </div>
+                            <Switch
+                                checked={settings?.sshReconnectPromptEnabled ?? true}
+                                disabled={saveSettingsMutation.isPending}
+                                onCheckedChange={(checked) => {
+                                    void persistSettings({
+                                        sshReconnectPromptEnabled: checked,
+                                    }).catch(handleAppError);
+                                }}
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex flex-col">
+                                <span className="font-medium text-foreground">
                                     {t("vault_auto_lock_label")}
                                 </span>
                                 <span className="text-xs text-muted-foreground">

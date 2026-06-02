@@ -31,4 +31,8 @@ type SSHConnectionConfig struct {
 	RelayKeyPassphrase               string `json:"relayKeyPassphrase,omitempty"`
 	RelayKeyboardInteractivePassword string `json:"relayKeyboardInteractivePassword,omitempty"`
 	RelayHops []RelayHopConfig `json:"relayHops,omitempty"`
+	// KeepAliveEnabled sends periodic SSH keep-alive requests (nil = enabled).
+	KeepAliveEnabled *bool `json:"keepAliveEnabled,omitempty"`
+	// KeepAliveIntervalSeconds is the interval between keep-alives (0 = 30s default).
+	KeepAliveIntervalSeconds int `json:"keepAliveIntervalSeconds,omitempty"`
 }

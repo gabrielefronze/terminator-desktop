@@ -108,6 +108,16 @@ export class SSHConnectionConfig {
     "relayKeyboardInteractivePassword"?: string;
     "relayHops"?: RelayHopConfig[];
 
+    /**
+     * KeepAliveEnabled sends periodic SSH keep-alive requests (nil = enabled).
+     */
+    "keepAliveEnabled"?: boolean | null;
+
+    /**
+     * KeepAliveIntervalSeconds is the interval between keep-alives (0 = 30s default).
+     */
+    "keepAliveIntervalSeconds"?: number;
+
     /** Creates a new SSHConnectionConfig instance. */
     constructor($$source: Partial<SSHConnectionConfig> = {}) {
         if (!("id" in $$source)) {

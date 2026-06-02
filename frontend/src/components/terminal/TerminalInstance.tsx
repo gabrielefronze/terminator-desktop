@@ -17,6 +17,8 @@ import {
     sessionHistoryHostLabel,
 } from "@/lib/commandHistory";
 import { useSettings } from "@/hooks/useSettings";
+import { sshKeepAliveConnectionFields } from "@/lib/sshKeepAlive";
+import { isSshReconnectPromptEnabled } from "@/lib/sshReconnect";
 import { parseAppError, handleAppError } from "@/lib/error";
 import {
     isTerminalZoomInShortcut,
@@ -97,6 +99,11 @@ export function TerminalInstance({
     const [keyPassphrase, setKeyPassphrase] = useState(config.keyPassphrase ?? "");
     const [showPassphraseModal, setShowPassphraseModal] = useState(false);
     const [isConnecting, setIsConnecting] = useState(true);
+    const [isDisconnected, setIsDisconnected] = useState(false);
+    const removeSession = useSessionStore((s) => s.removeSession);
+    const reconnectRequest = useSessionStore(
+        (s) => s.reconnectRequests[sessionId] ?? 0,
+    );
 
     const containerRef = useRef<HTMLDivElement>(null);
     const terminalRef = useRef<Terminal | null>(null);
@@ -134,6 +141,7 @@ export function TerminalInstance({
         suppressMenuUntilRef.current = 0;
         setKeyPassphrase(config.keyPassphrase ?? "");
         setIsConnecting(true);
+        setIsDisconnected(false);
     }, [sessionId, config.keyPassphrase]);
 
     const connectionLabel = useMemo(() => {
@@ -151,17 +159,21 @@ export function TerminalInstance({
     const buildConnectConfig = () =>
         new SSHConnectionConfig({
             ...config,
+            ...sshKeepAliveConnectionFields(settingsRef.current),
             keyPassphrase: keyPassphrase || undefined,
             keyboardInteractivePassword:
                 config.keyboardInteractivePassword || config.password,
         });
 
-    const attemptConnect = () => {
+    const attemptConnect = useCallback(() => {
         setIsConnecting(true);
+        setIsDisconnected(false);
+        isReadyRef.current = false;
         return SshService.Connect(buildConnectConfig())
             .then(() => {
                 isReadyRef.current = true;
                 setIsConnecting(false);
+                setIsDisconnected(false);
                 setShowPassphraseModal(false);
                 if (terminalRef.current && fitAddonRef.current) {
                     fitAddonRef.current.fit();
@@ -182,7 +194,22 @@ export function TerminalInstance({
                 setIsConnecting(false);
                 printErrorToTerminal(err);
             });
-    };
+    }, [sessionId, config, keyPassphrase]);
+
+    const reconnectSession = useCallback(async () => {
+        setIsDisconnected(false);
+        setIsConnecting(true);
+        isReadyRef.current = false;
+        await SshService.Disconnect(sessionId).catch(() => {});
+        await attemptConnect();
+    }, [attemptConnect, sessionId]);
+
+    useEffect(() => {
+        if (reconnectRequest === 0) {
+            return;
+        }
+        void reconnectSession();
+    }, [reconnectRequest, reconnectSession]);
 
     const submitSelectedPassword = (password: string) => {
         if (!isReadyRef.current || !password) {
@@ -522,6 +549,24 @@ export function TerminalInstance({
     }, [settings, sessionId, terminalFontFamily, terminalFontSize]);
 
     useEffect(() => {
+        const unsubscribe = Events.On(AppEvent.SshClosed, (event) => {
+            if (event.data.id !== sessionId || !event.data.unexpected) {
+                return;
+            }
+            if (!isSshReconnectPromptEnabled(settingsRef.current)) {
+                return;
+            }
+            isReadyRef.current = false;
+            setIsConnecting(false);
+            setIsDisconnected(true);
+            terminalRef.current?.write(
+                `\r\n\x1b[33m${t("connection_lost")}\x1b[0m\r\n`,
+            );
+        });
+        return () => unsubscribe();
+    }, [sessionId, t]);
+
+    useEffect(() => {
         const unsubscribe = Events.On(AppEvent.SshData, (event) => {
             if (event.data.id === sessionId && terminalRef.current) {
                 const rawBytes = decodeBase64ToUint8Array(event.data.data);
@@ -617,6 +662,37 @@ export function TerminalInstance({
                         <p className="text-xs text-muted-foreground">
                             {connectionLabel}
                         </p>
+                    </div>
+                </div>
+            )}
+            {isDisconnected && !isConnecting && !showPassphraseModal && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-background/95 px-6">
+                    <div className="flex flex-col items-center gap-1 text-center">
+                        <p className="text-sm font-medium text-foreground">
+                            {t("connection_lost_title")}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                            {connectionLabel}
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                        <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => {
+                                void reconnectSession();
+                            }}
+                        >
+                            {t("reconnect")}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeSession(sessionId)}
+                        >
+                            {t("close_tab")}
+                        </Button>
                     </div>
                 </div>
             )}

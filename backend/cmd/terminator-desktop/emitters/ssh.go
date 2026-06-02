@@ -16,7 +16,8 @@ type SSHDataPayload struct {
 }
 
 type SSHClosedPayload struct {
-	ID string `json:"id"`
+	ID          string `json:"id"`
+	Unexpected  bool   `json:"unexpected"`
 }
 
 const (
@@ -35,8 +36,9 @@ func (e *WailsSSHEmitter) EmitData(sessionID string, data []byte) {
 	})
 }
 
-func (e *WailsSSHEmitter) EmitClosed(sessionID string) {
+func (e *WailsSSHEmitter) EmitClosed(sessionID string, unexpected bool) {
 	e.app.Event.Emit(SSHClosedEvent, SSHClosedPayload{
-		ID: sessionID,
+		ID:         sessionID,
+		Unexpected: unexpected,
 	})
 }

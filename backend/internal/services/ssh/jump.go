@@ -13,7 +13,7 @@ func dialViaJump(
 	targetConfig *ssh.ClientConfig,
 	targetAddr string,
 ) (*ssh.Client, *ssh.Client, error) {
-	jumpClient, err := ssh.Dial("tcp", jumpAddr, jumpConfig)
+	jumpClient, err := dialSSH("tcp", jumpAddr, jumpConfig)
 	if err != nil {
 		return nil, nil, apperror.SSHConnectionFailed(
 			fmt.Sprintf("failed to connect to relay %s", jumpAddr),
@@ -50,7 +50,7 @@ func dialViaRelayChain(
 	targetAddr string,
 ) (*ssh.Client, []*ssh.Client, error) {
 	if len(hops) == 0 {
-		client, err := ssh.Dial("tcp", targetAddr, targetConfig)
+		client, err := dialSSH("tcp", targetAddr, targetConfig)
 		if err != nil {
 			return nil, nil, apperror.SSHConnectionFailed(
 				fmt.Sprintf("failed to connect to %s", targetAddr),
@@ -85,7 +85,7 @@ func dialViaRelayChain(
 		}
 
 		if client == nil {
-			next, err := ssh.Dial("tcp", hopAddr, hopConfig)
+			next, err := dialSSH("tcp", hopAddr, hopConfig)
 			if err != nil {
 				closeClients(jumpClients)
 				return nil, nil, apperror.SSHConnectionFailed(

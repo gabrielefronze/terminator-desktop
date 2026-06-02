@@ -1,6 +1,6 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { Columns2, X } from "lucide-react";
+import { Columns2, RotateCcw, X } from "lucide-react";
 import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { TerminalSession } from "@/store/sessionStore";
@@ -66,6 +66,7 @@ interface TerminalTabProps {
     isTabGroup?: boolean;
     onSaveTabGroup?: () => void;
     onRenameTabGroup?: () => void;
+    onReconnect?: () => void;
 }
 
 export function TerminalTab({
@@ -85,6 +86,7 @@ export function TerminalTab({
     isTabGroup = false,
     onSaveTabGroup,
     onRenameTabGroup,
+    onReconnect,
 }: TerminalTabProps) {
     const state = isActive ? "active" : "inactive";
     const { t } = useTranslation(["common", "terminal", "tabgroups"]);
@@ -227,6 +229,18 @@ export function TerminalTab({
                 {(onSaveTabGroup || onRenameTabGroup) && (
                     <ContextMenuSeparator />
                 )}
+                {onReconnect && (
+                    <ContextMenuItem
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onReconnect();
+                        }}
+                    >
+                        <RotateCcw className="mr-2 size-4" />
+                        {t("terminal:reconnect")}
+                    </ContextMenuItem>
+                )}
+                {onReconnect && <ContextMenuSeparator />}
                 <ContextMenuItem
                     variant="destructive"
                     onClick={(e) => {

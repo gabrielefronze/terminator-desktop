@@ -19,6 +19,8 @@ import { IDENTITIES_QUERY_KEY } from "@/hooks/useIdentities.ts";
 import { KEYS_QUERY_KEY } from "@/hooks/useKeys.ts";
 import { FORWARDS_QUERY_KEY } from "@/hooks/useForwards.ts";
 import { SETTINGS_QUERY_KEY } from "@/hooks/useSettings";
+import { isSshReconnectPromptEnabled } from "@/lib/sshReconnect";
+import type { AppSettings } from "../bindings/terminator-desktop/backend/internal/services/settings";
 import { useAppTheme } from "@/hooks/useAppTheme";
 import { useSyncSessionHostAppearance } from "@/hooks/useSyncSessionHostAppearance";
 import { applyAppTheme } from "@/lib/appThemeApply";
@@ -78,14 +80,26 @@ export default function App() {
 
     useEffect(() => {
         const unsubscribe = Events.On(AppEvent.SshClosed, (event) => {
-            // setTimeout(() => {
-            //     removeSession(event.data.id);
-            // }, 500);
-            removeSession(event.data.id);
+            if (!event.data.unexpected) {
+                return;
+            }
+            const session = useSessionStore
+                .getState()
+                .sessions.find((item) => item.id === event.data.id);
+            if (session?.forwardOnly) {
+                removeSession(event.data.id);
+                return;
+            }
+            const settings = queryClient.getQueryData<AppSettings>(
+                SETTINGS_QUERY_KEY,
+            );
+            if (!isSshReconnectPromptEnabled(settings)) {
+                removeSession(event.data.id);
+            }
         });
 
         return () => unsubscribe();
-    }, [removeSession]);
+    }, [removeSession, queryClient]);
 
     useEffect(() => {
         if (!isUnlocked) return;

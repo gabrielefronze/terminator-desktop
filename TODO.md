@@ -49,7 +49,7 @@ Completes the SSH/networking story and improves power-user workflows.
   - Per-host toggle; forward local agent through jump chains.
   - *Touches:* `Host` model, `SSHConnectionConfig`, connect path in `ssh.go`.
 
-- [ ] **SSH keep-alive & reconnect**
+- [x] **SSH keep-alive & reconnect**
   - TCP/SSH keep-alive to prevent silent drops; optional auto-reconnect with user prompt.
   - *Touches:* `backend/internal/services/ssh/ssh.go`, terminal disconnect UI.
 

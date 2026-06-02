@@ -58,6 +58,7 @@ export function TitleBar() {
         removeSession,
         closeTileGroup,
         assignTabGroupId,
+        requestReconnect,
     } = useSessionStore();
     const { activeView, openNewTabHostPicker } = useUIStore();
     const { isMac } = usePlatform();
@@ -233,6 +234,11 @@ export function TitleBar() {
                                             ? () =>
                                                   openTabGroupModal(session)
                                             : undefined
+                                    }
+                                    onReconnect={
+                                        session.forwardOnly
+                                            ? undefined
+                                            : () => requestReconnect(session.id)
                                     }
                                 />
                             );

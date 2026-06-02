@@ -3,6 +3,10 @@ import { Host } from "../../bindings/terminator-desktop/backend/internal/service
 import { HostKeyCheck } from "../../bindings/terminator-desktop/backend/internal/services/knownhosts/models";
 import { Service as KnownHostsService } from "../../bindings/terminator-desktop/backend/internal/services/knownhosts";
 import { SSHConnectionConfig } from "../../bindings/terminator-desktop/backend/internal/services/ssh/models";
+import { queryClient } from "@/lib/queryClient";
+import { SETTINGS_QUERY_KEY } from "@/hooks/useSettings";
+import { sshKeepAliveConnectionFields } from "@/lib/sshKeepAlive";
+import type { AppSettings } from "../../bindings/terminator-desktop/backend/internal/services/settings";
 import { SshService } from "../../bindings/terminator-desktop/backend/internal/services/ssh";
 import { SavedIdentity } from "../../bindings/terminator-desktop/backend/internal/services/blob/models";
 import { SavedKey } from "../../bindings/terminator-desktop/backend/internal/services/blob/models";
@@ -35,6 +39,7 @@ function paramsToSshConfig(
     params: CreateSessionParams,
     sessionId?: string,
 ): SSHConnectionConfig {
+    const settings = queryClient.getQueryData<AppSettings>(SETTINGS_QUERY_KEY);
     return new SSHConnectionConfig({
         id: sessionId ?? crypto.randomUUID(),
         local: false,
@@ -51,6 +56,7 @@ function paramsToSshConfig(
         relayPassword: params.relayPassword,
         relayPrivateKey: params.relayPrivateKey,
         relayHops: params.relayHops,
+        ...sshKeepAliveConnectionFields(settings),
     });
 }
 

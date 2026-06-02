@@ -14,7 +14,7 @@ import (
 
 type SSHEmitter interface {
 	EmitData(sessionID string, data []byte)
-	EmitClosed(sessionID string)
+	EmitClosed(sessionID string, unexpected bool)
 }
 
 type activeSession struct {
@@ -25,8 +25,9 @@ type activeSession struct {
 	client      *ssh.Client
 	jumpClients []*ssh.Client
 	session     *ssh.Session
-	localCmd    *exec.Cmd
-	ptyFile     *os.File
+	localCmd       *exec.Cmd
+	ptyFile        *os.File
+	keepAliveStop  chan struct{}
 }
 
 type SshService struct {
@@ -141,6 +142,11 @@ func (s *SshService) Connect(config *SSHConnectionConfig) error {
 	s.sessions[config.ID] = currentSession
 	s.mu.Unlock()
 
+	startSessionKeepAlive(
+		currentSession,
+		keepAliveEnabled(config),
+		config.KeepAliveIntervalSeconds,
+	)
 	go s.streamOutput(config.ID, stdout, currentSession)
 
 	if config.StartupCommand != "" {
@@ -183,13 +189,20 @@ func (s *SshService) ConnectForwardOnly(config *SSHConnectionConfig) error {
 	}
 
 	s.mu.Lock()
-	s.sessions[config.ID] = &activeSession{
+	forwardSession := &activeSession{
 		local:       false,
 		forwardOnly: true,
 		client:      client,
 		jumpClients: jumpClients,
 	}
+	s.sessions[config.ID] = forwardSession
 	s.mu.Unlock()
+
+	startSessionKeepAlive(
+		forwardSession,
+		keepAliveEnabled(config),
+		config.KeepAliveIntervalSeconds,
+	)
 
 	return nil
 }
@@ -239,6 +252,7 @@ func (s *SshService) Disconnect(sessionID string) {
 	s.mu.Unlock()
 
 	if exists {
+		stopSessionKeepAlive(active)
 		s.stopForwardsForSession(sessionID)
 		if active.local {
 			closeLocalSession(active)
@@ -250,7 +264,7 @@ func (s *SshService) Disconnect(sessionID string) {
 			_ = active.client.Close()
 			closeClients(active.jumpClients)
 		}
-		s.emitter.EmitClosed(sessionID)
+		s.emitter.EmitClosed(sessionID, false)
 	}
 }
 
@@ -331,6 +345,7 @@ func (s *SshService) cleanupSession(sessionID string, current *activeSession) {
 		delete(s.sessions, sessionID)
 		s.mu.Unlock()
 
+		stopSessionKeepAlive(current)
 		s.stopForwardsForSession(sessionID)
 		if current.local {
 			closeLocalSession(current)
@@ -348,7 +363,7 @@ func (s *SshService) cleanupSession(sessionID string, current *activeSession) {
 			}
 			closeClients(current.jumpClients)
 		}
-		s.emitter.EmitClosed(sessionID)
+		s.emitter.EmitClosed(sessionID, true)
 	} else {
 		s.mu.Unlock()
 	}

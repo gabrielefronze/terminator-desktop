@@ -22,6 +22,7 @@ import {
     type TileDropZone,
     type TileNode,
 } from "@/lib/tileLayout";
+import { getTileGroupSessionIds } from "@/lib/sessionTabs";
 
 export interface TerminalSession {
     id: string;
@@ -79,6 +80,8 @@ export interface CreateSessionParams {
 interface SessionState {
     sessions: TerminalSession[];
     activeSessionId: string | null;
+    /** Incremented per session when the user requests a reconnect from the tab menu. */
+    reconnectRequests: Record<string, number>;
     addSession: (
         params: CreateSessionParams,
         options?: {
@@ -105,6 +108,7 @@ interface SessionState {
     setAllSessionsTerminalFontSize: (size: number) => void;
     syncSessionsFromHosts: (hosts: Host[]) => void;
     clearSessions: () => void;
+    requestReconnect: (sessionId: string) => void;
 }
 
 function pickActiveSessionAfterClose(
@@ -205,6 +209,7 @@ function applySingleSessionRemoval(
 export const useSessionStore = create<SessionState>((set, get) => ({
     sessions: [],
     activeSessionId: null,
+    reconnectRequests: {},
 
     addSession: (params, options) => {
         const forwardOnly = options?.forwardOnly === true;
@@ -674,6 +679,27 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             return changed ? { sessions } : state;
         }),
 
+    requestReconnect: (sessionId) => {
+        const state = get();
+        const leader = state.sessions.find((session) => session.id === sessionId);
+        if (!leader) {
+            return;
+        }
+
+        const memberIds = getTileGroupSessionIds(leader, state.sessions);
+        set((current) => {
+            const reconnectRequests = { ...current.reconnectRequests };
+            for (const id of memberIds) {
+                const session = current.sessions.find((item) => item.id === id);
+                if (!session || session.forwardOnly) {
+                    continue;
+                }
+                reconnectRequests[id] = (reconnectRequests[id] ?? 0) + 1;
+            }
+            return { reconnectRequests };
+        });
+    },
+
     clearSessions: () => {
         const {sessions} = get();
         sessions.forEach((session) => {
@@ -682,6 +708,6 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
         // Wipe the local state and return to hosts
         useUIStore.getState().setActiveView(ViewType.Hosts);
-        set({sessions: [], activeSessionId: null});
+        set({sessions: [], activeSessionId: null, reconnectRequests: {}});
     }
 }));

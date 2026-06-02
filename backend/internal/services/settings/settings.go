@@ -16,6 +16,10 @@ const (
 	DefaultVaultAutoLockMinutes = 15
 	minVaultAutoLockMinutes     = 1
 	maxVaultAutoLockMinutes     = 720
+
+	DefaultSshKeepAliveIntervalSeconds = 30
+	minSshKeepAliveIntervalSeconds     = 5
+	maxSshKeepAliveIntervalSeconds     = 300
 )
 
 type AppSettings struct {
@@ -29,8 +33,11 @@ type AppSettings struct {
 	VaultAutoLockEnabled   bool   `json:"vaultAutoLockEnabled"`
 	VaultAutoLockMinutes   int    `json:"vaultAutoLockMinutes"`
 	VaultAutoLockOnSleep   bool   `json:"vaultAutoLockOnSleep"`
-	SessionRestoreEnabled  bool   `json:"sessionRestoreEnabled"`
-	CommandHistoryEnabled  bool   `json:"commandHistoryEnabled"`
+	SessionRestoreEnabled       bool `json:"sessionRestoreEnabled"`
+	CommandHistoryEnabled       bool `json:"commandHistoryEnabled"`
+	SshKeepAliveEnabled         bool `json:"sshKeepAliveEnabled"`
+	SshKeepAliveIntervalSeconds int  `json:"sshKeepAliveIntervalSeconds"`
+	SshReconnectPromptEnabled   bool `json:"sshReconnectPromptEnabled"`
 }
 
 func normalizeSettings(settings AppSettings) AppSettings {
@@ -46,7 +53,27 @@ func normalizeSettings(settings AppSettings) AppSettings {
 	settings.AppBackgroundColor = normalizeAppBackgroundColor(settings.AppBackgroundColor)
 	settings.AccentColor = normalizeAccentColor(settings.AccentColor)
 	settings.VaultAutoLockMinutes = normalizeVaultAutoLockMinutes(settings.VaultAutoLockMinutes)
+	legacyKeepAlive := settings.SshKeepAliveIntervalSeconds == 0
+	settings.SshKeepAliveIntervalSeconds = normalizeSshKeepAliveIntervalSeconds(
+		settings.SshKeepAliveIntervalSeconds,
+	)
+	if legacyKeepAlive {
+		settings.SshKeepAliveEnabled = true
+	}
 	return settings
+}
+
+func normalizeSshKeepAliveIntervalSeconds(seconds int) int {
+	if seconds <= 0 {
+		return DefaultSshKeepAliveIntervalSeconds
+	}
+	if seconds < minSshKeepAliveIntervalSeconds {
+		return minSshKeepAliveIntervalSeconds
+	}
+	if seconds > maxSshKeepAliveIntervalSeconds {
+		return maxSshKeepAliveIntervalSeconds
+	}
+	return seconds
 }
 
 func normalizeVaultAutoLockMinutes(minutes int) int {
@@ -85,8 +112,11 @@ func (s *SettingsService) GetSettings() (AppSettings, error) {
 		ShowLocalhostHost:       true,
 		AppBackgroundColor:      DefaultAppBackgroundColor,
 		AccentColor:             DefaultAccentColor,
-		SessionRestoreEnabled:   true,
-		CommandHistoryEnabled:   true,
+		SessionRestoreEnabled:         true,
+		CommandHistoryEnabled:         true,
+		SshKeepAliveEnabled:           true,
+		SshKeepAliveIntervalSeconds:   DefaultSshKeepAliveIntervalSeconds,
+		SshReconnectPromptEnabled:     true,
 	}
 
 	data, err := os.ReadFile(s.configPath)
