@@ -1,0 +1,5 @@
+{
+  "update_ready": "Update bereit",
+  "update_to": "Auf Version {{version}} aktualisieren",
+  "restart_update": "Neu starten und aktualisieren"
+}

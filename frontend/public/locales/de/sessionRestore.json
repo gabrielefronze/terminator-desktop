@@ -1,0 +1,9 @@
+{
+  "title": "Vorherige Sitzung wiederherstellen?",
+  "description": "{{count}} Tab(s) der letzten Sitzung erneut verbinden, einschließlich geteilter Bereiche.",
+  "restore": "Sitzung wiederherstellen",
+  "start_fresh": "Neu beginnen",
+  "restoring": "Wird wiederhergestellt…",
+  "restore_success": "{{count}} Tab(s) wiederhergestellt",
+  "restore_none_available": "Keine gespeicherten Hosts zum Wiederherstellen verfügbar"
+}

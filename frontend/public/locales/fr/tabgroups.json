@@ -1,0 +1,17 @@
+{
+  "picker_section": "Groupes d'onglets",
+  "page_title": "Groupes d'onglets",
+  "page_description": "Espaces divisés enregistrés. Ouvrez un groupe pour afficher ses hôtes, ou créez-en un en enregistrant un onglet combiné depuis la barre de titre.",
+  "search_placeholder": "Rechercher des groupes d'onglets…",
+  "empty_state": "Aucun groupe d'onglets. Divisez deux onglets, puis clic droit sur l'onglet combiné et choisissez Enregistrer le groupe d'onglets.",
+  "no_hosts_available": "Aucun hôte disponible",
+  "save_title": "Enregistrer le groupe d'onglets",
+  "edit_title": "Renommer le groupe d'onglets",
+  "name_label": "Nom",
+  "name_placeholder": "Mon espace de travail",
+  "hosts_label": "Hôtes",
+  "save_tab_group": "Enregistrer le groupe d'onglets…",
+  "rename_tab_group": "Renommer le groupe d'onglets…",
+  "delete_title": "Supprimer le groupe d'onglets",
+  "delete_description": "Supprimer « {{name}} » ? Les terminaux ouverts ne seront pas fermés."
+}

@@ -1,0 +1,15 @@
+{
+  "title": "Palette comandi",
+  "description": "Connetti, naviga, esegui snippet e altro.",
+  "search_placeholder": "Digita un comando o cerca…",
+  "no_results": "Nessun comando corrispondente",
+  "section_actions": "Azioni",
+  "section_navigate": "Naviga",
+  "section_hosts": "Connetti a host",
+  "section_tab_groups": "Apri gruppo di schede",
+  "section_snippets": "Inserisci snippet",
+  "action_new_tab": "Nuova scheda terminale",
+  "action_lock_vault": "Blocca vault",
+  "nav_terminal": "Terminale",
+  "snippet_insert_failed": "Impossibile inserire lo snippet nella sessione attiva"
+}

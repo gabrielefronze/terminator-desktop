@@ -1,0 +1,17 @@
+{
+  "picker_section": "Tab-Gruppen",
+  "page_title": "Tab-Gruppen",
+  "page_description": "Gespeicherte geteilte Arbeitsbereiche. Öffnen Sie eine Gruppe, um ihre Hosts anzuordnen, oder erstellen Sie eine, indem Sie einen kombinierten Tab in der Titelleiste speichern.",
+  "search_placeholder": "Tab-Gruppen suchen…",
+  "empty_state": "Noch keine Tab-Gruppen. Teilen Sie zwei Tabs, klicken Sie dann mit der rechten Maustaste auf den kombinierten Tab und wählen Sie Tab-Gruppe speichern.",
+  "no_hosts_available": "Keine Hosts verfügbar",
+  "save_title": "Tab-Gruppe speichern",
+  "edit_title": "Tab-Gruppe umbenennen",
+  "name_label": "Name",
+  "name_placeholder": "Mein Arbeitsbereich",
+  "hosts_label": "Hosts",
+  "save_tab_group": "Tab-Gruppe speichern…",
+  "rename_tab_group": "Tab-Gruppe umbenennen…",
+  "delete_title": "Tab-Gruppe löschen",
+  "delete_description": "„{{name}}“ löschen? Geöffnete Terminals werden nicht geschlossen."
+}

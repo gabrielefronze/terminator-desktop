@@ -17,7 +17,7 @@ The app is a **Wails v3** desktop application: a **Go backend** (SSH, crypto, da
 | Frontend | React 19, Vite 8, TypeScript, Tailwind 4, shadcn/Radix |
 | Terminal UI | xterm.js (`@xterm/xterm`) |
 | State / data | Zustand (UI/session/auth), TanStack Query (hosts/keys/user) |
-| i18n | i18next (en + ru) |
+| i18n | i18next (en, ru, de, fr, it) |
 | Updates | Velopack (`velopack-go`) + GitHub releases |
 | Packaging | Task (Taskfile), per-OS tasks under `build/` |
 

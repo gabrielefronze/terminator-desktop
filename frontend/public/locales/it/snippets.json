@@ -1,0 +1,9 @@
+{
+  "page_title": "Snippet",
+  "page_description": "Comandi salvati da eseguire dalla barra del terminale dopo la connessione a un host remoto. Usa la sezione SFTP nella barra laterale per sfogliare i file.",
+  "search_placeholder": "Cerca snippet…",
+  "add_snippet": "Nuovo snippet",
+  "empty": "Nessuno snippet. Creane uno da usare in una sessione SSH.",
+  "delete_title": "Elimina snippet",
+  "delete_desc": "Eliminare \"{{name}}\"?"
+}

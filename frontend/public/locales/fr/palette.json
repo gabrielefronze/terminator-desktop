@@ -1,0 +1,15 @@
+{
+  "title": "Palette de commandes",
+  "description": "Se connecter, naviguer, exécuter des extraits, etc.",
+  "search_placeholder": "Tapez une commande ou recherchez…",
+  "no_results": "Aucune commande correspondante",
+  "section_actions": "Actions",
+  "section_navigate": "Navigation",
+  "section_hosts": "Se connecter à un hôte",
+  "section_tab_groups": "Ouvrir un groupe d'onglets",
+  "section_snippets": "Insérer un extrait",
+  "action_new_tab": "Nouvel onglet terminal",
+  "action_lock_vault": "Verrouiller le coffre",
+  "nav_terminal": "Terminal",
+  "snippet_insert_failed": "Impossible d'insérer l'extrait dans la session active"
+}

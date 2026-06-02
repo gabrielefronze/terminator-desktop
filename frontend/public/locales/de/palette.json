@@ -1,0 +1,15 @@
+{
+  "title": "Befehlspalette",
+  "description": "Verbinden, navigieren, Snippets ausführen und mehr.",
+  "search_placeholder": "Befehl eingeben oder suchen…",
+  "no_results": "Keine passenden Befehle",
+  "section_actions": "Aktionen",
+  "section_navigate": "Navigation",
+  "section_hosts": "Mit Host verbinden",
+  "section_tab_groups": "Tab-Gruppe öffnen",
+  "section_snippets": "Snippet einfügen",
+  "action_new_tab": "Neuer Terminal-Tab",
+  "action_lock_vault": "Tresor sperren",
+  "nav_terminal": "Terminal",
+  "snippet_insert_failed": "Snippet konnte in der aktiven Sitzung nicht eingefügt werden"
+}

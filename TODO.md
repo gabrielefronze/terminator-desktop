@@ -94,8 +94,8 @@ From the public roadmap and longer-horizon platform work.
   - Presets (Dracula, Solarized, etc.) and/or custom ANSI palette; global default with per-host override.
   - *Touches:* `frontend/src/lib/terminalTheme.ts`, Settings, `Host` model.
 
-- [ ] **Additional locales**
-  - UI is en + ru today (`frontend/public/locales/`). Add languages as needed.
+- [x] **Additional locales**
+  - UI locales: en, ru, de, fr, it (`frontend/public/locales/`).
 
 - [ ] **Auto-updates on macOS & Linux**
   - Windows uses Velopack; align update UX on other platforms (`UpdaterService`, release CI).

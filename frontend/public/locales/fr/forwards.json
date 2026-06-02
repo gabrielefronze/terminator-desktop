@@ -1,0 +1,17 @@
+{
+  "page_title": "Redirections",
+  "page_description": "Enregistrez des préréglages de redirection de ports et lancez-les en un clic.",
+  "search_placeholder": "Rechercher des redirections…",
+  "create_forward": "Créer une redirection",
+  "edit_forward": "Modifier la redirection",
+  "name_label": "Nom",
+  "host_label": "Hôte",
+  "host_placeholder": "Choisir un hôte…",
+  "local_host_label": "Hôte local",
+  "empty": "Aucune redirection enregistrée.",
+  "missing_host": "Hôte manquant",
+  "start_forward": "Démarrer la redirection",
+  "stop_forward": "Arrêter la redirection",
+  "delete_title": "Supprimer la redirection",
+  "delete_desc": "Supprimer « {{name}} » ? Les redirections actives seront arrêtées."
+}

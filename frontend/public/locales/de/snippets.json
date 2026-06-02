@@ -1,0 +1,9 @@
+{
+  "page_title": "Snippets",
+  "page_description": "Gespeicherte Befehle, die Sie nach der Verbindung zu einem Remote-Host über die Terminal-Symbolleiste ausführen können. Nutzen Sie den SFTP-Bereich in der Seitenleiste zum Durchsuchen von Dateien.",
+  "search_placeholder": "Snippets suchen…",
+  "add_snippet": "Neues Snippet",
+  "empty": "Noch keine Snippets. Erstellen Sie eines für eine SSH-Sitzung.",
+  "delete_title": "Snippet löschen",
+  "delete_desc": "„{{name}}“ löschen?"
+}

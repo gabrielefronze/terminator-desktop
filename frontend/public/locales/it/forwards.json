@@ -1,0 +1,17 @@
+{
+  "page_title": "Inoltri",
+  "page_description": "Salva preset di port forwarding e avviali con un clic quando servono.",
+  "search_placeholder": "Cerca inoltri…",
+  "create_forward": "Crea inoltro",
+  "edit_forward": "Modifica inoltro",
+  "name_label": "Nome",
+  "host_label": "Host",
+  "host_placeholder": "Scegli un host…",
+  "local_host_label": "Host locale",
+  "empty": "Nessun inoltro salvato.",
+  "missing_host": "Host mancante",
+  "start_forward": "Avvia inoltro",
+  "stop_forward": "Ferma inoltro",
+  "delete_title": "Elimina inoltro",
+  "delete_desc": "Eliminare \"{{name}}\"? Eventuali inoltri attivi verranno fermati."
+}

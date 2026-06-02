@@ -1,0 +1,9 @@
+{
+  "page_title": "Extraits",
+  "page_description": "Commandes enregistrées à exécuter depuis la barre du terminal après connexion à un hôte distant. Utilisez la section SFTP dans la barre latérale pour parcourir les fichiers.",
+  "search_placeholder": "Rechercher des extraits…",
+  "add_snippet": "Nouvel extrait",
+  "empty": "Aucun extrait. Créez-en un pour une session SSH.",
+  "delete_title": "Supprimer l'extrait",
+  "delete_desc": "Supprimer « {{name}} » ?"
+}

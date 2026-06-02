@@ -1,0 +1,17 @@
+{
+  "picker_section": "Gruppi di schede",
+  "page_title": "Gruppi di schede",
+  "page_description": "Workspace divisi salvati. Apri un gruppo per affiancare gli host, o creane uno salvando una scheda combinata dalla barra del titolo.",
+  "search_placeholder": "Cerca gruppi di schede…",
+  "empty_state": "Nessun gruppo di schede. Dividi due schede, poi clic destro sulla scheda combinata e scegli Salva gruppo di schede.",
+  "no_hosts_available": "Nessun host disponibile",
+  "save_title": "Salva gruppo di schede",
+  "edit_title": "Rinomina gruppo di schede",
+  "name_label": "Nome",
+  "name_placeholder": "Il mio workspace",
+  "hosts_label": "Host",
+  "save_tab_group": "Salva gruppo di schede…",
+  "rename_tab_group": "Rinomina gruppo di schede…",
+  "delete_title": "Elimina gruppo di schede",
+  "delete_description": "Eliminare \"{{name}}\"? I terminali aperti non verranno chiusi."
+}

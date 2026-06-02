@@ -1,0 +1,9 @@
+{
+  "title": "Restaurer la session précédente ?",
+  "description": "Reconnecter {{count}} onglet(s) de votre dernière session, panneaux divisés inclus.",
+  "restore": "Restaurer la session",
+  "start_fresh": "Repartir à zéro",
+  "restoring": "Restauration…",
+  "restore_success": "{{count}} onglet(s) restauré(s)",
+  "restore_none_available": "Aucun hôte enregistré disponible pour la restauration"
+}

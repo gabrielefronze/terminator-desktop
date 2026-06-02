@@ -1,0 +1,17 @@
+{
+  "page_title": "Identitäten",
+  "new_identity": "Neue Identität",
+  "search_identities": "Identitäten suchen...",
+  "loading_identities": "Identitäten werden geladen...",
+  "empty_title": "Keine Identitäten gefunden",
+  "empty_desc": "Fügen Sie ein wiederverwendbares Benutzername-Passwort-Paar hinzu.",
+  "add_first_identity": "Identität hinzufügen",
+  "edit_title": "Identität bearbeiten",
+  "new_title": "Neue Identität",
+  "identity_name_label": "Name",
+  "identity_name_placeholder": "z. B. Produktions-Admin",
+  "save_identity": "Identität speichern",
+  "delete_title": "Identität löschen?",
+  "delete_desc": "„{{name}}“ wirklich löschen? Hosts mit dieser Identität müssen zuerst aktualisiert werden.",
+  "delete_in_use": "Diese Identität wird von einem oder mehreren Hosts verwendet. Entfernen Sie sie zuerst von diesen Hosts."
+}

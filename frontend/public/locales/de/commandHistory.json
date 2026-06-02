@@ -1,0 +1,17 @@
+{
+  "section_local": "Befehlsverlauf (dieser Host)",
+  "section_global": "Befehlsverlauf (alle Hosts)",
+  "open_bar": "Befehlsverlauf durchsuchen",
+  "search_placeholder": "Befehle suchen…",
+  "scope_local": "Dieser Host",
+  "scope_global": "Alle Hosts",
+  "loading": "Wird geladen…",
+  "empty": "Keine passenden Befehle",
+  "hint": "↑↓ auswählen · Eingabe ausführen · Esc schließen",
+  "settings_label": "Befehlsverlauf speichern",
+  "settings_desc": "Speichert im Terminal ausgeführte Befehle verschlüsselt im Tresor. Suche über ⌘K oder ⌘⇧R in der Sitzung.",
+  "clear_all": "Gesamten Verlauf löschen",
+  "clear_all_confirm_title": "Befehlsverlauf löschen?",
+  "clear_all_confirm_desc": "Alle gespeicherten Befehle auf diesem Gerät entfernen. Dies kann nicht rückgängig gemacht werden.",
+  "cleared_toast": "Befehlsverlauf gelöscht"
+}

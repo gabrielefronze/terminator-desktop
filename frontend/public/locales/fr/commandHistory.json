@@ -1,0 +1,17 @@
+{
+  "section_local": "Historique des commandes (cet hôte)",
+  "section_global": "Historique des commandes (tous les hôtes)",
+  "open_bar": "Rechercher dans l'historique",
+  "search_placeholder": "Rechercher des commandes…",
+  "scope_local": "Cet hôte",
+  "scope_global": "Tous les hôtes",
+  "loading": "Chargement…",
+  "empty": "Aucune commande correspondante",
+  "hint": "↑↓ pour sélectionner · Entrée pour exécuter · Échap pour fermer",
+  "settings_label": "Enregistrer l'historique des commandes",
+  "settings_desc": "Stocke les commandes du terminal, chiffrées dans votre coffre. Recherche via ⌘K ou ⌘⇧R en session.",
+  "clear_all": "Effacer tout l'historique",
+  "clear_all_confirm_title": "Effacer l'historique des commandes ?",
+  "clear_all_confirm_desc": "Supprime toutes les commandes enregistrées sur cet appareil. Action irréversible.",
+  "cleared_toast": "Historique des commandes effacé"
+}

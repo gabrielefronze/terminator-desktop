@@ -1,0 +1,17 @@
+{
+  "section_local": "Cronologia comandi (questo host)",
+  "section_global": "Cronologia comandi (tutti gli host)",
+  "open_bar": "Cerca nella cronologia comandi",
+  "search_placeholder": "Cerca comandi…",
+  "scope_local": "Questo host",
+  "scope_global": "Tutti gli host",
+  "loading": "Caricamento…",
+  "empty": "Nessun comando corrispondente",
+  "hint": "↑↓ per selezionare · Invio per eseguire · Esc per chiudere",
+  "settings_label": "Salva cronologia comandi",
+  "settings_desc": "Memorizza i comandi eseguiti nel terminale, crittografati nel vault. Cerca da ⌘K o ⌘⇧R in sessione.",
+  "clear_all": "Cancella tutta la cronologia",
+  "clear_all_confirm_title": "Cancellare la cronologia comandi?",
+  "clear_all_confirm_desc": "Rimuovi tutti i comandi salvati da questo dispositivo. Operazione irreversibile.",
+  "cleared_toast": "Cronologia comandi cancellata"
+}

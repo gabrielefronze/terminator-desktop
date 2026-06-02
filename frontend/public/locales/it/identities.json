@@ -1,0 +1,17 @@
+{
+  "page_title": "Identità",
+  "new_identity": "Nuova identità",
+  "search_identities": "Cerca identità...",
+  "loading_identities": "Caricamento identità...",
+  "empty_title": "Nessuna identità",
+  "empty_desc": "Aggiungi una coppia nome utente e password riutilizzabile.",
+  "add_first_identity": "Aggiungi un'identità",
+  "edit_title": "Modifica identità",
+  "new_title": "Nuova identità",
+  "identity_name_label": "Nome",
+  "identity_name_placeholder": "es. Admin produzione",
+  "save_identity": "Salva identità",
+  "delete_title": "Eliminare l'identità?",
+  "delete_desc": "Eliminare \"{{name}}\"? Aggiorna prima gli host che la usano.",
+  "delete_in_use": "Questa identità è usata da uno o più host. Rimuovila dagli host prima di eliminarla."
+}

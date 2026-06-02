@@ -1,0 +1,17 @@
+{
+  "page_title": "Weiterleitungen",
+  "page_description": "Port-Forwarding-Vorlagen speichern und bei Bedarf mit einem Klick starten.",
+  "search_placeholder": "Weiterleitungen suchen…",
+  "create_forward": "Weiterleitung erstellen",
+  "edit_forward": "Weiterleitung bearbeiten",
+  "name_label": "Name",
+  "host_label": "Host",
+  "host_placeholder": "Host wählen…",
+  "local_host_label": "Lokaler Host",
+  "empty": "Noch keine gespeicherten Weiterleitungen.",
+  "missing_host": "Host fehlt",
+  "start_forward": "Weiterleitung starten",
+  "stop_forward": "Weiterleitung stoppen",
+  "delete_title": "Weiterleitung löschen",
+  "delete_desc": "„{{name}}“ löschen? Aktive Weiterleitungen werden gestoppt."
+}
