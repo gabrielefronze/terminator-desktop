@@ -41,11 +41,13 @@ function SessionTerminal({
     session,
     isActive,
     isFocused,
+    isViewVisible,
     onActivate,
 }: {
     session: TerminalSession;
     isActive: boolean;
     isFocused: boolean;
+    isViewVisible: boolean;
     onActivate: () => void;
 }) {
     return (
@@ -57,6 +59,7 @@ function SessionTerminal({
             terminalFontSize={session.terminalFontSize}
             isActive={isActive}
             isFocused={isFocused}
+            isViewVisible={isViewVisible}
             onActivate={onActivate}
         />
     );
@@ -111,6 +114,7 @@ function PersistentSessionPane({
     placement,
     dragHighlightColor,
     activeSessionId,
+    isViewVisible,
     onClosePane,
     onFocusPane,
 }: {
@@ -118,6 +122,7 @@ function PersistentSessionPane({
     placement: SessionPlacement;
     dragHighlightColor: string;
     activeSessionId: string | null;
+    isViewVisible: boolean;
     onClosePane: (sessionId: string) => void;
     onFocusPane: (sessionId: string) => void;
 }) {
@@ -165,7 +170,8 @@ function PersistentSessionPane({
                 "absolute flex min-h-0 min-w-0 flex-col bg-background",
                 placement.isTiled &&
                     "overflow-hidden rounded-lg border shadow-sm transition-[border-color] duration-200",
-                !placement.groupActive && "hidden",
+                !placement.groupActive && "invisible pointer-events-none",
+                placement.groupActive ? "z-10" : "z-0",
             )}
         >
             <div
@@ -207,6 +213,7 @@ function PersistentSessionPane({
                     session={session}
                     isActive={isTerminalActive}
                     isFocused={isPaneFocused}
+                    isViewVisible={isViewVisible}
                     onActivate={() => onFocusPane(session.id)}
                 />
                 <TabPaneDropOverlay
@@ -245,9 +252,12 @@ export function TerminalStack({ isVisible }: TerminalStackProps) {
 
     return (
         <div
+            aria-hidden={!isVisible}
             className={cn(
                 "absolute inset-0 flex min-h-0 flex-col",
-                !isVisible && "hidden",
+                isVisible
+                    ? "z-10"
+                    : "invisible pointer-events-none z-0",
             )}
         >
             <div className="relative flex min-h-0 flex-1">
@@ -265,6 +275,7 @@ export function TerminalStack({ isVisible }: TerminalStackProps) {
                                         session={session}
                                         isActive={false}
                                         isFocused={false}
+                                        isViewVisible={isVisible}
                                         onActivate={() => {}}
                                     />
                                 </div>
@@ -278,6 +289,7 @@ export function TerminalStack({ isVisible }: TerminalStackProps) {
                                 placement={placement}
                                 dragHighlightColor={dragHighlightColor}
                                 activeSessionId={activeSessionId}
+                                isViewVisible={isVisible}
                                 onClosePane={removeSession}
                                 onFocusPane={setActiveSession}
                             />

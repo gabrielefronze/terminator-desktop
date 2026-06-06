@@ -56,6 +56,7 @@ interface TerminalInstanceProps {
     sessionId: string;
     isActive: boolean;
     isFocused?: boolean;
+    isViewVisible?: boolean;
     onActivate?: () => void;
     config: SSHConnectionConfig;
     sudoCredentials?: SudoCredential[];
@@ -87,6 +88,7 @@ export function TerminalInstance({
     sessionId,
     isActive,
     isFocused = false,
+    isViewVisible = true,
     onActivate,
     config,
     sudoCredentials = [],
@@ -128,9 +130,13 @@ export function TerminalInstance({
     const commandBufferRef = useRef(new TerminalCommandBuffer());
     const onActivateRef = useRef(onActivate);
     const isFocusedRef = useRef(isFocused);
+    const isActiveRef = useRef(isActive);
+    const isViewVisibleRef = useRef(isViewVisible);
 
     onActivateRef.current = onActivate;
     isFocusedRef.current = isFocused;
+    isActiveRef.current = isActive;
+    isViewVisibleRef.current = isViewVisible;
 
     const printErrorToTerminal = (error: unknown) => {
         if (!terminalRef.current) return;
@@ -597,44 +603,59 @@ export function TerminalInstance({
     }, [isFocused]);
 
     useEffect(() => {
-        if (!isActive || !isReadyRef.current) return;
+        if (!isActive || !isViewVisible || !isReadyRef.current) return;
 
         const fit = fitAddonRef.current;
         const term = terminalRef.current;
         if (!fit || !term) return;
 
+        let cancelled = false;
         const frame = requestAnimationFrame(() => {
-            try {
-                fit.fit();
-                void SshService.Resize(sessionId, term.rows, term.cols).catch(
-                    printErrorToTerminal,
-                );
-            } catch (e) {
-                console.warn("xterm fit failed:", e);
-            }
+            requestAnimationFrame(() => {
+                if (cancelled) return;
+                try {
+                    webglAddonRef.current?.clearTextureAtlas();
+                    fit.fit();
+                    void SshService.Resize(sessionId, term.rows, term.cols).catch(
+                        printErrorToTerminal,
+                    );
+                } catch (e) {
+                    console.warn("xterm fit failed:", e);
+                }
+            });
         });
 
-        return () => cancelAnimationFrame(frame);
-    }, [isActive, sessionId]);
+        return () => {
+            cancelled = true;
+            cancelAnimationFrame(frame);
+        };
+    }, [isActive, isViewVisible, sessionId]);
 
     useEffect(() => {
         if (!containerRef.current) return;
 
         const resizeObserver = new ResizeObserver(() => {
-            if (!isActive || !isReadyRef.current) return;
+            if (!isReadyRef.current) return;
 
             const fit = fitAddonRef.current;
             const term = terminalRef.current;
             if (!fit || !term) return;
 
             try {
+                webglAddonRef.current?.clearTextureAtlas();
                 fit.fit();
-                if (isFocusedRef.current) {
+                if (
+                    isActiveRef.current &&
+                    isViewVisibleRef.current &&
+                    isFocusedRef.current
+                ) {
                     term.focus();
                 }
-                SshService.Resize(sessionId, term.rows, term.cols).catch((err) => {
-                    printErrorToTerminal(err);
-                });
+                if (isActiveRef.current && isViewVisibleRef.current) {
+                    SshService.Resize(sessionId, term.rows, term.cols).catch((err) => {
+                        printErrorToTerminal(err);
+                    });
+                }
             } catch (e) {
                 console.warn("xterm fit failed:", e);
             }
@@ -642,13 +663,13 @@ export function TerminalInstance({
 
         resizeObserver.observe(containerRef.current);
         return () => resizeObserver.disconnect();
-    }, [isActive, sessionId]);
+    }, [sessionId]);
 
     return (
         <div
             className={cn(
                 "absolute inset-0 overflow-hidden pl-2",
-                isActive ? "block" : "hidden",
+                isActive ? "z-10" : "invisible pointer-events-none z-0",
             )}
             style={{ backgroundColor: TERMINAL_BACKGROUND }}
         >
