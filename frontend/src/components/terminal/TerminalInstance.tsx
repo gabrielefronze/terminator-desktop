@@ -21,8 +21,11 @@ import { sshKeepAliveConnectionFields } from "@/lib/sshKeepAlive";
 import { isSshReconnectPromptEnabled } from "@/lib/sshReconnect";
 import { parseAppError, handleAppError } from "@/lib/error";
 import {
+    isNewTabShortcut,
+    isTerminalFindShortcut,
     isTerminalZoomInShortcut,
     isTerminalZoomOutShortcut,
+    isToggleSidebarShortcut,
 } from "@/lib/keyboardShortcuts";
 import { queryClient } from "@/lib/queryClient";
 import { adjustTerminalFontSize } from "@/lib/terminalFontSizeAdjust";
@@ -315,33 +318,19 @@ export function TerminalInstance({
 
             term.attachCustomKeyEventHandler((arg) => {
                 if (arg.type === "keydown") {
-                    if (
-                        (arg.metaKey || arg.ctrlKey) &&
-                        !arg.altKey &&
-                        arg.code === "KeyF"
-                    ) {
+                    if (isTerminalFindShortcut(arg)) {
                         arg.preventDefault();
                         useTerminalFindStore.getState().toggle();
                         return false;
                     }
 
-                    if (
-                        (arg.metaKey || arg.ctrlKey) &&
-                        !arg.altKey &&
-                        !arg.shiftKey &&
-                        arg.code === "KeyT"
-                    ) {
+                    if (isNewTabShortcut(arg)) {
                         arg.preventDefault();
                         useUIStore.getState().openNewTabHostPicker();
                         return false;
                     }
 
-                    if (
-                        (arg.metaKey || arg.ctrlKey) &&
-                        !arg.altKey &&
-                        !arg.shiftKey &&
-                        arg.code === "KeyB"
-                    ) {
+                    if (isToggleSidebarShortcut(arg)) {
                         arg.preventDefault();
                         useUIStore.getState().toggleSidebar();
                         return false;

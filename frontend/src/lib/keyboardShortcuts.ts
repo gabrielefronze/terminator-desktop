@@ -9,13 +9,18 @@ export function isTypingTarget(target: EventTarget | null): boolean {
     return target.isContentEditable;
 }
 
+/** Mac: ⌘+key. Windows/Linux: Ctrl+Shift+key (avoids browser Ctrl clashes). */
 export function isModShortcut(event: KeyboardEvent, key: string): boolean {
-    return (
-        (event.metaKey || event.ctrlKey) &&
-        !event.altKey &&
-        !event.shiftKey &&
-        event.key.toLowerCase() === key.toLowerCase()
-    );
+    if (event.altKey || event.key.toLowerCase() !== key.toLowerCase()) {
+        return false;
+    }
+    if (event.metaKey) {
+        return !event.shiftKey;
+    }
+    if (event.ctrlKey) {
+        return event.shiftKey;
+    }
+    return false;
 }
 
 export function isNewTabShortcut(event: KeyboardEvent): boolean {
@@ -67,11 +72,18 @@ export function isNextTabShortcut(event: KeyboardEvent): boolean {
     if (event.altKey) {
         return false;
     }
-    if (event.key === "Tab" && (event.ctrlKey || event.metaKey) && !event.shiftKey) {
+    // Mac: Control+Tab
+    if (
+        event.key === "Tab" &&
+        event.ctrlKey &&
+        !event.metaKey &&
+        !event.shiftKey
+    ) {
         return true;
     }
+    // Mac: ⌘⇧] — Windows/Linux: Ctrl+Shift+]
     if (
-        event.metaKey &&
+        (event.metaKey || event.ctrlKey) &&
         event.shiftKey &&
         (event.key === "]" || event.code === "BracketRight")
     ) {
@@ -88,15 +100,21 @@ export function isNextTabShortcut(event: KeyboardEvent): boolean {
 }
 
 export function isPrevTabShortcut(event: KeyboardEvent): boolean {
-    if (event.altKey) {
-        return false;
-    }
-    if (event.key === "Tab" && (event.ctrlKey || event.metaKey) && event.shiftKey) {
+    // Mac: Control+Shift+Tab
+    if (
+        event.key === "Tab" &&
+        event.ctrlKey &&
+        !event.metaKey &&
+        event.shiftKey &&
+        !event.altKey
+    ) {
         return true;
     }
+    // Mac: ⌘⇧[ — Windows/Linux: Ctrl+Shift+[
     if (
-        event.metaKey &&
+        (event.metaKey || event.ctrlKey) &&
         event.shiftKey &&
+        !event.altKey &&
         (event.key === "[" || event.code === "BracketLeft")
     ) {
         return true;
@@ -148,25 +166,25 @@ export const KEYBOARD_SHORTCUT_CATEGORIES: KeyboardShortcutCategory[] = [
     {
         categoryKey: "general",
         items: [
-            { actionKey: "command_palette", mac: "⌘K", windows: "Ctrl+K" },
+            { actionKey: "command_palette", mac: "⌘K", windows: "Ctrl+Shift+K" },
             { actionKey: "shortcuts_help", mac: "?", windows: "?" },
-            { actionKey: "toggle_sidebar", mac: "⌘B", windows: "Ctrl+B" },
+            { actionKey: "toggle_sidebar", mac: "⌘B", windows: "Ctrl+Shift+B" },
         ],
     },
     {
         categoryKey: "tabs",
         items: [
-            { actionKey: "new_tab", mac: "⌘T", windows: "Ctrl+T" },
-            { actionKey: "close_tab", mac: "⌘W", windows: "Ctrl+W" },
+            { actionKey: "new_tab", mac: "⌘T", windows: "Ctrl+Shift+T" },
+            { actionKey: "close_tab", mac: "⌘W", windows: "Ctrl+Shift+W" },
             {
                 actionKey: "next_tab",
                 mac: "⌃Tab / ⌘⇧]",
-                windows: "Ctrl+Tab",
+                windows: "Ctrl+Shift+]",
             },
             {
                 actionKey: "prev_tab",
                 mac: "⌃⇧Tab / ⌘⇧[",
-                windows: "Ctrl+Shift+Tab",
+                windows: "Ctrl+Shift+[",
             },
             { actionKey: "disconnect", mac: "⌘⇧D", windows: "Ctrl+Shift+D" },
         ],
@@ -174,10 +192,10 @@ export const KEYBOARD_SHORTCUT_CATEGORIES: KeyboardShortcutCategory[] = [
     {
         categoryKey: "terminal",
         items: [
-            { actionKey: "find", mac: "⌘F", windows: "Ctrl+F" },
+            { actionKey: "find", mac: "⌘F", windows: "Ctrl+Shift+F" },
             { actionKey: "command_history", mac: "⌘⇧R", windows: "Ctrl+Shift+R" },
-            { actionKey: "zoom_in", mac: "⌘+", windows: "Ctrl++" },
-            { actionKey: "zoom_out", mac: "⌘−", windows: "Ctrl+−" },
+            { actionKey: "zoom_in", mac: "⌘+", windows: "Ctrl+Shift++" },
+            { actionKey: "zoom_out", mac: "⌘−", windows: "Ctrl+Shift+−" },
         ],
     },
     {
@@ -204,8 +222,15 @@ type ShortcutKeyEvent = Pick<
     "metaKey" | "ctrlKey" | "altKey" | "shiftKey" | "key" | "code"
 >;
 
+function isWindowsCtrlShortcut(event: ShortcutKeyEvent): boolean {
+    return event.ctrlKey && !event.metaKey;
+}
+
 export function isTerminalZoomInShortcut(event: ShortcutKeyEvent): boolean {
     if (!(event.metaKey || event.ctrlKey) || event.altKey) {
+        return false;
+    }
+    if (isWindowsCtrlShortcut(event) && !event.shiftKey) {
         return false;
     }
     return (
@@ -217,7 +242,14 @@ export function isTerminalZoomInShortcut(event: ShortcutKeyEvent): boolean {
 }
 
 export function isTerminalZoomOutShortcut(event: ShortcutKeyEvent): boolean {
-    if (!(event.metaKey || event.ctrlKey) || event.altKey || event.shiftKey) {
+    if (!(event.metaKey || event.ctrlKey) || event.altKey) {
+        return false;
+    }
+    if (isWindowsCtrlShortcut(event)) {
+        if (!event.shiftKey) {
+            return false;
+        }
+    } else if (event.shiftKey) {
         return false;
     }
     return (

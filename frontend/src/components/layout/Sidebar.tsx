@@ -62,7 +62,7 @@ export function Sidebar() {
     const { isMac } = usePlatform();
 
     const isCollapsed = !isSidebarVisible;
-    const sidebarShortcut = isMac ? "⌘B" : "Ctrl+B";
+    const sidebarShortcut = isMac ? "⌘B" : "Ctrl+Shift+B";
 
     let dotColor = "bg-muted-foreground";
     if (status === SyncStatus.SyncStatusSyncing)

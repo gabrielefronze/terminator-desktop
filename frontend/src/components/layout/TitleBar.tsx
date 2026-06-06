@@ -69,7 +69,7 @@ export function TitleBar() {
 
     const isTerminalView = activeView === ViewType.Terminal;
     const { isUnlocked } = useAuthStore();
-    const newTabShortcut = isMac ? "⌘T" : "Ctrl+T";
+    const newTabShortcut = isMac ? "⌘T" : "Ctrl+Shift+T";
 
     const scrollRef = useRef<HTMLDivElement>(null);
     const [tabGroupModal, setTabGroupModal] =
