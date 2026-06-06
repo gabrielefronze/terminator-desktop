@@ -37,4 +37,10 @@ type SSHConnectionConfig struct {
 	KeepAliveIntervalSeconds int `json:"keepAliveIntervalSeconds,omitempty"`
 	// ForwardAgent exposes the local SSH agent to the remote shell (OpenSSH ForwardAgent).
 	ForwardAgent bool `json:"forwardAgent,omitempty"`
+	// ContainerRuntime is the CLI used to attach (docker or podman).
+	ContainerRuntime string `json:"containerRuntime,omitempty"`
+	// ContainerID is the target container ID or name for exec sessions.
+	ContainerID string `json:"containerId,omitempty"`
+	// ContainerShell overrides the default exec shell (/bin/sh).
+	ContainerShell string `json:"containerShell,omitempty"`
 }

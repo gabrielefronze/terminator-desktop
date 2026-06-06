@@ -76,6 +76,9 @@ export interface CreateSessionParams {
     environment?: Record<string, string>;
     terminalFontFamily?: string;
     terminalFontSize?: number;
+    containerId?: string;
+    containerRuntime?: string;
+    containerShell?: string;
 }
 
 interface SessionState {
@@ -245,6 +248,9 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             relayPrivateKey: params.relayPrivateKey,
             relayHops: params.relayHops,
             forwardAgent: params.forwardAgent,
+            containerId: params.containerId,
+            containerRuntime: params.containerRuntime,
+            containerShell: params.containerShell,
         });
 
         const newSession: TerminalSession = {

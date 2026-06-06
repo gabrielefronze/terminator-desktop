@@ -22,6 +22,7 @@ void i18n
                 "snippets",
                 "forwards",
                 "sftp",
+                "containers",
                 "settings",
                 "terminal",
                 "update",

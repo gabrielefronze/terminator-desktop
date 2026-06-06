@@ -19,6 +19,7 @@ import (
 	"terminator-desktop/backend/internal/services/auth"
 	"terminator-desktop/backend/internal/services/autolock"
 	"terminator-desktop/backend/internal/services/blob"
+	"terminator-desktop/backend/internal/services/containers"
 	"terminator-desktop/backend/internal/services/knownhosts"
 	"terminator-desktop/backend/internal/services/localfs"
 	"terminator-desktop/backend/internal/services/reachability"
@@ -196,6 +197,7 @@ func main() {
 	updaterService := updater.NewUpdaterService(updateUrl, updaterEmitter)
 	reachabilityService := reachability.NewReachabilityService()
 	localFsService := localfs.NewService()
+	containerService := containers.NewService()
 
 	app.RegisterService(application.NewService(authService))
 	app.RegisterService(application.NewService(syncService))
@@ -214,6 +216,7 @@ func main() {
 	app.RegisterService(application.NewService(reachabilityService))
 	app.RegisterService(application.NewService(updaterService))
 	app.RegisterService(application.NewService(localFsService))
+	app.RegisterService(application.NewService(containerService))
 
 	savedLayout, hasSavedLayout := loadWindowLayout(appDir)
 	windowOpts := applyLayoutToOptions(savedLayout, hasSavedLayout)

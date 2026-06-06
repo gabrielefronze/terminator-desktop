@@ -123,6 +123,21 @@ export class SSHConnectionConfig {
      */
     "forwardAgent"?: boolean;
 
+    /**
+     * ContainerRuntime is the CLI used to attach (docker or podman).
+     */
+    "containerRuntime"?: string;
+
+    /**
+     * ContainerID is the target container ID or name for exec sessions.
+     */
+    "containerId"?: string;
+
+    /**
+     * ContainerShell overrides the default exec shell (/bin/sh).
+     */
+    "containerShell"?: string;
+
     /** Creates a new SSHConnectionConfig instance. */
     constructor($$source: Partial<SSHConnectionConfig> = {}) {
         if (!("id" in $$source)) {

@@ -8,6 +8,7 @@ import {
     FileCode2,
     FolderOpen,
     ArrowLeftRight,
+    Container,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUIStore, ViewType } from "@/store/uiStore";
@@ -55,7 +56,7 @@ function SidebarToggleButton({
 }
 
 export function Sidebar() {
-    const { t } = useTranslation(["common", "hosts", "update"]);
+    const { t } = useTranslation(["common", "hosts", "containers", "update"]);
     const { activeView, setActiveView, isSidebarVisible, toggleSidebar } =
         useUIStore();
     const { status } = useSyncStore();
@@ -100,6 +101,18 @@ export function Sidebar() {
                         title={t("page_title", { ns: "hosts" })}
                     >
                         <Server className="size-5" />
+                    </Button>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setActiveView(ViewType.Containers)}
+                        className={sidebarNavButtonClass(
+                            activeView === ViewType.Containers,
+                        )}
+                        title={t("page_title", { ns: "containers" })}
+                    >
+                        <Container className="size-5" />
                     </Button>
 
                     <SidebarTabGroupsNav />

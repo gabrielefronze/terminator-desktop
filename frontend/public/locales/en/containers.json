@@ -1,0 +1,20 @@
+{
+  "page_title": "Containers",
+  "page_description": "Attach a terminal to a running local container.",
+  "search_containers": "Search containers…",
+  "refresh": "Refresh",
+  "runtime": "Runtime",
+  "runtime_auto": "Auto",
+  "runtime_docker": "Docker",
+  "runtime_podman": "Podman",
+  "loading": "Loading containers…",
+  "empty_title": "No running containers",
+  "empty_desc": "Start a container with Docker or Podman, then refresh this list.",
+  "empty_runtime_title": "Container runtime not found",
+  "empty_runtime_desc": "Install Docker or Podman and ensure it is available on your PATH.",
+  "no_search_results": "No containers match your search.",
+  "connect": "Connect",
+  "status_running": "Running",
+  "image_label": "Image",
+  "id_label": "ID"
+}

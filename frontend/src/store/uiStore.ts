@@ -8,6 +8,7 @@ export enum ViewType {
     Snippets = "snippets",
     Forwards = "forwards",
     Sftp = "sftp",
+    Containers = "containers",
     Settings = "settings",
     Terminal = "terminal",
 }

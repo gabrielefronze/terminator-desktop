@@ -157,6 +157,9 @@ export function TerminalInstance({
     }, [sessionId, config.keyPassphrase]);
 
     const connectionLabel = useMemo(() => {
+        if (config.containerId) {
+            return config.host || config.containerId.slice(0, 12);
+        }
         if (config.local) {
             return t("pane_local");
         }
@@ -164,7 +167,7 @@ export function TerminalInstance({
             return `${config.username}@${config.host}`;
         }
         return config.host;
-    }, [config.host, config.local, config.username, t]);
+    }, [config.containerId, config.host, config.local, config.username, t]);
 
     const hostOverrides = { terminalFontFamily, terminalFontSize };
 

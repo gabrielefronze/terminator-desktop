@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import {
     ArrowLeftRight,
     Columns2,
+    Container,
     FileCode2,
     FolderOpen,
     History,
@@ -306,6 +307,12 @@ export function CommandPalette() {
                 view: ViewType.Hosts,
                 label: t("hosts:page_title"),
                 icon: <Server className="size-4" />,
+            },
+            {
+                id: "nav-containers",
+                view: ViewType.Containers,
+                label: t("containers:page_title"),
+                icon: <Container className="size-4" />,
             },
             {
                 id: "nav-tab-groups",

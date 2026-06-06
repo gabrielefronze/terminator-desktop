@@ -8,6 +8,7 @@ import { SettingsPage } from "@/components/views/SettingsPage.tsx";
 import { SnippetsPage } from "@/components/views/SnippetsPage.tsx";
 import { ForwardsPage } from "@/components/views/ForwardsPage.tsx";
 import { SftpPage } from "@/components/views/SftpPage.tsx";
+import { ContainersPage } from "@/components/views/ContainersPage.tsx";
 
 export function ContentView() {
     const {activeView} = useUIStore();
@@ -22,6 +23,7 @@ export function ContentView() {
             {activeView === ViewType.Snippets && <SnippetsPage/>}
             {activeView === ViewType.Forwards && <ForwardsPage/>}
             {activeView === ViewType.Sftp && <SftpPage/>}
+            {activeView === ViewType.Containers && <ContainersPage/>}
             {activeView === ViewType.Settings && <SettingsPage/>}
 
             <TerminalStack isVisible={activeView === ViewType.Terminal}/>

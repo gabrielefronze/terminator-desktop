@@ -62,6 +62,9 @@ func (s *SshService) Connect(config *SSHConnectionConfig) error {
 	if config.Local {
 		return s.connectLocal(config)
 	}
+	if config.ContainerID != "" {
+		return s.connectContainer(config)
+	}
 
 	port := config.Port
 	if port <= 0 {
@@ -249,7 +252,7 @@ func (s *SshService) Resize(sessionID string, rows, cols int) error {
 		return apperror.Validation("session is forward-only")
 	}
 
-	if active.local {
+	if isPtySession(active) {
 		return resizeLocalPTY(active.ptyFile, rows, cols)
 	}
 
@@ -267,7 +270,7 @@ func (s *SshService) Disconnect(sessionID string) {
 	if exists {
 		stopSessionKeepAlive(active)
 		s.stopForwardsForSession(sessionID)
-		if active.local {
+		if isPtySession(active) {
 			closeLocalSession(active)
 		} else if active.forwardOnly {
 			_ = active.client.Close()
@@ -361,7 +364,7 @@ func (s *SshService) cleanupSession(sessionID string, current *activeSession) {
 
 		stopSessionKeepAlive(current)
 		s.stopForwardsForSession(sessionID)
-		if current.local {
+		if isPtySession(current) {
 			closeLocalSession(current)
 		} else if current.forwardOnly {
 			if current.client != nil {
