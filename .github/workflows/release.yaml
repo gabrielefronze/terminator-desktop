@@ -58,6 +58,7 @@ jobs:
             --channel windows-stable \
             --token "${{ github.token }}" \
             --outputDir releases \
+            --publish \
             --merge \
             --tag "v${{ env.VERSION }}"
 
@@ -124,6 +125,7 @@ jobs:
             --channel linux-stable \
             --token "${{ github.token }}" \
             --outputDir releases \
+            --publish \
             --merge \
             --tag "v${{ env.VERSION }}"
 
@@ -183,5 +185,6 @@ jobs:
             --channel macos-stable \
             --token "${{ github.token }}" \
             --outputDir releases \
+            --publish \
             --merge \
             --tag "v${{ env.VERSION }}"
