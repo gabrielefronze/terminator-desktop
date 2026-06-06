@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DefaultTerminalFontFamily  = "Cascadia Code"
+	DefaultTerminalFontFamily  = "Fira Code"
 	DefaultTerminalFontSize    = 14
 )
 

@@ -71,6 +71,7 @@
   "environment_vars": "Environment variables",
   "terminal_font_size": "Terminal font size",
   "terminal_font_family": "Terminal font family",
+  "terminal_font_use_app_default": "Use app default",
   "split_with_local": "Split with local",
   "split_with_local_hint": "Local shell on the left, this host on the right",
   "host_group_label": "Group",

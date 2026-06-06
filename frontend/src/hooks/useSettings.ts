@@ -16,6 +16,7 @@ const BROWSER_DEV_FONTS = [
     "JetBrains Mono",
     "Menlo",
     "Monaco",
+    "Red Hat Mono",
     "SF Mono",
     "Source Code Pro",
     "Ubuntu Mono",

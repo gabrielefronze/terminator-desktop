@@ -48,6 +48,7 @@ func fallbackMonospaceFonts() []string {
 		"JetBrains Mono",
 		"Menlo",
 		"Monaco",
+		"Red Hat Mono",
 		"SF Mono",
 		"Source Code Pro",
 		"Ubuntu Mono",

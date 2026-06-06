@@ -103,6 +103,7 @@ var filenamePhraseReplacements = []struct{ compact, spaced string }{
 	{"CaskaydiaCove", "Caskaydia Cove"},
 	{"MesloLGS", "Meslo LGS"},
 	{"FiraCode", "Fira Code"},
+	{"RedHatMono", "Red Hat Mono"},
 }
 
 func humanizeFontStem(stem string) string {

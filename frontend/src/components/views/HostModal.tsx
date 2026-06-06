@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/select";
 import { useKeys } from "@/hooks/useKeys";
 import { useIdentities } from "@/hooks/useIdentities";
+import { useSystemFonts } from "@/hooks/useSettings";
+import { TerminalFontSelect } from "@/components/views/TerminalFontSelect";
 import { HostGroup } from "../../../bindings/terminator-desktop/backend/internal/services/blob/";
 import { flattenGroupsForSelect } from "@/lib/hostTree";
 import { HostAppearancePicker } from "@/components/views/HostAppearancePicker";
@@ -135,6 +137,7 @@ export function HostModal({
     const [authMode, setAuthMode] = useState<AuthMode>("password");
     const { data: keys } = useKeys();
     const { data: identities } = useIdentities();
+    const { data: systemFonts, isLoading: isFontsLoading } = useSystemFonts();
     const userpassIdentities = useMemo(
         () => (identities ?? []).filter((identity) => Boolean(identity.password)),
         [identities],
@@ -693,19 +696,24 @@ export function HostModal({
                                     <FieldGroup
                                         label={t("terminal_font_family")}
                                     >
-                                        <Input
+                                        <TerminalFontSelect
                                             value={
                                                 formData.terminalFontFamily ??
                                                 ""
                                             }
-                                            onChange={(e) =>
+                                            fonts={systemFonts ?? []}
+                                            isLoading={isFontsLoading}
+                                            allowEmpty
+                                            emptyLabel={t(
+                                                "terminal_font_use_app_default",
+                                            )}
+                                            onValueChange={(family) =>
                                                 setFormData({
                                                     ...formData,
                                                     terminalFontFamily:
-                                                        e.target.value,
+                                                        family || undefined,
                                                 })
                                             }
-                                            placeholder="JetBrains Mono"
                                         />
                                     </FieldGroup>
                                 </HostFormSection>

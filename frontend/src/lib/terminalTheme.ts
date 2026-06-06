@@ -54,7 +54,7 @@ export function buildTerminalOptions(
 
     const hostFont = hostOverrides?.terminalFontFamily?.trim();
     const fontFamily = hostFont
-        ? formatFontFamilyForTerminal(hostFont)
+        ? formatFontFamilyForTerminal(undefined, hostFont)
         : resolveTerminalFontFamily(settings);
 
     return {

@@ -52,3 +52,11 @@ export async function resolveTerminalFontFamily(
     }
     return fallback;
 }
+
+export async function resolveSessionTerminalFontFamily(
+    settingsFamily?: string | null,
+    hostFamily?: string | null,
+): Promise<string> {
+    const host = hostFamily?.trim();
+    return resolveTerminalFontFamily(host || settingsFamily);
+}

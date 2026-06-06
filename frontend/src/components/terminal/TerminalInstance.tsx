@@ -45,7 +45,7 @@ import { AppEvent } from "@/lib/events.ts";
 import { SudoCredential } from "@/store/sessionStore";
 import {
     applyUnicode11Addon,
-    resolveTerminalFontFamily,
+    resolveSessionTerminalFontFamily,
 } from "@/lib/terminalSetup";
 import {
     syncTerminalWebglRenderer,
@@ -288,8 +288,9 @@ export function TerminalInstance({
         let disposed = false;
 
         const init = async () => {
-            const fontFamily = await resolveTerminalFontFamily(
+            const fontFamily = await resolveSessionTerminalFontFamily(
                 settings?.terminalFontFamily,
+                terminalFontFamily,
             );
             if (disposed || !containerRef.current) return;
 
@@ -537,8 +538,9 @@ export function TerminalInstance({
         let cancelled = false;
 
         void (async () => {
-            const fontFamily = await resolveTerminalFontFamily(
+            const fontFamily = await resolveSessionTerminalFontFamily(
                 settings.terminalFontFamily,
+                terminalFontFamily,
             );
             if (cancelled || !terminalRef.current) return;
 

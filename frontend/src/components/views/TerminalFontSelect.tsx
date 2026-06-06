@@ -11,6 +11,8 @@ interface TerminalFontSelectProps {
     value: string;
     fonts: string[];
     isLoading?: boolean;
+    allowEmpty?: boolean;
+    emptyLabel?: string;
     onValueChange: (family: string) => void;
 }
 
@@ -18,6 +20,8 @@ export function TerminalFontSelect({
     value,
     fonts,
     isLoading,
+    allowEmpty = false,
+    emptyLabel,
     onValueChange,
 }: TerminalFontSelectProps) {
     const { t } = useTranslation("settings");
@@ -41,6 +45,12 @@ export function TerminalFontSelect({
         return options.filter((font) => font.toLowerCase().includes(query));
     }, [options, search]);
 
+    const resolvedEmptyLabel =
+        emptyLabel ??
+        t("terminal_font_use_default", {
+            defaultValue: "Use app default",
+        });
+
     useEffect(() => {
         if (!open) {
             setSearch("");
@@ -51,8 +61,13 @@ export function TerminalFontSelect({
     }, [open]);
 
     const placeholder = isLoading
-        ? t("terminal_font_loading")
-        : t("terminal_font_select_placeholder");
+        ? t("terminal_font_loading", { defaultValue: "Loading fonts…" })
+        : t("terminal_font_select_placeholder", {
+              defaultValue: "Select a font…",
+          });
+
+    const triggerLabel =
+        allowEmpty && !value ? resolvedEmptyLabel : value || placeholder;
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -67,33 +82,66 @@ export function TerminalFontSelect({
                         "h-8 w-full justify-between gap-2 px-2.5 font-normal",
                         !value && "text-muted-foreground",
                     )}
-                    style={{ fontFamily: value ? fontFamilyPreviewCss(value) : undefined }}
+                    style={{
+                        fontFamily: value
+                            ? fontFamilyPreviewCss(value)
+                            : undefined,
+                    }}
                 >
-                    <span className="truncate">
-                        {value || placeholder}
-                    </span>
+                    <span className="truncate">{triggerLabel}</span>
                     <ChevronDown className="size-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent
                 align="start"
                 sideOffset={4}
-                className="w-(--radix-popover-trigger-width) p-0"
+                className="flex w-(--radix-popover-trigger-width) max-h-80 flex-col gap-0 overflow-hidden p-0"
                 onOpenAutoFocus={(e) => e.preventDefault()}
             >
-                <div className="border-b border-border p-2">
+                <div className="shrink-0 border-b border-border p-2">
                     <Input
                         ref={searchRef}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder={t("terminal_font_search_placeholder")}
+                        placeholder={t("terminal_font_search_placeholder", {
+                            defaultValue: "Search fonts…",
+                        })}
                         className="h-8"
                     />
                 </div>
-                <div className="h-60 overflow-y-auto p-1">
+                <div
+                    className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-1"
+                    onWheel={(e) => e.stopPropagation()}
+                >
+                    {allowEmpty ? (
+                        <button
+                            type="button"
+                            className={cn(
+                                "flex w-full items-center gap-2 rounded-md py-1.5 pr-2 pl-2 text-left text-sm outline-none",
+                                "hover:bg-accent hover:text-accent-foreground",
+                                !value && "bg-accent text-accent-foreground",
+                            )}
+                            onClick={() => {
+                                onValueChange("");
+                                setOpen(false);
+                            }}
+                        >
+                            <Check
+                                className={cn(
+                                    "size-4 shrink-0",
+                                    !value ? "opacity-100" : "opacity-0",
+                                )}
+                            />
+                            <span className="truncate text-muted-foreground">
+                                {resolvedEmptyLabel}
+                            </span>
+                        </button>
+                    ) : null}
                     {filtered.length === 0 ? (
                         <p className="px-2 py-3 text-center text-xs text-muted-foreground">
-                            {t("terminal_font_no_results")}
+                            {t("terminal_font_no_results", {
+                                defaultValue: "No fonts found",
+                            })}
                         </p>
                     ) : (
                         filtered.map((font) => {
@@ -105,7 +153,8 @@ export function TerminalFontSelect({
                                     className={cn(
                                         "flex w-full items-center gap-2 rounded-md py-1.5 pr-2 pl-2 text-left text-sm outline-none",
                                         "hover:bg-accent hover:text-accent-foreground",
-                                        selected && "bg-accent text-accent-foreground",
+                                        selected &&
+                                            "bg-accent text-accent-foreground",
                                     )}
                                     onClick={() => {
                                         onValueChange(font);
@@ -115,7 +164,9 @@ export function TerminalFontSelect({
                                     <Check
                                         className={cn(
                                             "size-4 shrink-0",
-                                            selected ? "opacity-100" : "opacity-0",
+                                            selected
+                                                ? "opacity-100"
+                                                : "opacity-0",
                                         )}
                                     />
                                     <span

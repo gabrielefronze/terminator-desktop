@@ -28,23 +28,46 @@ export function findHostForSession(
 export function sessionAppearanceFromHost(
     session: TerminalSession,
     host: Host,
-): Pick<TerminalSession, "hostId" | "icon" | "color" | "title"> {
+): Pick<
+    TerminalSession,
+    | "hostId"
+    | "icon"
+    | "color"
+    | "title"
+    | "terminalFontFamily"
+    | "terminalFontSize"
+> {
     return {
         hostId: host.id,
         icon: host.icon,
         color: host.color,
         title: host.name || host.host,
+        terminalFontFamily: host.terminalFontFamily?.trim() || undefined,
+        terminalFontSize:
+            host.terminalFontSize && host.terminalFontSize > 0
+                ? host.terminalFontSize
+                : undefined,
     };
 }
 
 export function sessionAppearanceChanged(
     session: TerminalSession,
-    next: Pick<TerminalSession, "hostId" | "icon" | "color" | "title">,
+    next: Pick<
+        TerminalSession,
+        | "hostId"
+        | "icon"
+        | "color"
+        | "title"
+        | "terminalFontFamily"
+        | "terminalFontSize"
+    >,
 ): boolean {
     return (
         session.hostId !== next.hostId ||
         session.icon !== next.icon ||
         session.color !== next.color ||
-        session.title !== next.title
+        session.title !== next.title ||
+        session.terminalFontFamily !== next.terminalFontFamily ||
+        session.terminalFontSize !== next.terminalFontSize
     );
 }
